@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "package": "com.birblett.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "LoomScreenHandlerMixin",
+    "PlayerEntityRendererMixin",
+    "events.BowFiringEventMixin",
+    "events.ProjectileTickEventMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "client": [
+    "LoomScreenMixin"
+  ]
+}
