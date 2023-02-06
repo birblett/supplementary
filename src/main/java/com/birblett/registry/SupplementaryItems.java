@@ -25,6 +25,8 @@ public class SupplementaryItems {
     public static void register() {
         Registry.register(Registry.ITEM, new Identifier(MODID, "cape"), CAPE);
         Registry.register(Registry.ITEM, new Identifier(MODID, "steel_helmet"), STEEL_HELMET);
-        Registry.register(Registry.ITEM, new Identifier(MODID, "steel_helmet"), STEEL_HELMET);
+        Registry.register(Registry.ITEM, new Identifier(MODID, "steel_chestplate"), STEEL_CHESTPLATE);
+        Registry.register(Registry.ITEM, new Identifier(MODID, "steel_leggings"), STEEL_LEGGINGS);
+        Registry.register(Registry.ITEM, new Identifier(MODID, "steel_boots"), STEEL_BOOTS);
     }
 }

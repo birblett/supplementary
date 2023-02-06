@@ -38,6 +38,7 @@
 	"custom": {
 		"cardinal-components": [
 			"supplementary:marked",
+			"supplementary:marked_tracked_entity",
 			"supplementary:lightning_bolt"
 		]
 	}
