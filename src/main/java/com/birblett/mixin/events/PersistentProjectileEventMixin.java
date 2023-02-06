@@ -1,6 +1,6 @@
 package com.birblett.mixin.events;
 
-import com.birblett.lib.components.LevelComponent;
+import com.birblett.lib.components.IntComponent;
 import com.birblett.registry.SupplementaryComponents;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import net.minecraft.entity.Entity;
@@ -20,7 +20,7 @@ public class PersistentProjectileEventMixin {
     @ModifyVariable(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/PersistentProjectileEntity;getVelocity()Lnet/minecraft/util/math/Vec3d;"),
                     index = 2)
     private Vec3d travel(Vec3d velocity) {
-        for (ComponentKey<LevelComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
+        for (ComponentKey<IntComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
             PersistentProjectileEntity self = (PersistentProjectileEntity) (Object) this;
             if (componentKey.get(self).getValue() > 0) {
                 Vec3d newVelocity =  componentKey.get(self).onProjectileTick(self, componentKey.get(self).getValue(), velocity);
@@ -38,7 +38,7 @@ public class PersistentProjectileEventMixin {
             locals = LocalCapture.CAPTURE_FAILSOFT)
     private void entityHitEvent(EntityHitResult entityHitResult, CallbackInfo ci) {
         Entity entity = entityHitResult.getEntity();
-        for (ComponentKey<LevelComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
+        for (ComponentKey<IntComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
             PersistentProjectileEntity self = (PersistentProjectileEntity) (Object) this;
             if (componentKey.get(self).getValue() > 0) {
                 componentKey.get(self).onEntityHit(entity, self, componentKey.get(self).getValue());

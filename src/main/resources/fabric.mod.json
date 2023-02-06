@@ -37,6 +37,7 @@
 	},
 	"custom": {
 		"cardinal-components": [
+			"supplementary:burst_fire_timer",
 			"supplementary:marked",
 			"supplementary:marked_tracked_entity",
 			"supplementary:lightning_bolt"
