@@ -42,7 +42,7 @@ public class SteelPlateArmorMaterial implements ArmorMaterial {
     @Override
     public String getName() {
         // Must be all lowercase
-        return "name";
+        return "steel_plate";
     }
 
     @Override

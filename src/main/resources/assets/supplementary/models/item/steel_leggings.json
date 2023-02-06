@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "supplementary:item/steel_helmet"
+    "layer0": "supplementary:item/steel_leggings"
   }
 }
