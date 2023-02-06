@@ -1,7 +1,7 @@
 {
   "parent": "block/cube_all",
   "textures": {
-    "all": "supplementary:block/magic_sand"
+    "all": "minecraft:block/sand"
   }
 }
 

@@ -4,5 +4,11 @@
   "enchantment.supplementary.marked": "Marked",
 
   "item.supplementary.cape": "Cape",
-  "item.supplementary.steel_helmet": "Steel Helmet"
+  "item.supplementary.steel_helmet": "Steel Helmet",
+  "item.supplementary.steel_chestplate": "Steel Chestplate",
+  "item.supplementary.steel_leggings": "Steel Leggings",
+  "item.supplementary.steel_boots": "Steel Boots",
+  "item.supplementary.magic_sand": "Magic Sand",
+
+  "block.supplementary.magic_sand": "Magic Sand"
 }

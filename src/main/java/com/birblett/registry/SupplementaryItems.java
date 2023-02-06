@@ -15,17 +15,16 @@ import static com.birblett.Supplementary.MODID;
 
 public class SupplementaryItems {
 
-    public static final ItemGroup EXAMPLE_MOD_GROUP = FabricItemGroupBuilder.create(
-                    new Identifier("tutorial", "example_mod_group"))
-            .icon(() -> new ItemStack(Items.IRON_INGOT)) // This uses the model of the new material you created as an icon, but you can reference to whatever you like
-            .build();
-
     // steel armor set
     public static final ArmorMaterial STEEL_PLATE_ARMOR_MATERIAL = new SteelPlateArmorMaterial();
-    public static final Item STEEL_HELMET = new ArmorItem(STEEL_PLATE_ARMOR_MATERIAL, EquipmentSlot.HEAD, new Item.Settings());
-    public static final Item STEEL_CHESTPLATE = new ArmorItem(STEEL_PLATE_ARMOR_MATERIAL, EquipmentSlot.CHEST, new Item.Settings());
-    public static final Item STEEL_LEGGINGS = new ArmorItem(STEEL_PLATE_ARMOR_MATERIAL, EquipmentSlot.LEGS, new Item.Settings());
-    public static final Item STEEL_BOOTS = new ArmorItem(STEEL_PLATE_ARMOR_MATERIAL, EquipmentSlot.FEET, new Item.Settings());
+    public static final Item STEEL_HELMET = new ArmorItem(STEEL_PLATE_ARMOR_MATERIAL, EquipmentSlot.HEAD,
+            new FabricItemSettings().group(ItemGroup.COMBAT).maxCount(1));
+    public static final Item STEEL_CHESTPLATE = new ArmorItem(STEEL_PLATE_ARMOR_MATERIAL, EquipmentSlot.CHEST,
+            new FabricItemSettings().group(ItemGroup.COMBAT).maxCount(1));
+    public static final Item STEEL_LEGGINGS = new ArmorItem(STEEL_PLATE_ARMOR_MATERIAL, EquipmentSlot.LEGS,
+            new FabricItemSettings().group(ItemGroup.COMBAT).maxCount(1));
+    public static final Item STEEL_BOOTS = new ArmorItem(STEEL_PLATE_ARMOR_MATERIAL, EquipmentSlot.FEET,
+            new FabricItemSettings().group(ItemGroup.COMBAT).maxCount(1));
 
     public static final Item CAPE = new CapeItem(new FabricItemSettings().group(ItemGroup.MISC).maxCount(1));
 

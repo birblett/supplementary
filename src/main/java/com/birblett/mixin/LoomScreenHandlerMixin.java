@@ -12,7 +12,7 @@ public class LoomScreenHandlerMixin {
 
     @Inject(method = "canInsert", at = @At("HEAD"), cancellable = true)
     private void allowCapeLoomRecipe(ItemStack stack, CallbackInfoReturnable<Boolean> cir) {
-        // TODO get shift click working
+        // TODO: get shift click working
         if (stack.getItem() instanceof CapeItem) cir.setReturnValue(true);
     }
 }

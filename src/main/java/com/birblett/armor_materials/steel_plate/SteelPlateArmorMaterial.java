@@ -9,7 +9,9 @@ import net.minecraft.sound.SoundEvents;
 
 public class SteelPlateArmorMaterial implements ArmorMaterial {
 
+    // TODO: change base durability values to account for durability formula
     private static final int[] BASE_DURABILITY = new int[] {13, 15, 16, 11};
+    // TODO: fix protection values
     private static final int[] PROTECTION_VALUES = new int[] {1, 1, 1, 1};
 
     @Override
@@ -22,9 +24,9 @@ public class SteelPlateArmorMaterial implements ArmorMaterial {
         return PROTECTION_VALUES[slot.getEntitySlotId()];
     }
 
+    // TODO: remove placeholder value for base enchantability
     @Override
     public int getEnchantability() {
-        // placeholder for enchantability - 15 is leather enchantability
         return 15;
     }
 
@@ -33,28 +35,27 @@ public class SteelPlateArmorMaterial implements ArmorMaterial {
         return SoundEvents.ITEM_ARMOR_EQUIP_IRON;
     }
 
+    // TODO: remove placeholder material for repair ingredient
     @Override
     public Ingredient getRepairIngredient() {
-        // placeholder material for repair
         return Ingredient.ofItems(Items.BARRIER);
     }
 
     @Override
     public String getName() {
-        // Must be all lowercase
         return "steel_plate";
     }
 
+    // TODO: remove placeholder value for toughness
     @Override
     public float getToughness() {
-        // TODO remove placeholder value for toughness
         return 6.0F;
     }
 
+    // TODO: remove placeholder value for knockback res
     @Override
     public float getKnockbackResistance() {
-        // TODO remove placeholder value for knockback res
-        return 10.0F;
+        return 1.0F;
     }
 
 }

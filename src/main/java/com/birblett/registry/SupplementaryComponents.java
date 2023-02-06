@@ -72,7 +72,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                     if (this.getValue() % 4 == 0) {
                         float pitch = CrossbowItem.getSoundPitch(true, livingEntity.getRandom());
                         CrossbowItem.shoot(livingEntity.getWorld(), livingEntity, hand, this.itemStack, this.storedProjectile,
-                                pitch, livingEntity instanceof PlayerEntity player && player.isCreative(),
+                                pitch, true,
                                 CrossbowItem.getSpeed(this.storedProjectile), livingEntity.isSneaking() ? 3.0F : 6.0F,
                                 0.0F);
                     }

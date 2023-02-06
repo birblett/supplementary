@@ -11,6 +11,8 @@ import net.minecraft.util.registry.Registry;
 
 public class SupplementaryBlocks {
 
+    // TODO: proper registration of item settings, block properties match stone atm
+    // TODO: texture path was "all": "supplementary:block/magic_sand", needs to be created
     public static final Block MAGIC_SAND = new Block(FabricBlockSettings.of(Material.AGGREGATE).resistance(1200.0f).hardness(0.5f).requiresTool());
 
     public static void register() {
