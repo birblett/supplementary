@@ -6,6 +6,8 @@ public interface IntComponent extends Component {
 
     int getValue();
     void setValue(int level);
+    EntityComponent getAttachedEntityComponent();
+    void setAttachedEntityComponent(EntityComponent entityComponent);
     void increment();
 }
 

@@ -2,9 +2,10 @@ package com.birblett.registry;
 
 import com.birblett.trinkets.CapeItem;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
-import com.birblett.ArmorMaterials.S
-import net.minecraft.entity.EquipmentSlot;
+import com.birblett.armor_materials.steel_plate.SteelPlateArmorMaterial;
+import net.minecraft.item.ArmorMaterial;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
@@ -12,8 +13,8 @@ import static com.birblett.Supplementary.MODID;
 
 public class SupplementaryItems {
 
-    //Steel armor set
-    public static final ArmorMaterial SteelPlateArmorMaterial = new SteelPlateArmorMaterial();
+    // steel armor set
+    public static final ArmorMaterial STEEL_PLATE_ARMOR_MATERIAL = new SteelPlateArmorMaterial();
     public static final Item STEEL_HELMET = new Item(new FabricItemSettings());
     public static final Item STEEL_CHESTPLATE = new Item(new FabricItemSettings());
     public static final Item STEEL_LEGGINGS = new Item(new FabricItemSettings());

@@ -1,4 +1,4 @@
-package com.birblett.ArmorMaterials;
+package com.birblett.armor_materials.steel_plate;
 
 import net.minecraft.item.Item;
 public class SteelPlateItem extends Item {

@@ -1,7 +1,9 @@
 package com.birblett.registry;
 
+import com.birblett.lib.components.EntityComponent;
 import com.birblett.lib.components.IntComponent;
 import com.birblett.lib.components.LevelComponent;
+import com.birblett.lib.components.TrackingComponent;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import dev.onyxstudios.cca.api.v3.component.ComponentRegistry;
 import dev.onyxstudios.cca.api.v3.entity.EntityComponentFactoryRegistry;
@@ -24,10 +26,13 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             ComponentRegistry.getOrCreate(new Identifier(MODID, "lightning_bolt"), IntComponent.class);
     public static final ComponentKey<IntComponent> MARKED_LEVEL =
             ComponentRegistry.getOrCreate(new Identifier(MODID, "marked"), IntComponent.class);
+    public static final ComponentKey<EntityComponent> MARKED_TRACKED_ENTITY =
+            ComponentRegistry.getOrCreate(new Identifier(MODID, "marked_tracked_entity"), EntityComponent.class);
 
     @Override
     public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
         registry.registerFor(PersistentProjectileEntity.class, LIGHTNING_BOLT, e -> new LevelComponent("lightning_bolt"));
         registry.registerFor(PersistentProjectileEntity.class, MARKED_LEVEL, e -> new LevelComponent("marked"));
+        registry.registerFor(PersistentProjectileEntity.class, MARKED_TRACKED_ENTITY, e -> new TrackingComponent());
     }
 }

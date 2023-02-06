@@ -1,13 +1,14 @@
-package com.birblett.ArmorMaterials.SteelPlate.materials;
+package com.birblett.armor_materials.steel_plate;
 
-import com.birblett.registry.SupplementaryItems;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ArmorMaterial;
+import net.minecraft.item.Items;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 
-public class CustomArmorMaterial implements ArmorMaterial {
+public class SteelPlateArmorMaterial implements ArmorMaterial {
+
     private static final int[] BASE_DURABILITY = new int[] {13, 15, 16, 11};
     private static final int[] PROTECTION_VALUES = new int[] {1, 1, 1, 1};
 
@@ -23,17 +24,19 @@ public class CustomArmorMaterial implements ArmorMaterial {
 
     @Override
     public int getEnchantability() {
+        // placeholder for enchantability - 15 is leather enchantability
         return 15;
     }
 
     @Override
     public SoundEvent getEquipSound() {
-        return SoundEvents.ITEM_ARMOR_EQUIP_X;
+        return SoundEvents.ITEM_ARMOR_EQUIP_IRON;
     }
 
     @Override
     public Ingredient getRepairIngredient() {
-        return Ingredient.ofItems(.X);
+        // placeholder material for repair
+        return Ingredient.ofItems(Items.BARRIER);
     }
 
     @Override
@@ -44,11 +47,13 @@ public class CustomArmorMaterial implements ArmorMaterial {
 
     @Override
     public float getToughness() {
-        return X.0F;
+        // TODO remove placeholder value for toughness
+        return 6.0F;
     }
 
     @Override
     public float getKnockbackResistance() {
-        return 0.XF;
+        // TODO remove placeholder value for knockback res
+        return 10.0F;
     }
 }

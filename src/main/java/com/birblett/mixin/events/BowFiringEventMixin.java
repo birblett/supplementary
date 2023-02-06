@@ -1,6 +1,6 @@
 package com.birblett.mixin.events;
 
-import com.birblett.lib.builders.BuiltEnchantment;
+import com.birblett.lib.builders.EnchantmentBuilder;
 import com.birblett.registry.SupplementaryComponents;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.LivingEntity;
@@ -18,14 +18,17 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(BowItem.class)
 public class BowFiringEventMixin {
+
     @Inject(method = "onStoppedUsing", at = @At(value = "INVOKE", target = "net/minecraft/entity/projectile/PersistentProjectileEntity.setVelocity(Lnet/minecraft/entity/Entity;FFFFF)V"),
-            locals = LocalCapture.CAPTURE_FAILSOFT)
+            locals = LocalCapture.CAPTURE_FAILSOFT, cancellable = true)
     public void addEnchantmentsToArrowEntity(ItemStack stack, World world, LivingEntity user, int remainingUseTicks, CallbackInfo ci, PlayerEntity playerEntity, boolean bl, ItemStack itemStack, int i, float f, boolean bl2, ArrowItem arrowItem, PersistentProjectileEntity persistentProjectileEntity) {
         EnchantmentHelper.get(stack).forEach((enchantment, lvl) -> {
-            if (enchantment instanceof BuiltEnchantment) {
-                BuiltEnchantment builtEnchantment = ((BuiltEnchantment) enchantment);
-                if (builtEnchantment.getComponentType() == SupplementaryComponents.ComponentType.ARROW) {
-                    builtEnchantment.getComponent().get(persistentProjectileEntity).setValue(lvl);
+            if (enchantment instanceof EnchantmentBuilder enchantmentBuilder) {
+                if (enchantmentBuilder.getComponentType() == SupplementaryComponents.ComponentType.ARROW) {
+                    if (enchantmentBuilder.onProjectileFire(user, persistentProjectileEntity, lvl)) {
+                        ci.cancel();
+                    }
+                    // enchantmentBuilder.getComponent()
                 }
             }
         });

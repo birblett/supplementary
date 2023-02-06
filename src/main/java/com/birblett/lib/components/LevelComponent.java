@@ -7,6 +7,7 @@ import static com.birblett.Supplementary.MODID;
 public class LevelComponent implements IntComponent {
     private final String id;
     private int enchantmentLevel = 0;
+    private EntityComponent attachedEntityComponent = null;
 
     public LevelComponent(String id) {
         this.id = MODID + ":" + id;
@@ -20,6 +21,16 @@ public class LevelComponent implements IntComponent {
     @Override
     public void setValue(int level) {
         this.enchantmentLevel = level;
+    }
+
+    @Override
+    public EntityComponent getAttachedEntityComponent() {
+        return this.attachedEntityComponent;
+    }
+
+    @Override
+    public void setAttachedEntityComponent(EntityComponent entityComponent) {
+        this.attachedEntityComponent = entityComponent;
     }
 
     @Override

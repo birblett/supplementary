@@ -7,7 +7,9 @@ import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentTarget;
 import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.data.TrackedData;
+import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import org.spongepowered.include.com.google.common.collect.Maps;
@@ -16,9 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class BuiltEnchantment extends Enchantment {
+public class EnchantmentBuilder extends Enchantment {
 
-    public static final Map<BuiltEnchantment, TrackedData<Byte>> TRACKED_ARROW_DATA = Maps.newHashMap();
+    public static final Map<EnchantmentBuilder, TrackedData<Byte>> TRACKED_ARROW_DATA = Maps.newHashMap();
 
     private int maxLevel = 1;
     private int minPower = 1;
@@ -34,23 +36,23 @@ public class BuiltEnchantment extends Enchantment {
     private boolean availableForRandomSelection = true;
     private final List<Enchantment> incompatibleEnchantments = new ArrayList<>();
 
-    public BuiltEnchantment(String identifier, Rarity weight, EnchantmentTarget type, EquipmentSlot[] slotTypes) {
+    public EnchantmentBuilder(String identifier, Rarity weight, EnchantmentTarget type, EquipmentSlot[] slotTypes) {
         super(weight, type, slotTypes);
         this.identifier = new Identifier(Supplementary.MODID, identifier);
     }
 
-    public BuiltEnchantment setMaxLevel(int maxLevel) {
+    public EnchantmentBuilder setMaxLevel(int maxLevel) {
         this.maxLevel = maxLevel;
         return this;
     }
 
-    public BuiltEnchantment setPower(int minPower, int maxPower) {
+    public EnchantmentBuilder setPower(int minPower, int maxPower) {
         this.minPower = minPower;
         this.maxPower = maxPower;
         return this;
     }
 
-    public BuiltEnchantment setPower(int minPower, int minPowerScale, int maxPower, int maxPowerScale) {
+    public EnchantmentBuilder setPower(int minPower, int minPowerScale, int maxPower, int maxPowerScale) {
         this.minPower = minPower;
         this.minPowerScale = minPowerScale;
         this.maxPower = maxPower;
@@ -58,45 +60,41 @@ public class BuiltEnchantment extends Enchantment {
         return this;
     }
 
-    public BuiltEnchantment makeIncompatible(Enchantment other) {
+    public EnchantmentBuilder makeIncompatible(Enchantment other) {
         incompatibleEnchantments.add(other);
         return this;
     }
 
-    public BuiltEnchantment makeIncompatible(List<Enchantment> others) {
+    public EnchantmentBuilder makeIncompatible(List<Enchantment> others) {
         incompatibleEnchantments.addAll(others);
         return this;
     }
 
-    public BuiltEnchantment setCurse(boolean isCurse) {
+    public EnchantmentBuilder setCurse(boolean isCurse) {
         this.isCurse = isCurse;
         return this;
     }
 
-    public BuiltEnchantment setTreasure(boolean isTreasure) {
+    public EnchantmentBuilder setTreasure(boolean isTreasure) {
         this.isTreasure = isTreasure;
         return this;
     }
 
-    public BuiltEnchantment setAvailability(boolean availableForOffer, boolean availableForRandomSelection) {
+    public EnchantmentBuilder setAvailability(boolean availableForOffer, boolean availableForRandomSelection) {
         this.availableForOffer = availableForOffer;
         this.availableForRandomSelection = availableForRandomSelection;
         return this;
     }
 
-    public BuiltEnchantment addComponent(ComponentKey<IntComponent> key, SupplementaryComponents.ComponentType type) {
+    public EnchantmentBuilder addComponent(ComponentKey<IntComponent> key, SupplementaryComponents.ComponentType type) {
         this.componentType = type;
         this.component = key;
         return this;
     }
 
-    public BuiltEnchantment register() {
+    public EnchantmentBuilder register() {
         Registry.register(Registry.ENCHANTMENT, this.identifier, this);
         return this;
-    }
-
-    // TODO
-    public void registerTrackedEvent(TrackedData<Byte> trackedData) {
     }
 
     public SupplementaryComponents.ComponentType getComponentType() {
@@ -106,6 +104,15 @@ public class BuiltEnchantment extends Enchantment {
     public ComponentKey<IntComponent> getComponent() {
         return this.component;
     }
+
+    public boolean onProjectileFire(LivingEntity provider, PersistentProjectileEntity projectileEntity, int level) {
+        this.getComponent().get(projectileEntity).setValue(level);
+        return false;
+    }
+
+    public void onProjectileTick(LivingEntity provider, PersistentProjectileEntity persistentProjectile, int level) {}
+
+    public void onDamage(LivingEntity target, PersistentProjectileEntity projectileEntity, int level) {}
 
     @Override
     public int getMaxLevel() {

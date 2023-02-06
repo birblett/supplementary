@@ -6,7 +6,7 @@
     "LoomScreenHandlerMixin",
     "PlayerEntityRendererMixin",
     "events.BowFiringEventMixin",
-    "events.ProjectileTickEventMixin"
+    "events.PersistentProjectileEventMixin"
   ],
   "injectors": {
     "defaultRequire": 1
