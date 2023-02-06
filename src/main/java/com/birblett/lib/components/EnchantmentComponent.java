@@ -31,10 +31,13 @@ public class EnchantmentComponent implements IntComponent {
     }
 
     @Override
-    public void onEntityHit(Entity target, PersistentProjectileEntity persistentProjectileEntity, int lvl) {}
+    public void preEntityHit(Entity target, PersistentProjectileEntity persistentProjectileEntity, int lvl) {}
 
     @Override
-    public void setStackInHand(ItemStack stack, Hand hand, ItemStack savedProjectile) {}
+    public void postEntityHit(Entity target, PersistentProjectileEntity persistentProjectileEntity, int lvl) {}
+
+    @Override
+    public void onCrossbowUse(ItemStack stack, Hand hand, ItemStack savedProjectile) {}
 
     @Override
     public void onTick(LivingEntity entity) {}

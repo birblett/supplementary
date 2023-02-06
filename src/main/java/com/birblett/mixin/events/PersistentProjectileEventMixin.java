@@ -3,6 +3,7 @@ package com.birblett.mixin.events;
 import com.birblett.lib.components.IntComponent;
 import com.birblett.registry.SupplementaryComponents;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.util.hit.EntityHitResult;
@@ -34,14 +35,24 @@ public class PersistentProjectileEventMixin {
         return velocity;
     }
 
+    @Inject(method = "onEntityHit", at = @At("HEAD"), locals = LocalCapture.CAPTURE_FAILSOFT)
+    private void preEntityHitEvent(EntityHitResult entityHitResult, CallbackInfo ci) {
+        for (ComponentKey<IntComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
+            PersistentProjectileEntity self = (PersistentProjectileEntity) (Object) this;
+            if (componentKey.get(self).getValue() > 0) {
+                componentKey.get(self).preEntityHit(entityHitResult.getEntity(), self, componentKey.get(self).getValue());
+            }
+        }
+    }
+
     @Inject(method = "onEntityHit", at = @At("TAIL"),
             locals = LocalCapture.CAPTURE_FAILSOFT)
-    private void entityHitEvent(EntityHitResult entityHitResult, CallbackInfo ci) {
+    private void postEntityHitEvent(EntityHitResult entityHitResult, CallbackInfo ci) {
         Entity entity = entityHitResult.getEntity();
         for (ComponentKey<IntComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
             PersistentProjectileEntity self = (PersistentProjectileEntity) (Object) this;
             if (componentKey.get(self).getValue() > 0) {
-                componentKey.get(self).onEntityHit(entity, self, componentKey.get(self).getValue());
+                componentKey.get(self).postEntityHit(entity, self, componentKey.get(self).getValue());
             }
         }
     }

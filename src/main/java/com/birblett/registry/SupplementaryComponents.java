@@ -1,5 +1,6 @@
 package com.birblett.registry;
 
+import com.birblett.Supplementary;
 import com.birblett.lib.components.*;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import dev.onyxstudios.cca.api.v3.component.ComponentRegistry;
@@ -11,9 +12,10 @@ import net.minecraft.entity.LightningEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonPart;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.CrossbowItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 
@@ -32,6 +34,8 @@ public class SupplementaryComponents implements EntityComponentInitializer {
 
     public static final ComponentKey<IntComponent> BURST_FIRE_TIMER =
             ComponentRegistry.getOrCreate(new Identifier(MODID, "burst_fire_timer"), IntComponent.class);
+    public static final ComponentKey<IntComponent> IGNORES_IFRAMES =
+            ComponentRegistry.getOrCreate(new Identifier(MODID, "ignores_iframes"), IntComponent.class);
     public static final ComponentKey<IntComponent> LIGHTNING_BOLT =
             ComponentRegistry.getOrCreate(new Identifier(MODID, "lightning_bolt"), IntComponent.class);
     public static final ComponentKey<IntComponent> MARKED_LEVEL =
@@ -43,6 +47,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             BURST_FIRE_TIMER
     );
     public static final List<ComponentKey<IntComponent>> PROJECTILE_COMPONENTS = List.of(
+            IGNORES_IFRAMES,
             LIGHTNING_BOLT,
             MARKED_LEVEL
     );
@@ -50,6 +55,58 @@ public class SupplementaryComponents implements EntityComponentInitializer {
     @Override
     public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
         registry.registerFor(LivingEntity.class, BURST_FIRE_TIMER, e -> new TimedComponent("burst_fire_timer") {
+            @Override
+            public void onCrossbowUse(ItemStack stack, Hand hand, ItemStack savedProjectile) {
+                if (this.getValue() == 0) {
+                    this.itemStack = stack;
+                    this.hand = hand;
+                    this.storedProjectile = savedProjectile;
+                    this.setValue(8);
+                }
+            }
+
+            @Override
+            public void onTick(LivingEntity livingEntity) {
+                if (this.hand != null && livingEntity.getStackInHand(this.hand) == this.itemStack && this.getValue() > 0) {
+                    this.setValue(this.getValue() - 1);
+                    if (this.getValue() % 4 == 0) {
+                        float pitch = CrossbowItem.getSoundPitch(true, livingEntity.getRandom());
+                        CrossbowItem.shoot(livingEntity.getWorld(), livingEntity, hand, this.itemStack, this.storedProjectile,
+                                pitch, livingEntity instanceof PlayerEntity player && player.isCreative(),
+                                CrossbowItem.getSpeed(this.storedProjectile), livingEntity.isSneaking() ? 3.0F : 6.0F,
+                                0.0F);
+                    }
+                }
+                else if (this.getValue() > 0) {
+                    this.setValue(0);
+                    this.hand = null;
+                }
+            }
+        });
+        registry.registerFor(PersistentProjectileEntity.class, IGNORES_IFRAMES, e -> new EnchantmentComponent("ignores_iframes") {
+            @Override
+            public void preEntityHit(Entity target, PersistentProjectileEntity persistentProjectileEntity, int lvl) {
+                if (target instanceof LivingEntity livingEntity) {
+                    livingEntity.hurtTime = 0;
+                    livingEntity.timeUntilRegen = 1;
+                }
+                else if (target instanceof EnderDragonPart dragonPart) {
+                    dragonPart.owner.hurtTime = 0;
+                    dragonPart.timeUntilRegen = 1;
+                }
+            }
+        });
+        registry.registerFor(PersistentProjectileEntity.class, BURST_FIRE_TIMER, e -> new TimedComponent("burst_fire_timer") {
+            @Override
+            public void onCrossbowUse(ItemStack stack, Hand hand, ItemStack savedProjectile) {
+                if (this.getValue() == 0) {
+                    this.itemStack = stack;
+                    this.hand = hand;
+                    this.storedProjectile = savedProjectile;
+                    this.setValue(8);
+                }
+            }
+
             @Override
             public void onTick(LivingEntity livingEntity) {
                 if (this.hand != null && livingEntity.getStackInHand(this.hand) == this.itemStack && this.getValue() > 0) {
@@ -63,13 +120,13 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                 }
                 else if (this.getValue() > 0) {
                     this.setValue(0);
+                    this.hand = null;
                 }
             }
-
         });
         registry.registerFor(PersistentProjectileEntity.class, LIGHTNING_BOLT, e -> new EnchantmentComponent("lightning_bolt") {
             @Override
-            public void onEntityHit(Entity target, PersistentProjectileEntity persistentProjectileEntity, int lvl) {
+            public void postEntityHit(Entity target, PersistentProjectileEntity persistentProjectileEntity, int lvl) {
                 // summon lightning only if skylight visible
                 if (target instanceof LivingEntity livingEntity && target.getWorld().isSkyVisible(target.getBlockPos())) {
                     // resets iframes so lightning actually damages target entities
@@ -109,7 +166,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             }
 
             @Override
-            public void onEntityHit(Entity target, PersistentProjectileEntity persistentProjectileEntity, int lvl) {
+            public void postEntityHit(Entity target, PersistentProjectileEntity persistentProjectileEntity, int lvl) {
                 if (persistentProjectileEntity.getOwner() instanceof LivingEntity owner && (target instanceof LivingEntity || target instanceof EnderDragonPart)) {
                     MARKED_TRACKED_ENTITY.get(owner).setEntity(target);
                 }

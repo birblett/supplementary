@@ -15,11 +15,12 @@ public class SupplementaryEnchantments {
 
     public static final EquipmentSlot[] BOTH_HANDS = new EquipmentSlot[]{EquipmentSlot.MAINHAND, EquipmentSlot.OFFHAND};
 
-    public static final EnchantmentBuilder BURST_FIRE = new EnchantmentBuilder("burst_fire", Enchantment.Rarity.COMMON,
+    public static final EnchantmentBuilder BURST_FIRE = new EnchantmentBuilder("burst_fire", Enchantment.Rarity.VERY_RARE,
             EnchantmentTarget.CROSSBOW, BOTH_HANDS) {
         @Override
         public boolean onProjectileFire(LivingEntity user, PersistentProjectileEntity projectileEntity, int level) {
-            this.getComponent().get(user).setValue(level * 8);
+            projectileEntity.setDamage(projectileEntity.getDamage() - 0.3);
+            SupplementaryComponents.IGNORES_IFRAMES.get(projectileEntity).setValue(1);
             return false;
         }
     };

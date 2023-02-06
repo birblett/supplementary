@@ -12,8 +12,9 @@ public interface IntComponent extends Component {
 
     int getValue();
     void setValue(int level);
-    void onEntityHit(Entity target, PersistentProjectileEntity persistentProjectileEntity, int lvl);
-    void setStackInHand(ItemStack stack, Hand hand, ItemStack savedProjectile);
+    void preEntityHit(Entity target, PersistentProjectileEntity persistentProjectileEntity, int lvl);
+    void postEntityHit(Entity target, PersistentProjectileEntity persistentProjectileEntity, int lvl);
+    void onCrossbowUse(ItemStack stack, Hand hand, ItemStack savedProjectile);
     void onTick(LivingEntity entity);
     Vec3d onProjectileTick(PersistentProjectileEntity persistentProjectile, int level, Vec3d velocity);
     void increment();

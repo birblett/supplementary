@@ -1,4 +1,5 @@
 accessWidener	v1	    named
-accessible      method  net/minecraft/item/CrossbowItem getSoundPitch (ZLjava/util/Random;)F
-accessible      method  net/minecraft/item/CrossbowItem getSpeed      (Lnet/minecraft/item/ItemStack;)F
-accessible      method  net/minecraft/item/CrossbowItem shoot         (Lnet/minecraft/world/World;Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/util/Hand;Lnet/minecraft/item/ItemStack;Lnet/minecraft/item/ItemStack;FZFFF)V
+accessible      method  net/minecraft/item/CrossbowItem getProjectiles (Lnet/minecraft/item/ItemStack;)Ljava/util/List;
+accessible      method  net/minecraft/item/CrossbowItem getSoundPitch  (ZLjava/util/Random;)F
+accessible      method  net/minecraft/item/CrossbowItem getSpeed       (Lnet/minecraft/item/ItemStack;)F
+accessible      method  net/minecraft/item/CrossbowItem shoot          (Lnet/minecraft/world/World;Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/util/Hand;Lnet/minecraft/item/ItemStack;Lnet/minecraft/item/ItemStack;FZFFF)V
