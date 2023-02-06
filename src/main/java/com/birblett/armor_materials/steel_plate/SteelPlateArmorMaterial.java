@@ -56,4 +56,5 @@ public class SteelPlateArmorMaterial implements ArmorMaterial {
         // TODO remove placeholder value for knockback res
         return 10.0F;
     }
+
 }
