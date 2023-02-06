@@ -5,7 +5,7 @@ import net.minecraft.nbt.NbtCompound;
 
 public class TrackingComponent implements EntityComponent {
 
-    private LivingEntity trackedEntity;
+    private LivingEntity trackedEntity = null;
 
     @Override
     public LivingEntity getEntity() {
