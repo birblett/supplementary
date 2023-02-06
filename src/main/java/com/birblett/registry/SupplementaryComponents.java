@@ -10,6 +10,8 @@ import dev.onyxstudios.cca.api.v3.component.ComponentRegistry;
 import dev.onyxstudios.cca.api.v3.entity.EntityComponentFactoryRegistry;
 import dev.onyxstudios.cca.api.v3.entity.EntityComponentInitializer;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LightningEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonPart;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
@@ -41,7 +43,22 @@ public class SupplementaryComponents implements EntityComponentInitializer {
 
     @Override
     public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
-        registry.registerFor(PersistentProjectileEntity.class, LIGHTNING_BOLT, e -> new EnchantmentComponent("lightning_bolt"));
+        registry.registerFor(PersistentProjectileEntity.class, LIGHTNING_BOLT, e -> new EnchantmentComponent("lightning_bolt") {
+            @Override
+            public void onEntityHit(Entity target, PersistentProjectileEntity persistentProjectileEntity, int lvl) {
+                // summon lightning only if skylight visible
+                if (target instanceof LivingEntity livingEntity && target.getWorld().isSkyVisible(target.getBlockPos())) {
+                    // resets iframes so lightning actually damages target entities
+                    livingEntity.hurtTime = 0;
+                    livingEntity.timeUntilRegen = 1;
+                    // summon lightning at target pos
+                    LightningEntity lightning = new LightningEntity(EntityType.LIGHTNING_BOLT, target.getWorld());
+                    lightning.setCosmetic(true);
+                    lightning.setPosition(target.getPos());
+                    target.getWorld().spawnEntity(lightning);
+                }
+            }
+        });
         registry.registerFor(PersistentProjectileEntity.class, MARKED_LEVEL, e -> new EnchantmentComponent("marked") {
             @Override
             public Vec3d onProjectileTick(PersistentProjectileEntity persistentProjectile, int level, Vec3d velocity) {
@@ -56,8 +73,8 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                         // calculation of the normal between projectile velocity and vector to target position
                         Vec3d normal = normVelocity.crossProduct(projectileToTarget).crossProduct(normVelocity).normalize();
                         // calculate angle between arrow and tracked mob, adjust up to pi/18 * ench lvl radians per tick
-                        double angle = Math.asin((normVelocity.crossProduct(projectileToTarget).length() /
-                                        (normVelocity.length() * projectileToTarget.length())));
+                        double angle = Math.asin(Math.sqrt(normVelocity.crossProduct(projectileToTarget).lengthSquared() /
+                                        (normVelocity.lengthSquared() * projectileToTarget.lengthSquared())));
                         angle = Math.min(angle, Math.PI / 18 * level);
                         // return an adjusted vector
                         return velocity.multiply(Math.cos(angle)).add(normal.multiply(Math.sin(angle))).normalize()

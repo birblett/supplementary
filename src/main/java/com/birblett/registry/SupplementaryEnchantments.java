@@ -36,7 +36,8 @@ public class SupplementaryEnchantments {
         BURST_FIRE.makeIncompatible(Enchantments.MULTISHOT)
                 .setPower(20, 50);
         LIGHTNING_BOLT.makeIncompatible(Enchantments.POWER)
-                .setPower(20, 50);
+                .setPower(20, 50)
+                .addComponent(SupplementaryComponents.LIGHTNING_BOLT, SupplementaryComponents.ComponentType.ARROW);
         MARKED.makeIncompatible(BURST_FIRE)
                 .setPower(20, 5, 25, 5)
                 .setMaxLevel(3)
