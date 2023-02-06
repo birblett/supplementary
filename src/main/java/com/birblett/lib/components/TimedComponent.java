@@ -10,24 +10,26 @@ import net.minecraft.util.math.Vec3d;
 
 import static com.birblett.Supplementary.MODID;
 
-public class EnchantmentComponent implements IntComponent {
+public class TimedComponent implements IntComponent {
 
+    private int ticksLeft = 0;
     private final String id;
-    private int enchantmentLevel = 0;
-    private EntityComponent attachedEntityComponent = null;
+    protected ItemStack itemStack = ItemStack.EMPTY;
+    protected Hand hand = null;
+    protected ItemStack storedProjectile = ItemStack.EMPTY;
 
-    public EnchantmentComponent(String id) {
+    public TimedComponent(String id) {
         this.id = MODID + ":" + id;
     }
 
     @Override
     public int getValue() {
-        return this.enchantmentLevel;
+        return 0;
     }
 
     @Override
-    public void setValue(int level) {
-        this.enchantmentLevel = level;
+    public void setValue(int value) {
+        ticksLeft = value;
     }
 
     @Override
@@ -40,20 +42,23 @@ public class EnchantmentComponent implements IntComponent {
     public void onTick(LivingEntity entity) {}
 
     @Override
-    public Vec3d onProjectileTick(PersistentProjectileEntity persistentProjectile, int level, Vec3d velocity) {return velocity;}
+    public Vec3d onProjectileTick(PersistentProjectileEntity persistentProjectile, int level, Vec3d velocity) {
+        return null;
+    }
 
     @Override
     public void increment() {
-        this.enchantmentLevel++;
+        ticksLeft++;
     }
 
     @Override
     public void readFromNbt(NbtCompound tag) {
-        this.enchantmentLevel = tag.getInt(this.id);
+        this.ticksLeft = tag.getInt(this.id);
     }
 
     @Override
     public void writeToNbt(NbtCompound tag) {
-        tag.putInt(this.id, this.enchantmentLevel);
+        tag.putInt(this.id, this.ticksLeft);
+
     }
 }

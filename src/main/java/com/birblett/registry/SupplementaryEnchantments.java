@@ -16,7 +16,13 @@ public class SupplementaryEnchantments {
     public static final EquipmentSlot[] BOTH_HANDS = new EquipmentSlot[]{EquipmentSlot.MAINHAND, EquipmentSlot.OFFHAND};
 
     public static final EnchantmentBuilder BURST_FIRE = new EnchantmentBuilder("burst_fire", Enchantment.Rarity.COMMON,
-            EnchantmentTarget.CROSSBOW, BOTH_HANDS);
+            EnchantmentTarget.CROSSBOW, BOTH_HANDS) {
+        @Override
+        public boolean onProjectileFire(LivingEntity user, PersistentProjectileEntity projectileEntity, int level) {
+            this.getComponent().get(user).setValue(level * 8);
+            return false;
+        }
+    };
     public static final EnchantmentBuilder LIGHTNING_BOLT = new EnchantmentBuilder("lightning_bolt", Enchantment.Rarity.VERY_RARE,
             EnchantmentTarget.BOW, BOTH_HANDS);
     public static final EnchantmentBuilder MARKED = new EnchantmentBuilder("marked", Enchantment.Rarity.VERY_RARE,
@@ -34,7 +40,8 @@ public class SupplementaryEnchantments {
 
     public static void buildEnchantments() {
         BURST_FIRE.makeIncompatible(Enchantments.MULTISHOT)
-                .setPower(20, 50);
+                .setPower(20, 50)
+                .addComponent(SupplementaryComponents.BURST_FIRE_TIMER, SupplementaryComponents.ComponentType.ARROW);
         LIGHTNING_BOLT.makeIncompatible(Enchantments.POWER)
                 .setPower(20, 50)
                 .addComponent(SupplementaryComponents.LIGHTNING_BOLT, SupplementaryComponents.ComponentType.ARROW);

@@ -1,10 +1,6 @@
 package com.birblett.registry;
 
-import com.birblett.Supplementary;
-import com.birblett.lib.components.EntityComponent;
-import com.birblett.lib.components.LevelComponent;
-import com.birblett.lib.components.EnchantmentComponent;
-import com.birblett.lib.components.TrackingComponent;
+import com.birblett.lib.components.*;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import dev.onyxstudios.cca.api.v3.component.ComponentRegistry;
 import dev.onyxstudios.cca.api.v3.entity.EntityComponentFactoryRegistry;
@@ -14,9 +10,11 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LightningEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonPart;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
+import net.minecraft.item.CrossbowItem;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.List;
@@ -32,17 +30,43 @@ public class SupplementaryComponents implements EntityComponentInitializer {
         BLOCK_ENTITY
     }
 
-    public static final ComponentKey<LevelComponent> LIGHTNING_BOLT =
-            ComponentRegistry.getOrCreate(new Identifier(MODID, "lightning_bolt"), LevelComponent.class);
-    public static final ComponentKey<LevelComponent> MARKED_LEVEL =
-            ComponentRegistry.getOrCreate(new Identifier(MODID, "marked"), LevelComponent.class);
+    public static final ComponentKey<IntComponent> BURST_FIRE_TIMER =
+            ComponentRegistry.getOrCreate(new Identifier(MODID, "burst_fire_timer"), IntComponent.class);
+    public static final ComponentKey<IntComponent> LIGHTNING_BOLT =
+            ComponentRegistry.getOrCreate(new Identifier(MODID, "lightning_bolt"), IntComponent.class);
+    public static final ComponentKey<IntComponent> MARKED_LEVEL =
+            ComponentRegistry.getOrCreate(new Identifier(MODID, "marked"), IntComponent.class);
     public static final ComponentKey<EntityComponent> MARKED_TRACKED_ENTITY =
             ComponentRegistry.getOrCreate(new Identifier(MODID, "marked_tracked_entity"), EntityComponent.class);
 
-    public static final List<ComponentKey<LevelComponent>> PROJECTILE_COMPONENTS = List.of(LIGHTNING_BOLT, MARKED_LEVEL);
+    public static final List<ComponentKey<IntComponent>> ENTITY_TICKING_COMPONENTS = List.of(
+            BURST_FIRE_TIMER
+    );
+    public static final List<ComponentKey<IntComponent>> PROJECTILE_COMPONENTS = List.of(
+            LIGHTNING_BOLT,
+            MARKED_LEVEL
+    );
 
     @Override
     public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
+        registry.registerFor(LivingEntity.class, BURST_FIRE_TIMER, e -> new TimedComponent("burst_fire_timer") {
+            @Override
+            public void onTick(LivingEntity livingEntity) {
+                if (this.hand != null && livingEntity.getStackInHand(this.hand) == this.itemStack && this.getValue() > 0) {
+                    this.setValue(this.getValue() - 1);
+                    if (this.getValue() % 4 == 0) {
+                        float pitch = CrossbowItem.getSoundPitch(true, livingEntity.getRandom());
+                        CrossbowItem.shoot(livingEntity.getWorld(), livingEntity, hand, this.itemStack, this.storedProjectile,
+                                pitch, livingEntity instanceof PlayerEntity player && player.isCreative(),
+                                CrossbowItem.getSpeed(this.storedProjectile), 1.0F, 0.0F);
+                    }
+                }
+                else if (this.getValue() > 0) {
+                    this.setValue(0);
+                }
+            }
+
+        });
         registry.registerFor(PersistentProjectileEntity.class, LIGHTNING_BOLT, e -> new EnchantmentComponent("lightning_bolt") {
             @Override
             public void onEntityHit(Entity target, PersistentProjectileEntity persistentProjectileEntity, int lvl) {
