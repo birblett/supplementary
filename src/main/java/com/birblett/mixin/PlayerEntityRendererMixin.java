@@ -1,10 +1,9 @@
 package com.birblett.mixin;
 
-import com.birblett.trinkets.CustomCapeFeatureRenderer;
+import com.birblett.trinkets.render.CustomCapeFeatureRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
-import net.minecraft.client.render.entity.feature.CapeFeatureRenderer;
 import net.minecraft.client.render.entity.model.EntityModel;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

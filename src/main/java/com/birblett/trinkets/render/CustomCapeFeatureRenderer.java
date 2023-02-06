@@ -1,7 +1,8 @@
-package com.birblett.trinkets;
+package com.birblett.trinkets.render;
 
 
 import com.birblett.registry.SupplementaryItems;
+import com.birblett.trinkets.CapeItem;
 import dev.emi.trinkets.api.SlotReference;
 import dev.emi.trinkets.api.TrinketComponent;
 import dev.emi.trinkets.api.TrinketsApi;
