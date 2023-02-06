@@ -1,4 +1,8 @@
 {
+  "enchantment.supplementary.burst_fire": "Burst Fire",
+  "enchantment.supplementary.lightning_bolt": "Lightning Bolt",
+  "enchantment.supplementary.marked": "Marked",
+
   "item.supplementary.cape": "Cape",
   "item.supplementary.steel_helmet": "Steel Helmet"
 }

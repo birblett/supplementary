@@ -1,7 +1,7 @@
 package com.birblett.lib.builders;
 
 import com.birblett.Supplementary;
-import com.birblett.lib.components.IntComponent;
+import com.birblett.lib.components.LevelComponent;
 import com.birblett.registry.SupplementaryComponents;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import net.minecraft.enchantment.Enchantment;
@@ -28,7 +28,7 @@ public class EnchantmentBuilder extends Enchantment {
     private int maxPower = 1;
     private int maxPowerScale = 0;
     private SupplementaryComponents.ComponentType componentType = SupplementaryComponents.ComponentType.NONE;
-    private ComponentKey<IntComponent> component;
+    private ComponentKey<LevelComponent> component;
     private final Identifier identifier;
     private boolean isCurse = false;
     private boolean isTreasure = false;
@@ -86,7 +86,7 @@ public class EnchantmentBuilder extends Enchantment {
         return this;
     }
 
-    public EnchantmentBuilder addComponent(ComponentKey<IntComponent> key, SupplementaryComponents.ComponentType type) {
+    public EnchantmentBuilder addComponent(ComponentKey<LevelComponent> key, SupplementaryComponents.ComponentType type) {
         this.componentType = type;
         this.component = key;
         return this;
@@ -101,7 +101,7 @@ public class EnchantmentBuilder extends Enchantment {
         return this.componentType;
     }
 
-    public ComponentKey<IntComponent> getComponent() {
+    public ComponentKey<LevelComponent> getComponent() {
         return this.component;
     }
 
@@ -109,10 +109,6 @@ public class EnchantmentBuilder extends Enchantment {
         this.getComponent().get(projectileEntity).setValue(level);
         return false;
     }
-
-    public void onProjectileTick(LivingEntity provider, PersistentProjectileEntity persistentProjectile, int level) {}
-
-    public void onDamage(LivingEntity target, PersistentProjectileEntity projectileEntity, int level) {}
 
     @Override
     public int getMaxLevel() {

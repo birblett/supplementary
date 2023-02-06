@@ -1,20 +1,21 @@
 package com.birblett.lib.components;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NbtCompound;
 
 public class TrackingComponent implements EntityComponent {
 
-    private LivingEntity trackedEntity = null;
+    private Entity trackedEntity = null;
 
     @Override
-    public LivingEntity getEntity() {
+    public Entity getEntity() {
         return trackedEntity;
     }
 
     @Override
-    public void setEntity(LivingEntity livingEntity) {
-        this.trackedEntity = livingEntity;
+    public void setEntity(Entity entity) {
+        this.trackedEntity = entity;
     }
 
     @Override

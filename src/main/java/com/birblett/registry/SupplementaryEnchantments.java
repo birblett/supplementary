@@ -1,11 +1,14 @@
 package com.birblett.registry;
 
+import com.birblett.Supplementary;
 import com.birblett.lib.builders.EnchantmentBuilder;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentTarget;
 import net.minecraft.enchantment.Enchantments;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.boss.dragon.EnderDragonPart;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 
 public class SupplementaryEnchantments {
@@ -21,16 +24,11 @@ public class SupplementaryEnchantments {
         @Override
         public boolean onProjectileFire(LivingEntity user, PersistentProjectileEntity projectileEntity, int level) {
             this.getComponent().get(projectileEntity).setValue(level);
-            LivingEntity target = SupplementaryComponents.MARKED_TRACKED_ENTITY.get(user).getEntity();
-            SupplementaryComponents.MARKED_TRACKED_ENTITY.get(projectileEntity).setEntity(target);
-            return false;
-        }
-
-        @Override
-        public void onDamage(LivingEntity target, PersistentProjectileEntity projectileEntity, int level) {
-            if (projectileEntity.getOwner() instanceof LivingEntity livingEntity) {
-                SupplementaryComponents.MARKED_TRACKED_ENTITY.get(livingEntity).setEntity(target);
+            Entity target = SupplementaryComponents.MARKED_TRACKED_ENTITY.get(user).getEntity();
+            if (target instanceof LivingEntity || target instanceof EnderDragonPart) {
+                SupplementaryComponents.MARKED_TRACKED_ENTITY.get(projectileEntity).setEntity(target);
             }
+            return false;
         }
     };
 

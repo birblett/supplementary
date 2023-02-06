@@ -28,7 +28,6 @@ public class BowFiringEventMixin {
                     if (enchantmentBuilder.onProjectileFire(user, persistentProjectileEntity, lvl)) {
                         ci.cancel();
                     }
-                    // enchantmentBuilder.getComponent()
                 }
             }
         });

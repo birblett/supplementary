@@ -6,6 +6,7 @@
     "LoomScreenHandlerMixin",
     "PlayerEntityRendererMixin",
     "events.BowFiringEventMixin",
+    "events.CrossbowFiringEventMixin",
     "events.PersistentProjectileEventMixin"
   ],
   "injectors": {
