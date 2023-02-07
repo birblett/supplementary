@@ -14,6 +14,7 @@
     "defaultRequire": 1
   },
   "client": [
-    "LoomScreenMixin"
+    "LoomScreenMixin",
+    "events.ProjectileEntityRenderMixin"
   ]
 }

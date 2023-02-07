@@ -1,5 +1,6 @@
 package com.birblett.lib.components;
 
+import dev.onyxstudios.cca.api.v3.component.sync.AutoSyncedComponent;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
@@ -13,12 +14,12 @@ import net.minecraft.util.math.Vec3d;
 
 import static com.birblett.Supplementary.MODID;
 
-public class EnchantmentComponent implements IntComponent {
+public class SyncedEnchantmentComponent implements IntComponent, AutoSyncedComponent {
 
     private final String id;
     private int enchantmentLevel = 0;
 
-    public EnchantmentComponent(String id) {
+    public SyncedEnchantmentComponent(String id) {
         this.id = MODID + ":" + id;
     }
 

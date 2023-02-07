@@ -38,6 +38,7 @@
 	"custom": {
 		"cardinal-components": [
 			"supplementary:burst_fire_timer",
+			"supplementary:grappling",
 			"supplementary:ignores_iframes",
 			"supplementary:lightning_bolt",
 			"supplementary:marked",

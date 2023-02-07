@@ -35,6 +35,4 @@ public class SupplementaryItems {
         Registry.register(Registry.ITEM, new Identifier(MODID, "steel_leggings"), STEEL_LEGGINGS);
         Registry.register(Registry.ITEM, new Identifier(MODID, "steel_boots"), STEEL_BOOTS);
     }
-
-
 }

@@ -1,12 +1,15 @@
 package com.birblett.mixin.events;
 
-import com.birblett.Supplementary;
 import com.birblett.lib.builders.EnchantmentBuilder;
+import com.birblett.lib.components.IntComponent;
 import com.birblett.registry.SupplementaryComponents;
+import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.CrossbowUser;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.ArrowItem;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
@@ -29,11 +32,9 @@ public class CrossbowFiringEventMixin {
     private void onUseEvent(World world, PlayerEntity user, Hand hand, CallbackInfoReturnable<TypedActionResult<ItemStack>> cir, ItemStack itemStack) {
         EnchantmentHelper.get(itemStack).forEach((enchantment, lvl) -> {
             if (enchantment instanceof EnchantmentBuilder enchantmentBuilder) {
-                if (enchantmentBuilder.getComponentType() == SupplementaryComponents.ComponentType.ARROW) {
-                    List<ItemStack> projectiles = CrossbowItem.getProjectiles(itemStack);
-                    if (!projectiles.isEmpty() && enchantmentBuilder.getComponent().maybeGet(user).isPresent()) {
-                        enchantmentBuilder.getComponent().get(user).onCrossbowUse(itemStack, hand, projectiles.get(0));
-                    }
+                List<ItemStack> projectiles = CrossbowItem.getProjectiles(itemStack);
+                for (ComponentKey<IntComponent> componentKey : enchantmentBuilder.getComponents()) {
+                    componentKey.maybeGet(user).ifPresent(component -> component.onCrossbowUse(itemStack, hand, projectiles.get(0)));
                 }
             }
         });
@@ -41,10 +42,10 @@ public class CrossbowFiringEventMixin {
 
     @Inject(method = "createArrow", at = @At("TAIL"), locals = LocalCapture.CAPTURE_FAILSOFT)
     private static void arrowCreationEvent(World world, LivingEntity user, ItemStack crossbow, ItemStack arrow, CallbackInfoReturnable<PersistentProjectileEntity> cir, ArrowItem arrowItem, PersistentProjectileEntity persistentProjectileEntity) {
-        EnchantmentHelper.get(crossbow).forEach((enchantment, lvl) -> {
+        EnchantmentHelper.get(crossbow).forEach((enchantment, level) -> {
             if (enchantment instanceof EnchantmentBuilder enchantmentBuilder) {
-                if (enchantmentBuilder.getComponentType() == SupplementaryComponents.ComponentType.ARROW) {
-                    enchantmentBuilder.onProjectileFire(user, persistentProjectileEntity, lvl);
+                for (ComponentKey<IntComponent> componentKey : enchantmentBuilder.getComponents()) {
+                    componentKey.maybeGet(persistentProjectileEntity).ifPresent(component -> component.onProjectileFire(user, persistentProjectileEntity, level));
                 }
             }
         });

@@ -2,10 +2,14 @@ package com.birblett.registry;
 
 import com.birblett.Supplementary;
 import com.birblett.lib.components.*;
+import com.birblett.lib.helper.RenderHelper;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import dev.onyxstudios.cca.api.v3.component.ComponentRegistry;
 import dev.onyxstudios.cca.api.v3.entity.EntityComponentFactoryRegistry;
 import dev.onyxstudios.cca.api.v3.entity.EntityComponentInitializer;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LightningEntity;
@@ -17,6 +21,7 @@ import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.List;
@@ -25,15 +30,10 @@ import static com.birblett.Supplementary.MODID;
 
 public class SupplementaryComponents implements EntityComponentInitializer {
 
-    public enum ComponentType {
-        NONE,
-        ARROW,
-        ENTITY,
-        BLOCK_ENTITY
-    }
-
     public static final ComponentKey<IntComponent> BURST_FIRE_TIMER =
             ComponentRegistry.getOrCreate(new Identifier(MODID, "burst_fire_timer"), IntComponent.class);
+    public static final ComponentKey<IntComponent> GRAPPLING =
+            ComponentRegistry.getOrCreate(new Identifier(MODID, "grappling"), IntComponent.class);
     public static final ComponentKey<IntComponent> IGNORES_IFRAMES =
             ComponentRegistry.getOrCreate(new Identifier(MODID, "ignores_iframes"), IntComponent.class);
     public static final ComponentKey<IntComponent> LIGHTNING_BOLT =
@@ -49,7 +49,8 @@ public class SupplementaryComponents implements EntityComponentInitializer {
     public static final List<ComponentKey<IntComponent>> PROJECTILE_COMPONENTS = List.of(
             IGNORES_IFRAMES,
             LIGHTNING_BOLT,
-            MARKED_LEVEL
+            MARKED_LEVEL,
+            GRAPPLING
     );
 
     @Override
@@ -63,6 +64,13 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                     this.storedProjectile = savedProjectile;
                     this.setValue(8);
                 }
+            }
+
+            @Override
+            public void onProjectileFire(LivingEntity user, PersistentProjectileEntity projectileEntity, int level) {
+                projectileEntity.setDamage(projectileEntity.getDamage() - 0.3);
+                SupplementaryComponents.IGNORES_IFRAMES.get(projectileEntity).setValue(1);
+                Supplementary.LOGGER.info("{} {}", IGNORES_IFRAMES.getId(), IGNORES_IFRAMES.get(projectileEntity).getValue());
             }
 
             @Override
@@ -82,20 +90,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                     this.hand = null;
                 }
             }
-        });
-        registry.registerFor(PersistentProjectileEntity.class, IGNORES_IFRAMES, e -> new EnchantmentComponent("ignores_iframes") {
-            @Override
-            public void preEntityHit(Entity target, PersistentProjectileEntity persistentProjectileEntity, int lvl) {
-                if (target instanceof LivingEntity livingEntity) {
-                    livingEntity.hurtTime = 0;
-                    livingEntity.timeUntilRegen = 1;
-                }
-                else if (target instanceof EnderDragonPart dragonPart) {
-                    dragonPart.owner.hurtTime = 0;
-                    dragonPart.timeUntilRegen = 1;
-                }
-            }
-        });
+        }); // shooter component of burst fire
         registry.registerFor(PersistentProjectileEntity.class, BURST_FIRE_TIMER, e -> new TimedComponent("burst_fire_timer") {
             @Override
             public void onCrossbowUse(ItemStack stack, Hand hand, ItemStack savedProjectile) {
@@ -105,6 +100,12 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                     this.storedProjectile = savedProjectile;
                     this.setValue(8);
                 }
+            }
+
+            @Override
+            public void onProjectileFire(LivingEntity user, PersistentProjectileEntity projectileEntity, int level) {
+                projectileEntity.setDamage(projectileEntity.getDamage() - 0.3);
+                SupplementaryComponents.IGNORES_IFRAMES.get(projectileEntity).setValue(1);
             }
 
             @Override
@@ -123,26 +124,98 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                     this.hand = null;
                 }
             }
+        }); // projectile component of burst fire
+        registry.registerFor(PersistentProjectileEntity.class, GRAPPLING, e -> new SyncedEnchantmentComponent("grappling") {
+            @Override
+            public void inBlockTick(PersistentProjectileEntity persistentProjectileEntity, int level) {
+                Entity owner = persistentProjectileEntity.getOwner();
+                if (owner instanceof LivingEntity livingEntity && owner.isAlive() && owner.getWorld() == persistentProjectileEntity.getWorld() &&
+                        persistentProjectileEntity.getOwner().getPos().subtract(persistentProjectileEntity.getPos()).lengthSquared() < 2500 &&
+                        EnchantmentHelper.getLevel(SupplementaryEnchantments.GRAPPLING, livingEntity.getMainHandStack()) > 0) {
+                    owner.setVelocity(persistentProjectileEntity.getPos().subtract(owner.getPos()).normalize().multiply(0.4).add(owner.getVelocity()));
+                    if (persistentProjectileEntity.getOwner().getPos().subtract(persistentProjectileEntity.getPos()).lengthSquared() < 2) {
+                        persistentProjectileEntity.discard();
+                    }
+                } else {
+                    this.setValue(0);
+                    GRAPPLING.sync(persistentProjectileEntity);
+                }
+            }
+
+            @Override
+            public void onProjectileFire(LivingEntity user, PersistentProjectileEntity persistentProjectileEntity, int level) {
+                SupplementaryComponents.GRAPPLING.get(persistentProjectileEntity).setValue(1);
+                GRAPPLING.sync(persistentProjectileEntity);
+            }
+
+            @Override
+            public Vec3d onTravel(PersistentProjectileEntity persistentProjectileEntity, int level, Vec3d velocity) {
+                persistentProjectileEntity.ignoreCameraFrustum = true;
+                GRAPPLING.sync(persistentProjectileEntity);
+                return velocity;
+            }
+
+            @Override
+            public void onProjectileRender(PersistentProjectileEntity persistentProjectileEntity, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int level) {
+                Entity owner = persistentProjectileEntity.getOwner();
+                if (owner instanceof LivingEntity livingEntity && owner.isAlive() && owner.getWorld() == persistentProjectileEntity.getWorld() &&
+                        persistentProjectileEntity.getOwner().getPos().subtract(persistentProjectileEntity.getPos()).lengthSquared() < 2500 &&
+                        EnchantmentHelper.getLevel(SupplementaryEnchantments.GRAPPLING, livingEntity.getMainHandStack()) > 0) {
+                    RenderHelper.ropeRender(persistentProjectileEntity, tickDelta, matrixStack, vertexConsumerProvider, owner);
+                } else {
+                    this.setValue(0);
+                    GRAPPLING.sync(persistentProjectileEntity);
+                }
+            }
+        });
+        registry.registerFor(PersistentProjectileEntity.class, IGNORES_IFRAMES, e -> new EnchantmentComponent("ignores_iframes") {
+            @Override
+            public void preEntityHit(Entity target, PersistentProjectileEntity persistentProjectileEntity, int lvl) {
+                if (target instanceof LivingEntity livingEntity) {
+                    livingEntity.hurtTime = 0;
+                    livingEntity.timeUntilRegen = 1;
+                }
+                else if (target instanceof EnderDragonPart dragonPart) {
+                    dragonPart.owner.hurtTime = 0;
+                    dragonPart.timeUntilRegen = 1;
+                }
+            }
         });
         registry.registerFor(PersistentProjectileEntity.class, LIGHTNING_BOLT, e -> new EnchantmentComponent("lightning_bolt") {
             @Override
             public void postEntityHit(Entity target, PersistentProjectileEntity persistentProjectileEntity, int lvl) {
-                // summon lightning only if skylight visible
                 if (target instanceof LivingEntity livingEntity && target.getWorld().isSkyVisible(target.getBlockPos())) {
-                    // resets iframes so lightning actually damages target entities
                     livingEntity.hurtTime = 0;
                     livingEntity.timeUntilRegen = 1;
-                    // summon lightning at target pos
                     LightningEntity lightning = new LightningEntity(EntityType.LIGHTNING_BOLT, target.getWorld());
-                    lightning.setCosmetic(true);
                     lightning.setPosition(target.getPos());
                     target.getWorld().spawnEntity(lightning);
+                }
+            }
+
+            @Override
+            public void onBlockHit(BlockHitResult blockHitResult, PersistentProjectileEntity persistentProjectileEntity, int lvl) {
+                if (persistentProjectileEntity.getWorld().isSkyVisible(persistentProjectileEntity.getBlockPos())) {
+                    LightningEntity lightning = new LightningEntity(EntityType.LIGHTNING_BOLT, persistentProjectileEntity.getWorld());
+                    lightning.setPosition(persistentProjectileEntity.getPos());
+                    persistentProjectileEntity.getWorld().spawnEntity(lightning);
+                    this.setValue(0);
                 }
             }
         });
         registry.registerFor(PersistentProjectileEntity.class, MARKED_LEVEL, e -> new EnchantmentComponent("marked") {
             @Override
-            public Vec3d onProjectileTick(PersistentProjectileEntity persistentProjectile, int level, Vec3d velocity) {
+            public void onProjectileFire(LivingEntity user, PersistentProjectileEntity projectileEntity, int level) {
+                // 10 ticks of tracking per level
+                this.setValue(level * 10);
+                Entity target = SupplementaryComponents.MARKED_TRACKED_ENTITY.get(user).getEntity();
+                if (target instanceof LivingEntity || target instanceof EnderDragonPart) {
+                    SupplementaryComponents.MARKED_TRACKED_ENTITY.get(projectileEntity).setEntity(target);
+                }
+            }
+
+            @Override
+            public Vec3d onTravel(PersistentProjectileEntity persistentProjectile, int level, Vec3d velocity) {
                 if (persistentProjectile.getOwner() instanceof LivingEntity owner && persistentProjectile.isCritical()) {
                     Entity target = MARKED_TRACKED_ENTITY.get(owner).getEntity();
                     if (target != null && target.isAlive() && target.getWorld() == persistentProjectile.getWorld()) {
@@ -153,11 +226,12 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                         Vec3d normVelocity = velocity.normalize();
                         // calculation of the normal between projectile velocity and vector to target position
                         Vec3d normal = normVelocity.crossProduct(projectileToTarget).crossProduct(normVelocity).normalize();
-                        // calculate angle between arrow and tracked mob, adjust up to pi/18 * ench lvl radians per tick
+                        // calculate angle between arrow and tracked mob, adjust course up to pi/8 radians per tick
                         double angle = Math.asin(Math.sqrt(normVelocity.crossProduct(projectileToTarget).lengthSquared() /
                                         (normVelocity.lengthSquared() * projectileToTarget.lengthSquared())));
-                        angle = Math.min(angle, Math.PI / 18 * level);
+                        angle = Math.min(angle, Math.PI / 8);
                         // return an adjusted vector
+                        this.decrement();
                         return velocity.multiply(Math.cos(angle)).add(normal.multiply(Math.sin(angle))).normalize()
                                 .multiply(velocity.length());
                     }
