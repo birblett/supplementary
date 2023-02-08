@@ -13,7 +13,7 @@ import net.minecraft.util.math.Vec3d;
 
 import static com.birblett.Supplementary.MODID;
 
-public class TimedComponent implements IntComponent {
+public class TimedComponent implements BaseComponent {
 
     private int ticksLeft = 0;
     private final String id;
@@ -36,6 +36,14 @@ public class TimedComponent implements IntComponent {
     }
 
     @Override
+    public Entity getEntity() {
+        return null;
+    }
+
+    @Override
+    public void setEntity(Entity entity) {}
+
+    @Override
     public void inBlockTick(PersistentProjectileEntity persistentProjectileEntity, int lvl) {}
 
     @Override
@@ -43,6 +51,12 @@ public class TimedComponent implements IntComponent {
 
     @Override
     public void postEntityHit(Entity target, PersistentProjectileEntity persistentProjectileEntity, int lvl) {}
+
+    @Override
+    public void onHandSwingEvent(LivingEntity entity, Hand hand) {}
+
+    @Override
+    public void onUse(LivingEntity entity, Hand hand) {}
 
     @Override
     public void onBlockHit(BlockHitResult blockHitResult, PersistentProjectileEntity persistentProjectileEntity, int lvl) {}

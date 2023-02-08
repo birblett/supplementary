@@ -1,7 +1,6 @@
 package com.birblett.mixin.events;
 
-import com.birblett.Supplementary;
-import com.birblett.lib.components.IntComponent;
+import com.birblett.lib.components.BaseComponent;
 import com.birblett.registry.SupplementaryComponents;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import net.minecraft.entity.Entity;
@@ -21,8 +20,8 @@ public class PersistentProjectileEventMixin {
 
     @ModifyVariable(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/PersistentProjectileEntity;getVelocity()Lnet/minecraft/util/math/Vec3d;"),
                     index = 2)
-    private Vec3d travel(Vec3d velocity) {
-        for (ComponentKey<IntComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
+    private Vec3d onTravelEvent(Vec3d velocity) {
+        for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
             PersistentProjectileEntity self = (PersistentProjectileEntity) (Object) this;
             if (componentKey.get(self).getValue() > 0) {
                 Vec3d newVelocity =  componentKey.get(self).onTravel(self, componentKey.get(self).getValue(), velocity);
@@ -37,8 +36,8 @@ public class PersistentProjectileEventMixin {
     }
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/PersistentProjectileEntity;shouldFall()Z"))
-    private void inBlockTick(CallbackInfo ci) {
-        for (ComponentKey<IntComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
+    private void inBlockTickEvent(CallbackInfo ci) {
+        for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
             PersistentProjectileEntity self = (PersistentProjectileEntity) (Object) this;
             if (componentKey.get(self).getValue() > 0) {
                 componentKey.get(self).inBlockTick(self, componentKey.get(self).getValue());
@@ -48,7 +47,7 @@ public class PersistentProjectileEventMixin {
 
     @Inject(method = "onBlockHit", at = @At("HEAD"))
     private void onBlockHitEvent(BlockHitResult blockHitResult, CallbackInfo ci) {
-        for (ComponentKey<IntComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
+        for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
             PersistentProjectileEntity self = (PersistentProjectileEntity) (Object) this;
             if (componentKey.get(self).getValue() > 0) {
                 componentKey.get(self).onBlockHit(blockHitResult, self, componentKey.get(self).getValue());
@@ -58,7 +57,7 @@ public class PersistentProjectileEventMixin {
 
     @Inject(method = "onEntityHit", at = @At("HEAD"), locals = LocalCapture.CAPTURE_FAILSOFT)
     private void preEntityHitEvent(EntityHitResult entityHitResult, CallbackInfo ci) {
-        for (ComponentKey<IntComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
+        for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
             PersistentProjectileEntity self = (PersistentProjectileEntity) (Object) this;
             if (componentKey.get(self).getValue() > 0) {
                 componentKey.get(self).preEntityHit(entityHitResult.getEntity(), self, componentKey.get(self).getValue());
@@ -70,7 +69,7 @@ public class PersistentProjectileEventMixin {
             locals = LocalCapture.CAPTURE_FAILSOFT)
     private void postEntityHitEvent(EntityHitResult entityHitResult, CallbackInfo ci) {
         Entity entity = entityHitResult.getEntity();
-        for (ComponentKey<IntComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
+        for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
             PersistentProjectileEntity self = (PersistentProjectileEntity) (Object) this;
             if (componentKey.get(self).getValue() > 0) {
                 componentKey.get(self).postEntityHit(entity, self, componentKey.get(self).getValue());

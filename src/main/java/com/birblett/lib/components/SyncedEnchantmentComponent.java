@@ -14,7 +14,7 @@ import net.minecraft.util.math.Vec3d;
 
 import static com.birblett.Supplementary.MODID;
 
-public class SyncedEnchantmentComponent implements IntComponent, AutoSyncedComponent {
+public class SyncedEnchantmentComponent implements BaseComponent, AutoSyncedComponent {
 
     private final String id;
     private int enchantmentLevel = 0;
@@ -34,6 +34,14 @@ public class SyncedEnchantmentComponent implements IntComponent, AutoSyncedCompo
     }
 
     @Override
+    public Entity getEntity() {
+        return null;
+    }
+
+    @Override
+    public void setEntity(Entity entity) {}
+
+    @Override
     public void inBlockTick(PersistentProjectileEntity persistentProjectileEntity, int lvl) {}
 
     @Override
@@ -41,6 +49,12 @@ public class SyncedEnchantmentComponent implements IntComponent, AutoSyncedCompo
 
     @Override
     public void postEntityHit(Entity target, PersistentProjectileEntity persistentProjectileEntity, int lvl) {}
+
+    @Override
+    public void onHandSwingEvent(LivingEntity entity, Hand hand) {}
+
+    @Override
+    public void onUse(LivingEntity entity, Hand hand) {}
 
     @Override
     public void onBlockHit(BlockHitResult blockHitResult, PersistentProjectileEntity persistentProjectileEntity, int lvl) {}

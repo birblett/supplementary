@@ -11,10 +11,12 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.Vec3d;
 
-public interface IntComponent extends Component {
+public interface BaseComponent extends Component {
 
     int getValue();
     void setValue(int level);
+    Entity getEntity();
+    void setEntity(Entity entity);
     void inBlockTick(PersistentProjectileEntity persistentProjectileEntity, int lvl);
     void preEntityHit(Entity target, PersistentProjectileEntity persistentProjectileEntity, int lvl);
     void postEntityHit(Entity target, PersistentProjectileEntity persistentProjectileEntity, int lvl);
@@ -22,6 +24,8 @@ public interface IntComponent extends Component {
     void onCrossbowUse(ItemStack stack, Hand hand, ItemStack savedProjectile);
     void onProjectileFire(LivingEntity user, PersistentProjectileEntity projectileEntity, int level);
     void onProjectileRender(PersistentProjectileEntity persistentProjectileEntity, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int level);
+    void onHandSwingEvent(LivingEntity entity, Hand hand);
+    void onUse(LivingEntity entity, Hand hand);
     void onTick(LivingEntity entity);
     Vec3d onTravel(PersistentProjectileEntity persistentProjectile, int level, Vec3d velocity);
     void decrement();

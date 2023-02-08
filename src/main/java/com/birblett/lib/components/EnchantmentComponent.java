@@ -13,7 +13,7 @@ import net.minecraft.util.math.Vec3d;
 
 import static com.birblett.Supplementary.MODID;
 
-public class EnchantmentComponent implements IntComponent {
+public class EnchantmentComponent implements BaseComponent {
 
     private final String id;
     private int enchantmentLevel = 0;
@@ -30,6 +30,16 @@ public class EnchantmentComponent implements IntComponent {
     @Override
     public void setValue(int level) {
         this.enchantmentLevel = level;
+    }
+
+    @Override
+    public Entity getEntity() {
+        return null;
+    }
+
+    @Override
+    public void setEntity(Entity entity) {
+
     }
 
     @Override
@@ -57,10 +67,18 @@ public class EnchantmentComponent implements IntComponent {
                                    VertexConsumerProvider vertexConsumerProvider, int level) {}
 
     @Override
+    public void onHandSwingEvent(LivingEntity entity, Hand hand) {}
+
+    @Override
+    public void onUse(LivingEntity entity, Hand hand) {}
+
+    @Override
     public void onTick(LivingEntity entity) {}
 
     @Override
-    public Vec3d onTravel(PersistentProjectileEntity persistentProjectile, int level, Vec3d velocity) {return velocity;}
+    public Vec3d onTravel(PersistentProjectileEntity persistentProjectile, int level, Vec3d velocity) {
+        return velocity;
+    }
 
     @Override
     public void decrement() {

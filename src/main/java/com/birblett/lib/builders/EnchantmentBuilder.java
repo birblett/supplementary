@@ -1,7 +1,7 @@
 package com.birblett.lib.builders;
 
 import com.birblett.Supplementary;
-import com.birblett.lib.components.IntComponent;
+import com.birblett.lib.components.BaseComponent;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentTarget;
@@ -22,7 +22,7 @@ public class EnchantmentBuilder extends Enchantment {
     private int minPowerScale = 0;
     private int maxPower = 1;
     private int maxPowerScale = 0;
-    private final List<ComponentKey<IntComponent>> components =
+    private final List<ComponentKey<BaseComponent>> components =
             new ArrayList<>();
     private final Identifier identifier;
     private boolean isCurse = false;
@@ -60,11 +60,6 @@ public class EnchantmentBuilder extends Enchantment {
         return this;
     }
 
-    public EnchantmentBuilder makeIncompatible(List<Enchantment> others) {
-        incompatibleEnchantments.addAll(others);
-        return this;
-    }
-
     public EnchantmentBuilder setCurse(boolean isCurse) {
         this.isCurse = isCurse;
         return this;
@@ -81,7 +76,7 @@ public class EnchantmentBuilder extends Enchantment {
         return this;
     }
 
-    public EnchantmentBuilder addComponent(ComponentKey<IntComponent> key) {
+    public EnchantmentBuilder addComponent(ComponentKey<BaseComponent> key) {
         this.components.add(key);
         return this;
     }
@@ -91,7 +86,7 @@ public class EnchantmentBuilder extends Enchantment {
         return this;
     }
 
-    public List<ComponentKey<IntComponent>> getComponents() {
+    public List<ComponentKey<BaseComponent>> getComponents() {
         return this.components;
     }
 
@@ -112,8 +107,8 @@ public class EnchantmentBuilder extends Enchantment {
 
     @Override
     protected boolean canAccept(Enchantment other) {
-        for (Enchantment e : incompatibleEnchantments) {
-            if (e == other) return false;
+        if (incompatibleEnchantments.contains(other)) {
+            return false;
         }
         return super.canAccept(other);
     }

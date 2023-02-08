@@ -1,15 +1,12 @@
 package com.birblett.mixin.events;
 
 import com.birblett.lib.builders.EnchantmentBuilder;
-import com.birblett.lib.components.IntComponent;
-import com.birblett.registry.SupplementaryComponents;
+import com.birblett.lib.components.BaseComponent;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.CrossbowUser;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.ArrowItem;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
@@ -33,7 +30,7 @@ public class CrossbowFiringEventMixin {
         EnchantmentHelper.get(itemStack).forEach((enchantment, lvl) -> {
             if (enchantment instanceof EnchantmentBuilder enchantmentBuilder) {
                 List<ItemStack> projectiles = CrossbowItem.getProjectiles(itemStack);
-                for (ComponentKey<IntComponent> componentKey : enchantmentBuilder.getComponents()) {
+                for (ComponentKey<BaseComponent> componentKey : enchantmentBuilder.getComponents()) {
                     componentKey.maybeGet(user).ifPresent(component -> component.onCrossbowUse(itemStack, hand, projectiles.get(0)));
                 }
             }
@@ -44,7 +41,7 @@ public class CrossbowFiringEventMixin {
     private static void arrowCreationEvent(World world, LivingEntity user, ItemStack crossbow, ItemStack arrow, CallbackInfoReturnable<PersistentProjectileEntity> cir, ArrowItem arrowItem, PersistentProjectileEntity persistentProjectileEntity) {
         EnchantmentHelper.get(crossbow).forEach((enchantment, level) -> {
             if (enchantment instanceof EnchantmentBuilder enchantmentBuilder) {
-                for (ComponentKey<IntComponent> componentKey : enchantmentBuilder.getComponents()) {
+                for (ComponentKey<BaseComponent> componentKey : enchantmentBuilder.getComponents()) {
                     componentKey.maybeGet(persistentProjectileEntity).ifPresent(component -> component.onProjectileFire(user, persistentProjectileEntity, level));
                 }
             }

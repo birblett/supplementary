@@ -30,23 +30,28 @@ import static com.birblett.Supplementary.MODID;
 
 public class SupplementaryComponents implements EntityComponentInitializer {
 
-    public static final ComponentKey<IntComponent> BURST_FIRE_TIMER =
-            ComponentRegistry.getOrCreate(new Identifier(MODID, "burst_fire_timer"), IntComponent.class);
-    public static final ComponentKey<IntComponent> GRAPPLING =
-            ComponentRegistry.getOrCreate(new Identifier(MODID, "grappling"), IntComponent.class);
-    public static final ComponentKey<IntComponent> IGNORES_IFRAMES =
-            ComponentRegistry.getOrCreate(new Identifier(MODID, "ignores_iframes"), IntComponent.class);
-    public static final ComponentKey<IntComponent> LIGHTNING_BOLT =
-            ComponentRegistry.getOrCreate(new Identifier(MODID, "lightning_bolt"), IntComponent.class);
-    public static final ComponentKey<IntComponent> MARKED_LEVEL =
-            ComponentRegistry.getOrCreate(new Identifier(MODID, "marked"), IntComponent.class);
-    public static final ComponentKey<EntityComponent> MARKED_TRACKED_ENTITY =
-            ComponentRegistry.getOrCreate(new Identifier(MODID, "marked_tracked_entity"), EntityComponent.class);
+    public static final ComponentKey<BaseComponent> BURST_FIRE_TIMER =
+            ComponentRegistry.getOrCreate(new Identifier(MODID, "burst_fire_timer"), BaseComponent.class);
+    public static final ComponentKey<BaseComponent> GRAPPLING =
+            ComponentRegistry.getOrCreate(new Identifier(MODID, "grappling"), BaseComponent.class);
+    public static final ComponentKey<BaseComponent> GRAPPLING_TRACKING_COMPONENT =
+            ComponentRegistry.getOrCreate(new Identifier(MODID, "grappling_tracking_component"), BaseComponent.class);
+    public static final ComponentKey<BaseComponent> IGNORES_IFRAMES =
+            ComponentRegistry.getOrCreate(new Identifier(MODID, "ignores_iframes"), BaseComponent.class);
+    public static final ComponentKey<BaseComponent> LIGHTNING_BOLT =
+            ComponentRegistry.getOrCreate(new Identifier(MODID, "lightning_bolt"), BaseComponent.class);
+    public static final ComponentKey<BaseComponent> MARKED_LEVEL =
+            ComponentRegistry.getOrCreate(new Identifier(MODID, "marked"), BaseComponent.class);
+    public static final ComponentKey<BaseComponent> MARKED_TRACKED_ENTITY =
+            ComponentRegistry.getOrCreate(new Identifier(MODID, "marked_tracked_entity"), BaseComponent.class);
 
-    public static final List<ComponentKey<IntComponent>> ENTITY_TICKING_COMPONENTS = List.of(
+    public static final List<ComponentKey<BaseComponent>> ENTITY_TICKING_COMPONENTS = List.of(
             BURST_FIRE_TIMER
     );
-    public static final List<ComponentKey<IntComponent>> PROJECTILE_COMPONENTS = List.of(
+    public static final List<ComponentKey<BaseComponent>> PLAYER_TICKING_COMPONENTS = List.of(
+            GRAPPLING_TRACKING_COMPONENT
+    );
+    public static final List<ComponentKey<BaseComponent>> PROJECTILE_COMPONENTS = List.of(
             IGNORES_IFRAMES,
             LIGHTNING_BOLT,
             MARKED_LEVEL,
@@ -128,30 +133,40 @@ public class SupplementaryComponents implements EntityComponentInitializer {
         registry.registerFor(PersistentProjectileEntity.class, GRAPPLING, e -> new SyncedEnchantmentComponent("grappling") {
             @Override
             public void inBlockTick(PersistentProjectileEntity persistentProjectileEntity, int level) {
-                Entity owner = persistentProjectileEntity.getOwner();
-                if (owner instanceof LivingEntity livingEntity && owner.isAlive() && owner.getWorld() == persistentProjectileEntity.getWorld() &&
-                        persistentProjectileEntity.getOwner().getPos().subtract(persistentProjectileEntity.getPos()).lengthSquared() < 2500 &&
-                        EnchantmentHelper.getLevel(SupplementaryEnchantments.GRAPPLING, livingEntity.getMainHandStack()) > 0) {
-                    owner.setVelocity(persistentProjectileEntity.getPos().subtract(owner.getPos()).normalize().multiply(0.4).add(owner.getVelocity()));
-                    if (persistentProjectileEntity.getOwner().getPos().subtract(persistentProjectileEntity.getPos()).lengthSquared() < 2) {
-                        persistentProjectileEntity.discard();
+                if (!persistentProjectileEntity.world.isClient()) {
+                    Entity owner = persistentProjectileEntity.getOwner();
+                    if (owner instanceof LivingEntity livingEntity && owner.isAlive() && owner.getWorld() == persistentProjectileEntity.getWorld() &&
+                            persistentProjectileEntity.getOwner().getPos().subtract(persistentProjectileEntity.getPos()).lengthSquared() < 2500 &&
+                            EnchantmentHelper.getLevel(SupplementaryEnchantments.GRAPPLING, livingEntity.getMainHandStack()) > 0 &&
+                            GRAPPLING_TRACKING_COMPONENT.get(owner).getEntity() == persistentProjectileEntity) {
+                        double pullSpeed = owner.isTouchingWater() ? 0.1 : 0.4;
+                        owner.setVelocity(persistentProjectileEntity.getPos().subtract(owner.getPos()).normalize().multiply(pullSpeed).add(owner.getVelocity()));
+                        owner.velocityModified = true;
+                        if (persistentProjectileEntity.getOwner().getPos().subtract(persistentProjectileEntity.getPos()).lengthSquared() < 2) {
+                            this.setValue(0);
+                        }
+                    } else {
+                        this.setValue(0);
+                        GRAPPLING.sync(persistentProjectileEntity);
                     }
-                } else {
-                    this.setValue(0);
-                    GRAPPLING.sync(persistentProjectileEntity);
                 }
             }
 
             @Override
             public void onProjectileFire(LivingEntity user, PersistentProjectileEntity persistentProjectileEntity, int level) {
-                SupplementaryComponents.GRAPPLING.get(persistentProjectileEntity).setValue(1);
-                GRAPPLING.sync(persistentProjectileEntity);
+                if (!persistentProjectileEntity.world.isClient()) {
+                    SupplementaryComponents.GRAPPLING.get(persistentProjectileEntity).setValue(1);
+                    GRAPPLING_TRACKING_COMPONENT.get(user).setEntity(persistentProjectileEntity);
+                    GRAPPLING.sync(persistentProjectileEntity);
+                }
             }
 
             @Override
             public Vec3d onTravel(PersistentProjectileEntity persistentProjectileEntity, int level, Vec3d velocity) {
-                persistentProjectileEntity.ignoreCameraFrustum = true;
-                GRAPPLING.sync(persistentProjectileEntity);
+                if (!persistentProjectileEntity.world.isClient()) {
+                    persistentProjectileEntity.ignoreCameraFrustum = true;
+                    GRAPPLING.sync(persistentProjectileEntity);
+                }
                 return velocity;
             }
 
@@ -165,6 +180,21 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                 } else {
                     this.setValue(0);
                     GRAPPLING.sync(persistentProjectileEntity);
+                }
+            }
+        });
+        registry.registerFor(LivingEntity.class, GRAPPLING_TRACKING_COMPONENT, e -> new TrackingComponent() {
+            @Override
+            public void onHandSwingEvent(LivingEntity entity, Hand hand) {
+                if (!entity.getWorld().isClient()) {
+                    this.setEntity(null);
+                }
+            }
+
+            @Override
+            public void onUse(LivingEntity entity, Hand hand) {
+                if (!entity.getWorld().isClient()) {
+                    this.setEntity(null);
                 }
             }
         });

@@ -1,8 +1,7 @@
 package com.birblett.mixin.events;
 
 import com.birblett.lib.builders.EnchantmentBuilder;
-import com.birblett.lib.components.IntComponent;
-import com.birblett.registry.SupplementaryComponents;
+import com.birblett.lib.components.BaseComponent;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.LivingEntity;
@@ -26,7 +25,7 @@ public class BowFiringEventMixin {
     public void addEnchantmentsToArrowEntity(ItemStack stack, World world, LivingEntity user, int remainingUseTicks, CallbackInfo ci, PlayerEntity playerEntity, boolean bl, ItemStack itemStack, int i, float f, boolean bl2, ArrowItem arrowItem, PersistentProjectileEntity persistentProjectileEntity) {
         EnchantmentHelper.get(stack).forEach((enchantment, level) -> {
             if (enchantment instanceof EnchantmentBuilder enchantmentBuilder) {
-                for (ComponentKey<IntComponent> componentKey : enchantmentBuilder.getComponents()) {
+                for (ComponentKey<BaseComponent> componentKey : enchantmentBuilder.getComponents()) {
                     componentKey.maybeGet(persistentProjectileEntity).ifPresent(component -> component.onProjectileFire(user, persistentProjectileEntity, level));
                 }
             }
