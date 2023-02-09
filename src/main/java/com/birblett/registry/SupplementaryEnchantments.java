@@ -5,6 +5,7 @@ import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentTarget;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.item.Items;
 
 public class SupplementaryEnchantments {
 
@@ -14,7 +15,7 @@ public class SupplementaryEnchantments {
     public static final EnchantmentBuilder BURST_FIRE = new EnchantmentBuilder("burst_fire", Enchantment.Rarity.VERY_RARE,
             EnchantmentTarget.CROSSBOW, BOTH_HANDS);
     public static final EnchantmentBuilder GRAPPLING = new EnchantmentBuilder("grappling", Enchantment.Rarity.UNCOMMON,
-            EnchantmentTarget.CROSSBOW, MAIN_HAND);
+            null, MAIN_HAND);
     public static final EnchantmentBuilder LIGHTNING_BOLT = new EnchantmentBuilder("lightning_bolt", Enchantment.Rarity.VERY_RARE,
             EnchantmentTarget.BOW, BOTH_HANDS);
     public static final EnchantmentBuilder MARKED = new EnchantmentBuilder("marked", Enchantment.Rarity.VERY_RARE,
@@ -23,21 +24,22 @@ public class SupplementaryEnchantments {
     public static void buildAndRegister() {
         BURST_FIRE.makeIncompatible(Enchantments.MULTISHOT)
                 .setPower(20, 50)
-                .addComponent(SupplementaryComponents.BURST_FIRE_TIMER)
+                .addComponents(SupplementaryComponents.BURST_FIRE_TIMER)
                 .register();
         GRAPPLING.makeIncompatible(Enchantments.QUICK_CHARGE, Enchantments.MULTISHOT)
                 .setPower(20,50)
-                .addComponent(SupplementaryComponents.GRAPPLING)
+                .addComponents(SupplementaryComponents.GRAPPLING)
                 .setTreasure(true)
+                .addCompatibleItems(Items.CROSSBOW, Items.FISHING_ROD)
                 .register();
         LIGHTNING_BOLT.makeIncompatible(Enchantments.POWER)
                 .setPower(20, 50)
-                .addComponent(SupplementaryComponents.LIGHTNING_BOLT)
+                .addComponents(SupplementaryComponents.LIGHTNING_BOLT)
                 .register();
         MARKED.makeIncompatible(BURST_FIRE)
                 .setPower(20, 5, 25, 5)
                 .setMaxLevel(3)
-                .addComponent(SupplementaryComponents.MARKED_LEVEL)
+                .addComponents(SupplementaryComponents.MARKED_LEVEL)
                 .register();
     }
 }

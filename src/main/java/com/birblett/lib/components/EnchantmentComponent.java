@@ -38,9 +38,7 @@ public class EnchantmentComponent implements BaseComponent {
     }
 
     @Override
-    public void setEntity(Entity entity) {
-
-    }
+    public void setEntity(Entity entity) {}
 
     @Override
     public void inBlockTick(PersistentProjectileEntity persistentProjectileEntity, int lvl) {}

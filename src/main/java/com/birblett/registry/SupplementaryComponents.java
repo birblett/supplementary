@@ -60,6 +60,40 @@ public class SupplementaryComponents implements EntityComponentInitializer {
 
     @Override
     public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
+        registry.registerFor(PersistentProjectileEntity.class, BURST_FIRE_TIMER, e -> new TimedComponent("burst_fire_timer") {
+            @Override
+            public void onCrossbowUse(ItemStack stack, Hand hand, ItemStack savedProjectile) {
+                if (this.getValue() == 0) {
+                    this.itemStack = stack;
+                    this.hand = hand;
+                    this.storedProjectile = savedProjectile;
+                    this.setValue(8);
+                }
+            }
+
+            @Override
+            public void onProjectileFire(LivingEntity user, PersistentProjectileEntity projectileEntity, int level) {
+                projectileEntity.setDamage(projectileEntity.getDamage() - 0.3);
+                SupplementaryComponents.IGNORES_IFRAMES.get(projectileEntity).setValue(1);
+            }
+
+            @Override
+            public void onTick(LivingEntity livingEntity) {
+                if (this.hand != null && livingEntity.getStackInHand(this.hand) == this.itemStack && this.getValue() > 0) {
+                    this.setValue(this.getValue() - 1);
+                    if (this.getValue() % 4 == 0) {
+                        float pitch = CrossbowItem.getSoundPitch(true, livingEntity.getRandom());
+                        CrossbowItem.shoot(livingEntity.getWorld(), livingEntity, hand, this.itemStack, this.storedProjectile,
+                                pitch, livingEntity instanceof PlayerEntity player && player.isCreative(),
+                                CrossbowItem.getSpeed(this.storedProjectile), 1.0F, 0.0F);
+                    }
+                }
+                else if (this.getValue() > 0) {
+                    this.setValue(0);
+                    this.hand = null;
+                }
+            }
+        }); // projectile component of burst fire
         registry.registerFor(LivingEntity.class, BURST_FIRE_TIMER, e -> new TimedComponent("burst_fire_timer") {
             @Override
             public void onCrossbowUse(ItemStack stack, Hand hand, ItemStack savedProjectile) {
@@ -96,40 +130,6 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                 }
             }
         }); // shooter component of burst fire
-        registry.registerFor(PersistentProjectileEntity.class, BURST_FIRE_TIMER, e -> new TimedComponent("burst_fire_timer") {
-            @Override
-            public void onCrossbowUse(ItemStack stack, Hand hand, ItemStack savedProjectile) {
-                if (this.getValue() == 0) {
-                    this.itemStack = stack;
-                    this.hand = hand;
-                    this.storedProjectile = savedProjectile;
-                    this.setValue(8);
-                }
-            }
-
-            @Override
-            public void onProjectileFire(LivingEntity user, PersistentProjectileEntity projectileEntity, int level) {
-                projectileEntity.setDamage(projectileEntity.getDamage() - 0.3);
-                SupplementaryComponents.IGNORES_IFRAMES.get(projectileEntity).setValue(1);
-            }
-
-            @Override
-            public void onTick(LivingEntity livingEntity) {
-                if (this.hand != null && livingEntity.getStackInHand(this.hand) == this.itemStack && this.getValue() > 0) {
-                    this.setValue(this.getValue() - 1);
-                    if (this.getValue() % 4 == 0) {
-                        float pitch = CrossbowItem.getSoundPitch(true, livingEntity.getRandom());
-                        CrossbowItem.shoot(livingEntity.getWorld(), livingEntity, hand, this.itemStack, this.storedProjectile,
-                                pitch, livingEntity instanceof PlayerEntity player && player.isCreative(),
-                                CrossbowItem.getSpeed(this.storedProjectile), 1.0F, 0.0F);
-                    }
-                }
-                else if (this.getValue() > 0) {
-                    this.setValue(0);
-                    this.hand = null;
-                }
-            }
-        }); // projectile component of burst fire
         registry.registerFor(PersistentProjectileEntity.class, GRAPPLING, e -> new SyncedEnchantmentComponent("grappling") {
             @Override
             public void inBlockTick(PersistentProjectileEntity persistentProjectileEntity, int level) {
