@@ -4,7 +4,7 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.projectile.PersistentProjectileEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Hand;
@@ -44,13 +44,15 @@ public class TimedComponent implements BaseComponent {
     public void setEntity(Entity entity) {}
 
     @Override
-    public void inBlockTick(PersistentProjectileEntity persistentProjectileEntity, int lvl) {}
+    public void inBlockTick(ProjectileEntity projectileEntity, int lvl) {}
 
     @Override
-    public void preEntityHit(Entity target, PersistentProjectileEntity persistentProjectileEntity, int lvl) {}
+    public void preEntityHit(Entity target, ProjectileEntity persistentProjectileEntity, int lvl) {}
 
     @Override
-    public void postEntityHit(Entity target, PersistentProjectileEntity persistentProjectileEntity, int lvl) {}
+    public boolean postEntityHit(Entity target, ProjectileEntity projectileEntity, int lvl) {
+        return false;
+    }
 
     @Override
     public void onHandSwingEvent(LivingEntity entity, Hand hand) {}
@@ -59,23 +61,23 @@ public class TimedComponent implements BaseComponent {
     public void onUse(LivingEntity entity, Hand hand) {}
 
     @Override
-    public void onBlockHit(BlockHitResult blockHitResult, PersistentProjectileEntity persistentProjectileEntity, int lvl) {}
+    public void onBlockHit(BlockHitResult blockHitResult, ProjectileEntity persistentProjectileEntity, int lvl) {}
 
     @Override
     public void onCrossbowUse(ItemStack stack, Hand hand, ItemStack savedProjectile) {}
 
     @Override
-    public void onProjectileFire(LivingEntity user, PersistentProjectileEntity projectileEntity, int level) {}
+    public void onProjectileFire(LivingEntity user, ProjectileEntity projectileEntity, int level) {}
 
     @Override
-    public void onProjectileRender(PersistentProjectileEntity persistentProjectileEntity, float tickDelta, MatrixStack matrixStack,
+    public void onProjectileRender(ProjectileEntity projectileEntity, float tickDelta, MatrixStack matrixStack,
                                    VertexConsumerProvider vertexConsumerProvider, int level) {}
 
     @Override
     public void onTick(LivingEntity entity) {}
 
     @Override
-    public Vec3d onTravel(PersistentProjectileEntity persistentProjectile, int level, Vec3d velocity) {
+    public Vec3d onTravel(ProjectileEntity projectileEntity, int level, Vec3d velocity) {
         return null;
     }
 

@@ -4,18 +4,20 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "LoomScreenHandlerMixin",
-    "PlayerEntityRendererMixin",
     "events.BowFiringEventMixin",
     "events.CrossbowFiringEventMixin",
+    "events.FishingBobberEventMixin",
+    "events.FishingRodCastEventMixin",
     "events.ItemUseEventMixin",
     "events.LivingEntityEventMixin",
-    "events.PersistentProjectileEventMixin"
+    "events.PersistentProjectileEventMixin",
+    "render.PlayerCapeRenderer"
   ],
   "injectors": {
     "defaultRequire": 1
   },
   "client": [
     "LoomScreenMixin",
-    "events.ProjectileEntityRenderMixin"
+    "render.ProjectileEntityRenderer"
   ]
 }

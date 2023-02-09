@@ -28,7 +28,7 @@ public class PersistentProjectileEventMixin {
                 if (newVelocity != velocity) {
                     self.setVelocity(newVelocity);
                     self.velocityModified = true;
-                    return newVelocity;
+                    velocity = newVelocity;
                 }
             }
         }

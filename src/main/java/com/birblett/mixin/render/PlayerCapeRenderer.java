@@ -1,4 +1,4 @@
-package com.birblett.mixin;
+package com.birblett.mixin.render;
 
 import com.birblett.trinkets.render.CustomCapeFeatureRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
@@ -11,9 +11,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(PlayerEntityRenderer.class)
-public abstract class PlayerEntityRendererMixin extends LivingEntityRenderer {
+public abstract class PlayerCapeRenderer extends LivingEntityRenderer {
 
-    public PlayerEntityRendererMixin(EntityRendererFactory.Context ctx, EntityModel model, float shadowRadius) {
+    public PlayerCapeRenderer(EntityRendererFactory.Context ctx, EntityModel model, float shadowRadius) {
         super(ctx, model, shadowRadius);
     }
 
