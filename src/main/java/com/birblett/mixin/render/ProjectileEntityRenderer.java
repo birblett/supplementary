@@ -1,4 +1,4 @@
-package com.birblett.mixin.events;
+package com.birblett.mixin.render;
 
 import com.birblett.lib.components.BaseComponent;
 import com.birblett.registry.SupplementaryComponents;
