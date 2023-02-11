@@ -43,7 +43,9 @@
 			"supplementary:ignores_iframes",
 			"supplementary:lightning_bolt",
 			"supplementary:marked",
-			"supplementary:marked_tracked_entity"
+			"supplementary:marked_tracked_entity",
+
+			"supplementary:snowball_type"
 		]
 	}
 }

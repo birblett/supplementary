@@ -19,7 +19,7 @@ public class SupplementaryEntities {
     public static final EntityType<SnowballVariantEntity> SNOWBALL_VARIANT = FabricEntityTypeBuilder.<SnowballVariantEntity>create(
             SpawnGroup.MISC, SnowballVariantEntity::new)
             .dimensions(EntityDimensions.fixed(0.25F, 0.25F))
-            .trackRangeBlocks(4).trackedUpdateRate(10)
+            .trackRangeBlocks(32).trackedUpdateRate(20)
             .build();
 
     public static void register() {

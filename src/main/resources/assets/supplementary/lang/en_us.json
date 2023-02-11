@@ -1,4 +1,6 @@
 {
+  "entity.supplementary.snowball_variant": "Snowball Variant",
+
   "block.supplementary.magic_sand": "Magic Sand",
   "item.supplementary.magic_sand": "Magic Sand",
 
@@ -7,6 +9,7 @@
   "enchantment.supplementary.lightning_bolt": "Lightning Bolt",
   "enchantment.supplementary.marked": "Marked",
 
+  "item.supplementary.blowball": "Blowball",
   "item.supplementary.glowball": "Glowball",
   "item.supplementary.iceball": "Iceball",
   "item.supplementary.slowball": "Slowball",

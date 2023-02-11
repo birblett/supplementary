@@ -14,6 +14,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LightningEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonPart;
+import net.minecraft.entity.passive.SnowGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.FishingBobberEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
@@ -59,6 +60,9 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             MARKED_LEVEL,
             GRAPPLING
     );
+
+    public static final ComponentKey<SimpleEntityComponent> SNOWBALL_TYPE =
+            ComponentRegistry.getOrCreate(new Identifier(MODID, "snowball_type"), SimpleEntityComponent.class);
 
     @Override
     public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
@@ -319,5 +323,6 @@ public class SupplementaryComponents implements EntityComponentInitializer {
         });
         registry.registerFor(PersistentProjectileEntity.class, MARKED_TRACKED_ENTITY, e -> new TrackingComponent());
         registry.registerFor(LivingEntity.class, MARKED_TRACKED_ENTITY, e -> new TrackingComponent());
+        registry.registerFor(SnowGolemEntity.class, SNOWBALL_TYPE, e -> new SimpleTrackingComponent("snowball_type"));
     }
 }

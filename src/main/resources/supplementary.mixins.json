@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "LoomScreenHandlerMixin",
+    "SnowGolemEntityAlternateProjectilesMixin",
     "events.BowFiringEventMixin",
     "events.CrossbowFiringEventMixin",
     "events.FishingBobberEventMixin",

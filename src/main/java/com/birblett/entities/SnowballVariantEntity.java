@@ -10,24 +10,12 @@ import net.minecraft.item.Items;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 public class SnowballVariantEntity extends ThrownItemEntity {
 
-    private int shouldRenderDistance = 96*96;
-
-    public interface SnowballVariantHitEvent {
-        void execute(LivingEntity target, SnowballVariantEntity snowballVariantEntity);
-    }
-
     public SnowballVariantEntity(EntityType<? extends ThrownItemEntity> entityType, World world) {
         super(entityType, world);
-    }
-
-    public SnowballVariantEntity(World world, Vec3d pos) {
-        super(SupplementaryEntities.SNOWBALL_VARIANT, world);
-        this.setPosition(pos);
     }
 
     public SnowballVariantEntity(World world, LivingEntity user) {
@@ -62,12 +50,8 @@ public class SnowballVariantEntity extends ThrownItemEntity {
         }
     }
 
-    public void setShouldRenderDistance(int distance) {
-        this.shouldRenderDistance = distance;
-    }
-
     @Override
     public boolean shouldRender(double distance) {
-        return distance < this.shouldRenderDistance;
+        return distance < 96*96;
     }
 }

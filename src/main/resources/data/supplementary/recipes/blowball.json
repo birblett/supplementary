@@ -11,11 +11,11 @@
       "item": "minecraft:snowball"
     },
     "#": {
-      "item": "minecraft:fermented_spider_eye"
+      "item": "minecraft:feather"
     }
   },
   "result": {
-    "item": "supplementary:slowball",
+    "item": "supplementary:glowball",
     "count": 8
   }
 }

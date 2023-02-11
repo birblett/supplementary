@@ -38,33 +38,6 @@ public class SupplementaryItems {
     public static final Item STEEL_BOOTS = new ArmorItem(STEEL_PLATE_ARMOR_MATERIAL, EquipmentSlot.FEET,
             new FabricItemSettings().group(ItemGroup.COMBAT).maxCount(1));
 
-    public static final Item GLOWBALL = new AbstractSnowballVariantItem(new Item.Settings().maxCount(16).group(ItemGroup.MISC)) {
-        @Override
-        public void onEntityHitEvent(Entity target, SnowballVariantEntity snowballVariantEntity) {
-            if (target instanceof LivingEntity livingEntity) {
-                livingEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.GLOWING, 50, 0, false, false));
-            }
-            float damageAmount = target instanceof BlazeEntity ? 4.0f : 1.0f;
-            target.damage(DamageSource.thrownProjectile(snowballVariantEntity, snowballVariantEntity.getOwner()), damageAmount);
-        }
-    };
-    public static final Item ICEBALL = new AbstractSnowballVariantItem(new Item.Settings().maxCount(16).group(ItemGroup.MISC)) {
-        @Override
-        public void onEntityHitEvent(Entity target, SnowballVariantEntity snowballVariantEntity) {
-            float damageAmount = target instanceof BlazeEntity ? 6.0f : 2.0f;
-            target.damage(DamageSource.thrownProjectile(snowballVariantEntity, snowballVariantEntity.getOwner()), damageAmount);
-        }
-    };
-    public static final Item SLOWBALL = new AbstractSnowballVariantItem(new Item.Settings().maxCount(16).group(ItemGroup.MISC)) {
-        @Override
-        public void onEntityHitEvent(Entity target, SnowballVariantEntity snowballVariantEntity) {
-            if (target instanceof LivingEntity livingEntity) {
-                livingEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 50, 1));
-            }
-            float damageAmount = target instanceof BlazeEntity ? 4.0f : 1.0f;
-            target.damage(DamageSource.thrownProjectile(snowballVariantEntity, snowballVariantEntity.getOwner()), damageAmount);
-        }
-    };
     public static final Item SNOWGOLEMBALL = new AbstractSnowballVariantItem(new Item.Settings().maxCount(16).group(ItemGroup.MISC)) {
         @Override
         public void onEntityHitEvent(Entity target, SnowballVariantEntity snowballVariantEntity) {
@@ -84,6 +57,40 @@ public class SupplementaryItems {
             snowballVariantEntity.getWorld().spawnEntity(snowGolemEntity);
         }
     };
+    public static final Item GLOWBALL = new AbstractSnowballVariantItem(new Item.Settings().maxCount(16).group(ItemGroup.MISC), 1) {
+        @Override
+        public void onEntityHitEvent(Entity target, SnowballVariantEntity snowballVariantEntity) {
+            if (target instanceof LivingEntity livingEntity) {
+                livingEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.GLOWING, 50, 0, false, false));
+            }
+            float damageAmount = target instanceof BlazeEntity ? 4.0f : 1.0f;
+            target.damage(DamageSource.thrownProjectile(snowballVariantEntity, snowballVariantEntity.getOwner()), damageAmount);
+        }
+    };
+    public static final Item ICEBALL = new AbstractSnowballVariantItem(new Item.Settings().maxCount(16).group(ItemGroup.MISC), 2) {
+        @Override
+        public void onEntityHitEvent(Entity target, SnowballVariantEntity snowballVariantEntity) {
+            float damageAmount = target instanceof BlazeEntity ? 6.0f : 2.0f;
+            target.damage(DamageSource.thrownProjectile(snowballVariantEntity, snowballVariantEntity.getOwner()), damageAmount);
+        }
+    };
+    public static final Item SLOWBALL = new AbstractSnowballVariantItem(new Item.Settings().maxCount(16).group(ItemGroup.MISC), 3) {
+        @Override
+        public void onEntityHitEvent(Entity target, SnowballVariantEntity snowballVariantEntity) {
+            if (target instanceof LivingEntity livingEntity) {
+                livingEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 50, 1));
+            }
+            float damageAmount = target instanceof BlazeEntity ? 4.0f : 1.0f;
+            target.damage(DamageSource.thrownProjectile(snowballVariantEntity, snowballVariantEntity.getOwner()), damageAmount);
+        }
+    };
+    public static final Item BLOWBALL = new AbstractSnowballVariantItem(new Item.Settings().maxCount(16).group(ItemGroup.MISC), 4) {
+        @Override
+        public void onEntityHitEvent(Entity target, SnowballVariantEntity snowballVariantEntity) {
+            target.setVelocity(target.getVelocity().add(snowballVariantEntity.getVelocity().normalize().multiply(0.5).add(0.0, 0.1, 0.0)));
+            target.velocityModified = true;
+        }
+    };
 
     public static void register() {
         Registry.register(Registry.ITEM, new Identifier(MODID, "cape"), CAPE);
@@ -92,6 +99,7 @@ public class SupplementaryItems {
         Registry.register(Registry.ITEM, new Identifier(MODID, "steel_leggings"), STEEL_LEGGINGS);
         Registry.register(Registry.ITEM, new Identifier(MODID, "steel_boots"), STEEL_BOOTS);
 
+        Registry.register(Registry.ITEM, new Identifier(MODID, "blowball"), BLOWBALL);
         Registry.register(Registry.ITEM, new Identifier(MODID, "glowball"), GLOWBALL);
         Registry.register(Registry.ITEM, new Identifier(MODID, "iceball"), ICEBALL);
         Registry.register(Registry.ITEM, new Identifier(MODID, "slowball"), SLOWBALL);
