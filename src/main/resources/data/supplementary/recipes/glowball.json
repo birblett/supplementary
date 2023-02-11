@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "boat",
+  "pattern": [
+    "ooo",
+    "o#o",
+    "ooo"
+  ],
+  "key": {
+    "o": {
+      "item": "minecraft:snowball"
+    },
+    "#": {
+      "item": "minecraft:glowstone"
+    }
+  },
+  "result": {
+    "item": "supplementary:glowball",
+    "count": 8
+  }
+}

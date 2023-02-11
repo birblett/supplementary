@@ -38,7 +38,7 @@ public class SupplementaryItems {
     public static final Item STEEL_BOOTS = new ArmorItem(STEEL_PLATE_ARMOR_MATERIAL, EquipmentSlot.FEET,
             new FabricItemSettings().group(ItemGroup.COMBAT).maxCount(1));
 
-    public static final Item GLOWBALL = new AbstractSnowballVariantItem(new Item.Settings().maxCount(16)) {
+    public static final Item GLOWBALL = new AbstractSnowballVariantItem(new Item.Settings().maxCount(16).group(ItemGroup.MISC)) {
         @Override
         public void onEntityHitEvent(Entity target, SnowballVariantEntity snowballVariantEntity) {
             if (target instanceof LivingEntity livingEntity) {
@@ -48,14 +48,14 @@ public class SupplementaryItems {
             target.damage(DamageSource.thrownProjectile(snowballVariantEntity, snowballVariantEntity.getOwner()), damageAmount);
         }
     };
-    public static final Item ICEBALL = new AbstractSnowballVariantItem(new Item.Settings().maxCount(16)) {
+    public static final Item ICEBALL = new AbstractSnowballVariantItem(new Item.Settings().maxCount(16).group(ItemGroup.MISC)) {
         @Override
         public void onEntityHitEvent(Entity target, SnowballVariantEntity snowballVariantEntity) {
-            float damageAmount = target instanceof BlazeEntity ? 4.0f : 2.0f;
+            float damageAmount = target instanceof BlazeEntity ? 6.0f : 2.0f;
             target.damage(DamageSource.thrownProjectile(snowballVariantEntity, snowballVariantEntity.getOwner()), damageAmount);
         }
     };
-    public static final Item SLOWBALL = new AbstractSnowballVariantItem(new Item.Settings().maxCount(16)) {
+    public static final Item SLOWBALL = new AbstractSnowballVariantItem(new Item.Settings().maxCount(16).group(ItemGroup.MISC)) {
         @Override
         public void onEntityHitEvent(Entity target, SnowballVariantEntity snowballVariantEntity) {
             if (target instanceof LivingEntity livingEntity) {
@@ -65,7 +65,7 @@ public class SupplementaryItems {
             target.damage(DamageSource.thrownProjectile(snowballVariantEntity, snowballVariantEntity.getOwner()), damageAmount);
         }
     };
-    public static final Item SNOWGOLEMBALL = new AbstractSnowballVariantItem(new Item.Settings().maxCount(16)) {
+    public static final Item SNOWGOLEMBALL = new AbstractSnowballVariantItem(new Item.Settings().maxCount(16).group(ItemGroup.MISC)) {
         @Override
         public void onEntityHitEvent(Entity target, SnowballVariantEntity snowballVariantEntity) {
             SnowGolemEntity snowGolemEntity = new SnowGolemEntity(EntityType.SNOW_GOLEM, snowballVariantEntity.getWorld());

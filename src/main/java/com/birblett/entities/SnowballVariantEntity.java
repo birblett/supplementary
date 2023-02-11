@@ -15,7 +15,7 @@ import net.minecraft.world.World;
 
 public class SnowballVariantEntity extends ThrownItemEntity {
 
-    private int shouldRenderDistance = 64*64;
+    private int shouldRenderDistance = 96*96;
 
     public interface SnowballVariantHitEvent {
         void execute(LivingEntity target, SnowballVariantEntity snowballVariantEntity);
