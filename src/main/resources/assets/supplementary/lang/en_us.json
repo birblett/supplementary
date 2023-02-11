@@ -1,15 +1,20 @@
 {
+  "block.supplementary.magic_sand": "Magic Sand",
+  "item.supplementary.magic_sand": "Magic Sand",
+
   "enchantment.supplementary.burst_fire": "Burst Fire",
   "enchantment.supplementary.grappling": "Grappling",
   "enchantment.supplementary.lightning_bolt": "Lightning Bolt",
   "enchantment.supplementary.marked": "Marked",
 
+  "item.supplementary.glowball": "Glowball",
+  "item.supplementary.iceball": "Iceball",
+  "item.supplementary.slowball": "Slowball",
+  "item.supplementary.snowgolemball": "Snowgolemball",
+
   "item.supplementary.cape": "Cape",
   "item.supplementary.steel_helmet": "Steel Helmet",
   "item.supplementary.steel_chestplate": "Steel Chestplate",
   "item.supplementary.steel_leggings": "Steel Leggings",
-  "item.supplementary.steel_boots": "Steel Boots",
-  "item.supplementary.magic_sand": "Magic Sand",
-
-  "block.supplementary.magic_sand": "Magic Sand"
+  "item.supplementary.steel_boots": "Steel Boots"
 }

@@ -1,6 +1,5 @@
 package com.birblett.registry;
 
-import com.birblett.Supplementary;
 import com.birblett.lib.components.*;
 import com.birblett.lib.helper.RenderHelper;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
