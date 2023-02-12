@@ -48,7 +48,7 @@ public class EnchantmentBuilder extends Enchantment {
         makeIncompatible(Enchantment...): makes provided enchantment(s) incompatible with this enchantment
         addCompatibleItems(Item...): makes provided item(s) compatible with this enchantment
         addComponent(ComponentKey<BaseComponent>): attaches provided ComponentKey to this enchantment
-        register(): registers the enchantment in the enchantment registry, final build method
+        build(): builds + registers the enchantment
 
     Non-inherited methods:
         getComponents(): returns components list
@@ -129,7 +129,7 @@ public class EnchantmentBuilder extends Enchantment {
         return this.components;
     }
 
-    public void register() {
+    public void build() {
         Registry.register(Registry.ENCHANTMENT, this.identifier, this);
     }
 

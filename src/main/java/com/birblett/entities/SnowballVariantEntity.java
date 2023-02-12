@@ -18,6 +18,11 @@ public class SnowballVariantEntity extends ThrownItemEntity {
         super(entityType, world);
     }
 
+    public SnowballVariantEntity(World world, double x, double y, double z) {
+        super(SupplementaryEntities.SNOWBALL_VARIANT, world);
+        this.setPosition(x, y, z);
+    }
+
     public SnowballVariantEntity(World world, LivingEntity user) {
         super(SupplementaryEntities.SNOWBALL_VARIANT, user, world);
         this.setPosition(user.getEyePos());
