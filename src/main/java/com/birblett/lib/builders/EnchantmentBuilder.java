@@ -17,41 +17,41 @@ public class EnchantmentBuilder extends Enchantment {
     /*
     Extensible builder for enchantments requiring functionality beyond the vanilla class
 
-    Constructor:
-        identifier: String representing registry namespace
-        weight: Enchantment.Rarity passed to superclass constructor
-        type: EnchantmentTarget passed to superclass constructor; addCompatibleItems method overrides this behavior.
-        slotTypes: EquipmentSlot[] passed to superclass constructor
+    Constructor
+        identifier - String representing registry namespace
+        weight - Enchantment.Rarity passed to superclass constructor
+        type - EnchantmentTarget passed to superclass constructor; addCompatibleItems method overrides this behavior.
+        slotTypes - EquipmentSlot[] passed to superclass constructor
 
-    Fields:
-        maxLevel: maximum enchantment level obtainable via enchanting
-        minPower: minimum enchantment power required to appear in enchantment pool (for a level 1 enchantment)
-        minPowerScale: amount minimum power requirement should scale per additional level
-        maxPower: maximum enchantment power required to appear in enchantment pool (for a level 1 enchantment)
-        maxPowerScale: amount maximum power requirement should scale per additional level
-        components: list of component keys to iterate through when a game event invokes this enchantment
-        acceptableTypes: list of acceptable items, overrides the vanilla acceptable item type behavior if set
-        identifier: registry namespace to register under (format: "supplementary:identifier")
-        isCurse: whether the enchantment is considered a curse or not
-        isTreasure: whether the enchantment is considered a treasure enchantment or not
-        availableForOffer: whether the enchantment should show up in villager trade offers or not
-        availableForRandomSelection: whether the enchantment should appear in enchantment tables or loot tables
-        incompatibleEnchantments: list of enchantments that are not compatible with this enchantment
+    Fields
+        maxLevel - maximum enchantment level obtainable via enchanting
+        minPower - minimum enchantment power required to appear in enchantment pool (for a level 1 enchantment)
+        minPowerScale - amount minimum power requirement should scale per additional level
+        maxPower - maximum enchantment power required to appear in enchantment pool (for a level 1 enchantment)
+        maxPowerScale - amount maximum power requirement should scale per additional level
+        components - list of component keys to iterate through when a game event invokes this enchantment
+        acceptableTypes - list of acceptable items, overrides the vanilla acceptable item type behavior if set
+        identifier - registry namespace to register under (format: "supplementary:identifier")
+        isCurse - whether the enchantment is considered a curse or not
+        isTreasure - whether the enchantment is considered a treasure enchantment or not
+        availableForOffer - whether the enchantment should show up in villager trade offers or not
+        availableForRandomSelection - whether the enchantment should appear in enchantment tables or loot tables
+        incompatibleEnchantments - list of enchantments that are not compatible with this enchantment
 
-    Builder methods:
-        setMaxLevel(int): setter for maxLevel
-        setPower(int, int): setter for min and max power, assuming neither scale with target level
-        setPower(int, int, int, int): setter for min and max power + scale
-        setCurse(boolean): setter for isCurse
-        setTreasure(boolean): setter for isTreasure
-        setAvailability(boolean, boolean): setter for availableForRandomOffer, availableForRandomSelection
-        makeIncompatible(Enchantment...): makes provided enchantment(s) incompatible with this enchantment
-        addCompatibleItems(Item...): makes provided item(s) compatible with this enchantment
-        addComponent(ComponentKey<BaseComponent>): attaches provided ComponentKey to this enchantment
-        register(): registers the enchantment in the enchantment registry, final build method
+    Builder methods
+        setMaxLevel(int) - setter for maxLevel
+        setPower(int, int) - setter for min and max power, assuming neither scale with target level
+        setPower(int, int, int, int) - setter for min and max power + scale
+        setCurse(boolean) - setter for isCurse
+        setTreasure(boolean) - setter for isTreasure
+        setAvailability(boolean, boolean) - setter for availableForRandomOffer, availableForRandomSelection
+        makeIncompatible(Enchantment...) - makes provided enchantment(s) incompatible with this enchantment
+        addCompatibleItems(Item...) - makes provided item(s) compatible with this enchantment
+        addComponent(ComponentKey<BaseComponent>) - attaches provided ComponentKey to this enchantment
+        build() - builds + registers the enchantment
 
-    Non-inherited methods:
-        getComponents(): returns components list
+    Non-inherited methods
+        getComponents() - returns components list
      */
 
     private int maxLevel = 1;
@@ -129,7 +129,7 @@ public class EnchantmentBuilder extends Enchantment {
         return this.components;
     }
 
-    public void register() {
+    public void build() {
         Registry.register(Registry.ENCHANTMENT, this.identifier, this);
     }
 

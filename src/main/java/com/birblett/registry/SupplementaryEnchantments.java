@@ -25,21 +25,21 @@ public class SupplementaryEnchantments {
         BURST_FIRE.makeIncompatible(Enchantments.MULTISHOT)
                 .setPower(20, 50)
                 .addComponents(SupplementaryComponents.BURST_FIRE_TIMER)
-                .register();
+                .build();
         GRAPPLING.makeIncompatible(Enchantments.QUICK_CHARGE, Enchantments.MULTISHOT)
                 .setPower(20,50)
                 .addComponents(SupplementaryComponents.GRAPPLING)
                 .setTreasure(true)
                 .addCompatibleItems(Items.CROSSBOW, Items.FISHING_ROD)
-                .register();
+                .build();
         LIGHTNING_BOLT.makeIncompatible(Enchantments.POWER)
                 .setPower(20, 50)
                 .addComponents(SupplementaryComponents.LIGHTNING_BOLT)
-                .register();
+                .build();
         MARKED.makeIncompatible(BURST_FIRE)
                 .setPower(20, 5, 25, 5)
                 .setMaxLevel(3)
                 .addComponents(SupplementaryComponents.MARKED_LEVEL)
-                .register();
+                .build();
     }
 }

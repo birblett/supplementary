@@ -1,6 +1,5 @@
 package com.birblett.registry;
 
-import com.birblett.Supplementary;
 import com.birblett.lib.components.*;
 import com.birblett.lib.helper.RenderHelper;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
@@ -15,6 +14,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LightningEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonPart;
+import net.minecraft.entity.passive.SnowGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.FishingBobberEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
@@ -47,6 +47,8 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             ComponentRegistry.getOrCreate(new Identifier(MODID, "marked"), BaseComponent.class);
     public static final ComponentKey<BaseComponent> MARKED_TRACKED_ENTITY =
             ComponentRegistry.getOrCreate(new Identifier(MODID, "marked_tracked_entity"), BaseComponent.class);
+    public static final ComponentKey<SimpleEntityComponent> SNOWBALL_TYPE =
+            ComponentRegistry.getOrCreate(new Identifier(MODID, "snowball_type"), SimpleEntityComponent.class);
 
     public static final List<ComponentKey<BaseComponent>> ENTITY_TICKING_COMPONENTS = List.of(
             BURST_FIRE_TIMER
@@ -150,6 +152,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                         owner.velocityModified = true;
                         if (projectileEntity.getOwner().getPos().subtract(projectileEntity.getPos()).lengthSquared() < 2) {
                             this.setValue(0);
+                            GRAPPLING.sync(projectileEntity);
                         }
                     } else {
                         this.setValue(0);
@@ -320,5 +323,6 @@ public class SupplementaryComponents implements EntityComponentInitializer {
         });
         registry.registerFor(PersistentProjectileEntity.class, MARKED_TRACKED_ENTITY, e -> new TrackingComponent());
         registry.registerFor(LivingEntity.class, MARKED_TRACKED_ENTITY, e -> new TrackingComponent());
+        registry.registerFor(SnowGolemEntity.class, SNOWBALL_TYPE, e -> new SimpleIntTrackingComponent("snowball_type"));
     }
 }

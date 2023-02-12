@@ -31,10 +31,10 @@ import net.minecraft.util.math.Vec3f;
 import java.util.List;
 import java.util.Optional;
 
-public class CustomCapeFeatureRenderer extends FeatureRenderer<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>> {
+public class CapeFeatureRenderer extends FeatureRenderer<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>> {
     private final ModelPart BASE_CAPE;
 
-    public CustomCapeFeatureRenderer(FeatureRendererContext<AbstractClientPlayerEntity,
+    public CapeFeatureRenderer(FeatureRendererContext<AbstractClientPlayerEntity,
                                      PlayerEntityModel<AbstractClientPlayerEntity>> context) {
         super(context);
         ModelData modelData = new ModelData();

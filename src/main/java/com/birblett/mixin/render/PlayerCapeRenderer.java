@@ -1,6 +1,6 @@
 package com.birblett.mixin.render;
 
-import com.birblett.trinkets.render.CustomCapeFeatureRenderer;
+import com.birblett.trinkets.render.CapeFeatureRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
@@ -20,6 +20,6 @@ public abstract class PlayerCapeRenderer extends LivingEntityRenderer {
     @Inject(method = "Lnet/minecraft/client/render/entity/PlayerEntityRenderer;<init>(Lnet/minecraft/client/render/" +
                      "entity/EntityRendererFactory$Context;Z)V", at = @At("RETURN"))
     public void init(EntityRendererFactory.Context ctx, boolean slim, CallbackInfo ci) {
-        this.addFeature(new CustomCapeFeatureRenderer(this));
+        this.addFeature(new CapeFeatureRenderer(this));
     }
 }
