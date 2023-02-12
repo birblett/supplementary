@@ -228,7 +228,9 @@ public class SupplementaryComponents implements EntityComponentInitializer {
         registry.registerFor(LivingEntity.class, GRAPPLING_TRACKING_COMPONENT, e -> new TrackingComponent() {
             @Override
             public void onHandSwingEvent(LivingEntity entity, Hand hand) {
-                if (!entity.getWorld().isClient() && !(this.getEntity() instanceof FishingBobberEntity)) {
+                if (!entity.getWorld().isClient() && this.getEntity() instanceof PersistentProjectileEntity persistentProjectileEntity) {
+                    GRAPPLING.get(persistentProjectileEntity).setValue(0);
+                    GRAPPLING.sync(persistentProjectileEntity);
                     this.setEntity(null);
                 }
             }

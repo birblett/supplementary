@@ -73,7 +73,8 @@ public class SnowballVariantItem extends Item {
         on-use code for throwing snowball variants, mostly copied from SnowballItem
          */
         ItemStack itemStack = user.getStackInHand(hand);
-        world.playSound(null, user.getX(), user.getY(), user.getZ(), SoundEvents.ENTITY_SNOWBALL_THROW, SoundCategory.NEUTRAL, 0.5F, 1F);
+        world.playSound(null, user.getX(), user.getY(), user.getZ(), SoundEvents.ENTITY_SNOWBALL_THROW, SoundCategory.NEUTRAL,
+                0.5F, 1F);
         if (!world.isClient) {
             SnowballVariantEntity slowballEntity = new SnowballVariantEntity(world, user);
             slowballEntity.setItem(itemStack);
