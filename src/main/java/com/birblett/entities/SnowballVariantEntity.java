@@ -1,6 +1,6 @@
 package com.birblett.entities;
 
-import com.birblett.items.AbstractSnowballVariantItem;
+import com.birblett.items.SnowballVariantItem;
 import com.birblett.registry.SupplementaryEntities;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -13,6 +13,18 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.world.World;
 
 public class SnowballVariantEntity extends ThrownItemEntity {
+    /*
+    Base class for all snowball variant entities.
+
+    Methods
+        onEntityHit(EntityHitResult) - executes onEntityHitEvent provided by the stored SnowballVariantItem
+        onBlockHit(BlockHitResult) - executes onBlockHitEvent provided by the stored SnowballVariantItem
+        onCollision(HitResult) - simplified version of SnowballEntity onCollision logic
+
+    Inherited/overridden methods
+        getDefaultItem() - returns Items.SNOWBALL; serves no practical function
+        shouldRender(double) - returns whether in distance to be rendered; usually obsolete due to lower tracking range
+     */
 
     public SnowballVariantEntity(EntityType<? extends ThrownItemEntity> entityType, World world) {
         super(entityType, world);
@@ -28,35 +40,44 @@ public class SnowballVariantEntity extends ThrownItemEntity {
         this.setPosition(user.getEyePos());
     }
 
-    @Override
-    protected Item getDefaultItem() {
-        return Items.SNOWBALL;
-    }
-
     protected void onEntityHit(EntityHitResult entityHitResult) {
+        /*
+        calls SnowVariantItem$onEntityHitEvent if stored item is of matching type
+         */
         super.onEntityHit(entityHitResult);
-        if (this.getItem().getItem() instanceof AbstractSnowballVariantItem item) {
+        if (this.getItem().getItem() instanceof SnowballVariantItem item) {
             item.onEntityHitEvent(entityHitResult.getEntity(), this);
         }
     }
 
     protected void onBlockHit(BlockHitResult blockHitResult) {
+        /*
+        calls SnowVariantItem$onBlockHitEvent if stored item is of matching type
+         */
         super.onBlockHit(blockHitResult);
-        if (this.getItem().getItem() instanceof AbstractSnowballVariantItem item) {
+        if (this.getItem().getItem() instanceof SnowballVariantItem item) {
             item.onBlockHitEvent(blockHitResult, this);
         }
     }
 
     protected void onCollision(HitResult hitResult) {
+        /*
+        discard this entity post-collision unless removeAfterCollision is set to false in the parent item
+         */
         super.onCollision(hitResult);
-        if (!this.world.isClient && this.getItem().getItem() instanceof AbstractSnowballVariantItem item && !item.persistsAfterCollision()) {
+        if (!this.world.isClient && this.getItem().getItem() instanceof SnowballVariantItem item && item.removeAfterCollision()) {
             this.world.sendEntityStatus(this, (byte)3);
             this.kill();
         }
     }
 
     @Override
+    protected Item getDefaultItem() {
+        return Items.SNOWBALL;
+    }
+
+    @Override
     public boolean shouldRender(double distance) {
-        return distance < 96*96;
+        return distance < 128;
     }
 }

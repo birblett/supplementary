@@ -4,12 +4,20 @@ import net.minecraft.nbt.NbtCompound;
 
 import static com.birblett.Supplementary.MODID;
 
-public class SimpleTrackingComponent implements SimpleEntityComponent {
+public class SimpleIntTrackingComponent implements SimpleEntityComponent {
+    /*
+    A component designed to track a single value.
+
+    Fields
+        value - a single tracked integer
+            getter: getValue()
+            setter: setvalue(int)
+     */
 
     private int value = -1;
     private final String id;
 
-    public SimpleTrackingComponent(String id) {
+    public SimpleIntTrackingComponent(String id) {
         this.id = MODID + ":" + id;
     }
 
@@ -23,6 +31,9 @@ public class SimpleTrackingComponent implements SimpleEntityComponent {
         this.value = value;
     }
 
+    /*
+    methods for storing value to NBT - do not call manually!
+     */
     @Override
     public void readFromNbt(NbtCompound tag) {
         this.value = tag.getInt(this.id);

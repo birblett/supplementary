@@ -3,7 +3,7 @@ package com.birblett.registry;
 
 
 import com.birblett.entities.SnowballVariantEntity;
-import com.birblett.items.AbstractSnowballVariantItem;
+import com.birblett.items.SnowballVariantItem;
 import com.birblett.trinkets.CapeItem;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import com.birblett.armor_materials.steel_plate.SteelPlateArmorMaterial;
@@ -37,17 +37,17 @@ public class SupplementaryItems {
     This class contains all item and material declarations with associated data, and provides helper methods to register
     specific types of items.
 
-    Trinkets:
+    Trinkets
         CAPE - CapeItem, registered under id supplementary:cape
             Implementation - com.birblett.trinkets.CapeItem
             Renderer - com.birblett.trinkets.render.CapeFeatureRenderer, instantiated in com.birblett.mixin.render.PlayerCapeRender
-    Snowball variants:
-        SNOWGOLEMBALL - Implements AbstractSnowballVariantItem, registered under id supplementary:snowgolemball
-        GLOWBALL - Implements AbstractSnowballVariantItem, registered under id supplementary:glowball
-        ICEBALL - Implements AbstractSnowballVariantItem, registered under id supplementary:snowgolemball
-        SLOWBALL - Implements AbstractSnowballVariantItem, registered under id supplementary:snowgolemball
-        BLOWBALL - Implements AbstractSnowballVariantItem, registered under id supplementary:snowgolemball
-    Armor:
+    Snowball variants - Implementations of the SnowballVariantItem class, may replace normal snowballs thrown by snow golems
+        SNOWGOLEMBALL - Registered under id supplementary:snowgolemball, cannot replace normal snow golem projectiles
+        GLOWBALL - Registered under id supplementary:glowball
+        ICEBALL - Registered under id supplementary:snowgolemball
+        SLOWBALL - Registered under id supplementary:snowgolemball
+        BLOWBALL - Registered under id supplementary:snowgolemball
+    Armor
         STEEL_PLATE_ARMOR_MATERIAL - armor material for steel armor set
             Implementation - com.birblett.armor_materials.steel_plate.SteelPlateArmorMaterial
         STEEL_HELMET - ArmorItem, registered under id supplementary:steel_helmet
@@ -72,11 +72,11 @@ public class SupplementaryItems {
     public static final Item STEEL_BOOTS = new ArmorItem(STEEL_PLATE_ARMOR_MATERIAL, EquipmentSlot.FEET,
             new FabricItemSettings().group(ItemGroup.COMBAT).maxCount(1));
 
-    public static final Item SNOWGOLEMBALL = new AbstractSnowballVariantItem(new Item.Settings().maxCount(16).group(ItemGroup.MISC)) {
+    public static final Item SNOWGOLEMBALL = new SnowballVariantItem(new Item.Settings().maxCount(16).group(ItemGroup.MISC)) {
         @Override
         public void onEntityHitEvent(Entity target, SnowballVariantEntity snowballVariantEntity) {
             /*
-            Spawn snow golem upon hitting a target. If target is a LivingEntity, snow golem will aggro on it.
+            spawn snow golem upon hitting a target; if target is a LivingEntity, snow golem will aggro on it.
              */
             SnowGolemEntity snowGolemEntity = new SnowGolemEntity(EntityType.SNOW_GOLEM, snowballVariantEntity.getWorld());
             snowGolemEntity.setPosition(snowballVariantEntity.getPos());
@@ -89,7 +89,7 @@ public class SupplementaryItems {
         @Override
         public void onBlockHitEvent(BlockHitResult blockHitResult, SnowballVariantEntity snowballVariantEntity) {
             /*
-            Spawn a snow golem on block hit based on the block face, in the center of the adjacent block.
+            spawn a snow golem on block hit based on the block face, in the center of the adjacent block
              */
             SnowGolemEntity snowGolemEntity = new SnowGolemEntity(EntityType.SNOW_GOLEM, snowballVariantEntity.getWorld());
             Vec3d blockPos2Vec = Vec3d.of(blockHitResult.getBlockPos().add(blockHitResult.getSide().getVector()));
@@ -98,11 +98,11 @@ public class SupplementaryItems {
             snowballVariantEntity.getWorld().spawnEntity(snowGolemEntity);
         }
     };
-    public static final Item GLOWBALL = new AbstractSnowballVariantItem(new Item.Settings().maxCount(16).group(ItemGroup.MISC), 1) {
+    public static final Item GLOWBALL = new SnowballVariantItem(new Item.Settings().maxCount(16).group(ItemGroup.MISC), 1) {
         @Override
         public void onEntityHitEvent(Entity target, SnowballVariantEntity snowballVariantEntity) {
             /*
-            Applies glowing (2.5s) on hit, and deals 1 damage, or 4 if target is a Blaze.
+            applies glowing (2.5s) on hit, and deals 1 damage, or 4 if target is a Blaze
              */
             if (target instanceof LivingEntity livingEntity) {
                 livingEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.GLOWING, 50, 0, false, false));
@@ -111,21 +111,21 @@ public class SupplementaryItems {
             target.damage(DamageSource.thrownProjectile(snowballVariantEntity, snowballVariantEntity.getOwner()), damageAmount);
         }
     };
-    public static final Item ICEBALL = new AbstractSnowballVariantItem(new Item.Settings().maxCount(16).group(ItemGroup.MISC), 2) {
+    public static final Item ICEBALL = new SnowballVariantItem(new Item.Settings().maxCount(16).group(ItemGroup.MISC), 2) {
         @Override
         public void onEntityHitEvent(Entity target, SnowballVariantEntity snowballVariantEntity) {
             /*
-            Deals 2 damage, or 7 if target is a Blaze or Ender Dragon.
+            deals 2 damage, or 7 if target is a blaze or ender dragon
              */
             float damageAmount = target instanceof BlazeEntity || target instanceof EnderDragonPart ? 7.0f : 2.0f;
             target.damage(DamageSource.thrownProjectile(snowballVariantEntity, snowballVariantEntity.getOwner()), damageAmount);
         }
     };
-    public static final Item SLOWBALL = new AbstractSnowballVariantItem(new Item.Settings().maxCount(16).group(ItemGroup.MISC), 3) {
+    public static final Item SLOWBALL = new SnowballVariantItem(new Item.Settings().maxCount(16).group(ItemGroup.MISC), 3) {
         @Override
         public void onEntityHitEvent(Entity target, SnowballVariantEntity snowballVariantEntity) {
             /*
-            Applies slowness (2s) on hit, and deals 1 damage, or 4 if target is a Blaze.
+            applies slowness (2s) on hit, and deals 1 damage, or 4 if target is a Blaze
              */
             if (target instanceof LivingEntity livingEntity) {
                 livingEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 40, 1));
@@ -134,11 +134,11 @@ public class SupplementaryItems {
             target.damage(DamageSource.thrownProjectile(snowballVariantEntity, snowballVariantEntity.getOwner()), damageAmount);
         }
     };
-    public static final Item BLOWBALL = new AbstractSnowballVariantItem(new Item.Settings().maxCount(16).group(ItemGroup.MISC), 4) {
+    public static final Item BLOWBALL = new SnowballVariantItem(new Item.Settings().maxCount(16).group(ItemGroup.MISC), 4) {
         @Override
         public void onEntityHitEvent(Entity target, SnowballVariantEntity snowballVariantEntity) {
             /*
-            Applies directional velocity modification of (0.5, 0.1, 0.0), scaled down by the target's knockback resistance.
+            applies directional velocity modification of (0.5, 0.1, 0.0), scaled down by the target's knockback resistance
              */
             double knockbackScale = 1.0;
             if (target instanceof LivingEntity livingEntity && livingEntity.getAttributeValue(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE) > 0) {

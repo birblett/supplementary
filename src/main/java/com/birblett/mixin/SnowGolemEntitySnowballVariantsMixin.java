@@ -11,13 +11,17 @@ import net.minecraft.sound.SoundEvents;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(SnowGolemEntity.class)
-public class SnowGolemEntityAlternateProjectilesMixin {
+public class SnowGolemEntitySnowballVariantsMixin {
 
     @Inject(method = "attack", at = @At("HEAD"), cancellable = true)
     private void replaceSnowballs(LivingEntity target, float pullProgress, CallbackInfo ci) {
+        /*
+        Replace snow golem snowball with custom projectiles if necessary
+         */
         SnowGolemEntity self = (SnowGolemEntity) (Object) this;
         int snowballType = SupplementaryComponents.SNOWBALL_TYPE.get(self).getValue();
         if (snowballType > 0) {
