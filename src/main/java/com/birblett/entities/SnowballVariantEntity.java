@@ -78,6 +78,6 @@ public class SnowballVariantEntity extends ThrownItemEntity {
 
     @Override
     public boolean shouldRender(double distance) {
-        return distance < 128;
+        return distance < 96*96;
     }
 }
