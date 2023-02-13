@@ -128,7 +128,7 @@ public class BoomerangEntity extends ProjectileEntity {
                 returnSpeed = 1.0;
             }
             // if owner within a certain distance, return to owner
-            if (this.getOwner() != null && this.getPos().subtract(this.getOwner().getPos().add(0.0, 1.0, 0.0)).lengthSquared() < (0.1 * returnSpeed / 0.3)) {
+            if (this.getOwner() != null && this.getPos().subtract(this.getOwner().getPos().add(0.0, 1.0, 0.0)).lengthSquared() < (0.15 * returnSpeed / 0.3)) {
                 if (shouldInsert && this.getOwner() instanceof PlayerEntity player) {
                     if (player.getMainHandStack() == ItemStack.EMPTY) {
                         player.setStackInHand(Hand.MAIN_HAND, this.itemStack);
