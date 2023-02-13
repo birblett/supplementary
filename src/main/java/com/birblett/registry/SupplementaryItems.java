@@ -15,7 +15,7 @@ import static com.birblett.Supplementary.MODID;
 
 public class SupplementaryItems {
 
-    // steel armor set
+    // Steel Armor Set
     public static final ArmorMaterial STEEL_PLATE_ARMOR_MATERIAL = new SteelPlateArmorMaterial();
     public static final Item STEEL_HELMET = new ArmorItem(STEEL_PLATE_ARMOR_MATERIAL, EquipmentSlot.HEAD,
             new FabricItemSettings().group(ItemGroup.COMBAT).maxCount(1));
@@ -26,6 +26,12 @@ public class SupplementaryItems {
     public static final Item STEEL_BOOTS = new ArmorItem(STEEL_PLATE_ARMOR_MATERIAL, EquipmentSlot.FEET,
             new FabricItemSettings().group(ItemGroup.COMBAT).maxCount(1));
 
+    // Throwing Knives
+    public static final Item IRON_THROWING_DAGGER = new BowItem(new FabricItemSettings().group(ItemGroup.MISC).maxCount(32));
+
+
+
+    // Cape
     public static final Item CAPE = new CapeItem(new FabricItemSettings().group(ItemGroup.MISC).maxCount(1));
 
     public static void register() {
@@ -34,6 +40,7 @@ public class SupplementaryItems {
         Registry.register(Registry.ITEM, new Identifier(MODID, "steel_chestplate"), STEEL_CHESTPLATE);
         Registry.register(Registry.ITEM, new Identifier(MODID, "steel_leggings"), STEEL_LEGGINGS);
         Registry.register(Registry.ITEM, new Identifier(MODID, "steel_boots"), STEEL_BOOTS);
+        Registry.register(Registry.ITEM, new Identifier(MODID, "iron_throwing_dagger"), IRON_THROWING_DAGGER);
     }
 
 

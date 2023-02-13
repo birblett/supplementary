@@ -38,7 +38,7 @@ public class SteelPlateArmorMaterial implements ArmorMaterial {
     // TODO: remove placeholder material for repair ingredient
     @Override
     public Ingredient getRepairIngredient() {
-        return Ingredient.ofItems(Items.BARRIER);
+        return Ingredient.ofItems(Items.IRON_INGOT);
     }
 
     @Override
