@@ -1,5 +1,7 @@
 package com.birblett.registry;
 
+import com.birblett.client.render.BoomerangEntityRenderer;
+import com.birblett.entities.BoomerangEntity;
 import com.birblett.entities.SnowballVariantEntity;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
@@ -22,8 +24,16 @@ public class SupplementaryEntities {
             .trackRangeBlocks(32).trackedUpdateRate(20)
             .build();
 
+    public static final EntityType<BoomerangEntity> BOOMERANG = FabricEntityTypeBuilder.<BoomerangEntity>create(
+            SpawnGroup.MISC, com.birblett.entities.BoomerangEntity::new)
+            .dimensions(EntityDimensions.fixed(0.6F, 0.1f))
+            .trackRangeBlocks(128).trackedUpdateRate(20)
+            .build();
+
     public static void register() {
         Registry.register(Registry.ENTITY_TYPE, new Identifier(MODID, "snowball_variant"), SNOWBALL_VARIANT);
+        Registry.register(Registry.ENTITY_TYPE, new Identifier(MODID, "boomerang"), BOOMERANG);
         EntityRendererRegistry.register(SNOWBALL_VARIANT, (EntityRendererFactory<Entity>) context -> new FlyingItemEntityRenderer(context));
+        EntityRendererRegistry.register(BOOMERANG, context -> new BoomerangEntityRenderer(context));
     }
 }

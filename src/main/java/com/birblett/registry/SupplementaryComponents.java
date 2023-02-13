@@ -1,5 +1,6 @@
 package com.birblett.registry;
 
+import com.birblett.entities.BoomerangEntity;
 import com.birblett.lib.components.*;
 import com.birblett.lib.helper.RenderHelper;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
@@ -49,6 +50,8 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             ComponentRegistry.getOrCreate(new Identifier(MODID, "marked_tracked_entity"), BaseComponent.class);
     public static final ComponentKey<SimpleEntityComponent> SNOWBALL_TYPE =
             ComponentRegistry.getOrCreate(new Identifier(MODID, "snowball_type"), SimpleEntityComponent.class);
+    public static final ComponentKey<SimpleEntityComponent> BOOMERANG_STACK =
+            ComponentRegistry.getOrCreate(new Identifier(MODID, "boomerang_stack"), SimpleEntityComponent.class);
 
     public static final List<ComponentKey<BaseComponent>> ENTITY_TICKING_COMPONENTS = List.of(
             BURST_FIRE_TIMER
@@ -326,5 +329,6 @@ public class SupplementaryComponents implements EntityComponentInitializer {
         registry.registerFor(PersistentProjectileEntity.class, MARKED_TRACKED_ENTITY, e -> new TrackingComponent());
         registry.registerFor(LivingEntity.class, MARKED_TRACKED_ENTITY, e -> new TrackingComponent());
         registry.registerFor(SnowGolemEntity.class, SNOWBALL_TYPE, e -> new SimpleIntTrackingComponent("snowball_type"));
+        registry.registerFor(BoomerangEntity.class, BOOMERANG_STACK, e -> new SimpleItemStackComponent("boomerang_stack"));
     }
 }

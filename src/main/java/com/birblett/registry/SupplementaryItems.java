@@ -3,6 +3,7 @@ package com.birblett.registry;
 
 
 import com.birblett.entities.SnowballVariantEntity;
+import com.birblett.items.BoomerangItem;
 import com.birblett.items.SnowballVariantItem;
 import com.birblett.trinkets.CapeItem;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
@@ -40,7 +41,7 @@ public class SupplementaryItems {
     Trinkets
         CAPE - CapeItem, registered under id supplementary:cape
             Implementation - com.birblett.trinkets.CapeItem
-            Renderer - com.birblett.trinkets.render.CapeFeatureRenderer, instantiated in com.birblett.mixin.render.PlayerCapeRender
+            Renderer - com.birblett.client.render.CapeFeatureRenderer, instantiated in com.birblett.mixin.render.PlayerCapeRender
     Snowball variants - Implementations of the SnowballVariantItem class, may replace normal snowballs thrown by snow golems
         SNOWGOLEMBALL - Registered under id supplementary:snowgolemball, cannot replace normal snow golem projectiles
         GLOWBALL - Registered under id supplementary:glowball
@@ -59,6 +60,8 @@ public class SupplementaryItems {
         registerItem(String, Item) - registers the item under the provided id
         registerSnowballVariant(String, Item) - registers item + registers snowball dispenser behavior for the item
      */
+
+    public static final Item IRON_BOOMERANG = new BoomerangItem(ToolMaterials.IRON, 3, 1,new FabricItemSettings().group(ItemGroup.MISC).maxCount(1));
 
     public static final Item CAPE = new CapeItem(new FabricItemSettings().group(ItemGroup.MISC).maxCount(1));
 
@@ -165,6 +168,8 @@ public class SupplementaryItems {
     }
 
     public static void register() {
+        registerItem("iron_boomerang", IRON_BOOMERANG);
+
         registerItem("cape", CAPE);
         registerItem("steel_helmet", STEEL_HELMET);
         registerItem("steel_chestplate", STEEL_CHESTPLATE);

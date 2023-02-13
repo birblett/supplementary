@@ -44,8 +44,8 @@
 			"supplementary:lightning_bolt",
 			"supplementary:marked",
 			"supplementary:marked_tracked_entity",
-
-			"supplementary:snowball_type"
+			"supplementary:snowball_type",
+			"supplementary:boomerang_stack"
 		]
 	}
 }

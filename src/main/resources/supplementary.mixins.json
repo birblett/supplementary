@@ -19,6 +19,6 @@
   },
   "client": [
     "LoomScreenMixin",
-    "render.ProjectileEntityRenderer"
+    "render.ProjectileEntityRendererMixin"
   ]
 }
