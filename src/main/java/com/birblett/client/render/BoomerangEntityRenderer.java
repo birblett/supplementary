@@ -40,8 +40,8 @@ public class BoomerangEntityRenderer extends EntityRenderer<BoomerangEntity> {
         if (!boomerangEntity.isRemoved()) {
             matrixStack.push();
             // rotate based on yaw - this is only set once on initial use
-            matrixStack.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(MathHelper.lerp(tickDelta, boomerangEntity.prevYaw, boomerangEntity.getYaw()) - 90.0f));
-            matrixStack.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(MathHelper.lerp(tickDelta, boomerangEntity.prevPitch, boomerangEntity.getPitch())));
+            matrixStack.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(boomerangEntity.getYaw() - 90.0f));
+            matrixStack.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(boomerangEntity.getPitch()));
             ItemStack itemStack = boomerangEntity.getStack();
             BakedModel bakedModel = this.itemRenderer.getModel(itemStack, boomerangEntity.world, null, boomerangEntity.getId());
             matrixStack.scale(1.2f, 1.2f, 1.2f);

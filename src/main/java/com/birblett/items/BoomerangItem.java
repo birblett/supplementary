@@ -1,5 +1,6 @@
 package com.birblett.items;
 
+import com.birblett.Supplementary;
 import com.birblett.entities.BoomerangEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;

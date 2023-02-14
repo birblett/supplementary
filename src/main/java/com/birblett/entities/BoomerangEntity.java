@@ -1,15 +1,12 @@
 package com.birblett.entities;
 
-import com.birblett.Supplementary;
 import com.birblett.registry.SupplementaryEntities;
-import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.item.ItemStack;
@@ -18,7 +15,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
@@ -69,7 +65,7 @@ public class BoomerangEntity extends ProjectileEntity {
         HitResult hitResult = this.world.raycast(new RaycastContext(position, nextPos, RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, this));
         // get a non-owner entity collision
         EntityHitResult entityHitResult = ProjectileUtil.getEntityCollision(this.world, this, this.getPos(), this.getPos()
-                .add(prevVelocity), this.getBoundingBox().stretch(prevVelocity).expand(1.0), e -> e != getOwner());
+                .add(prevVelocity), this.getBoundingBox().stretch(prevVelocity).expand(1.0), e -> e != getOwner(), 0.2f);
         if (entityHitResult != null && entityHitResult.getEntity().collides()) {
             Entity hit = entityHitResult.getEntity();
             if (!world.isClient()) {
@@ -85,7 +81,7 @@ public class BoomerangEntity extends ProjectileEntity {
             }
             // reverse velocity towards owner
             if (!this.shouldReturn && this.getOwner() != null) {
-                this.setVelocity(this.getPos().subtract(this.getOwner().getPos().add(0.0, 1.0, 0.0)).normalize().multiply(-1.2));
+                this.setVelocity(this.getPos().subtract(this.getOwner().getPos().add(0.0, 1.0, 0.0)).normalize().multiply(-0.9));
             }
             // mark as currently returning
             this.shouldReturn = true;
@@ -97,7 +93,7 @@ public class BoomerangEntity extends ProjectileEntity {
                 }
                 if (this.getOwner() != null) {
                     // if has owner, return to owner
-                    this.setVelocity(this.getPos().subtract(this.getOwner().getPos().add(0.0, 1.0, 0.0)).normalize().multiply(-1.2));
+                    this.setVelocity(this.getPos().subtract(this.getOwner().getPos().add(0.0, 1.0, 0.0)).normalize().multiply(-0.9));
                     this.shouldReturn = true;
                 }
                 else {

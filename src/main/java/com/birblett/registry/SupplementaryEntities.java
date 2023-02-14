@@ -26,7 +26,7 @@ public class SupplementaryEntities {
 
     public static final EntityType<BoomerangEntity> BOOMERANG = FabricEntityTypeBuilder.<BoomerangEntity>create(
             SpawnGroup.MISC, com.birblett.entities.BoomerangEntity::new)
-            .dimensions(EntityDimensions.fixed(0.6F, 0.1f))
+            .dimensions(EntityDimensions.fixed(0.4F, 0.1f))
             .trackRangeBlocks(128).trackedUpdateRate(20)
             .build();
 
