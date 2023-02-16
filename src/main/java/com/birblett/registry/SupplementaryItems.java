@@ -41,7 +41,7 @@ public class SupplementaryItems {
     Trinkets
         CAPE - CapeItem, registered under id supplementary:cape
             Implementation - com.birblett.trinkets.CapeItem
-            Renderer - com.birblett.client.render.CapeFeatureRenderer, instantiated in com.birblett.mixin.render.PlayerCapeRender
+            Renderer - com.birblett.client.render.items.CapeFeatureRenderer, instantiated in com.birblett.mixin.render.PlayerCapeRender
     Snowball variants - Implementations of the SnowballVariantItem class, may replace normal snowballs thrown by snow golems
         SNOWGOLEMBALL - Registered under id supplementary:snowgolemball, cannot replace normal snow golem projectiles
         GLOWBALL - Registered under id supplementary:glowball

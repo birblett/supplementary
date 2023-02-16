@@ -1,6 +1,6 @@
 package com.birblett.mixin.render;
 
-import com.birblett.client.render.CapeFeatureRenderer;
+import com.birblett.client.render.items.CapeFeatureRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;

@@ -1,6 +1,6 @@
 package com.birblett.registry;
 
-import com.birblett.client.render.BoomerangEntityRenderer;
+import com.birblett.client.render.entities.BoomerangEntityRenderer;
 import com.birblett.entities.BoomerangEntity;
 import com.birblett.entities.SnowballVariantEntity;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
