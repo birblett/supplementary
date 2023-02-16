@@ -11,7 +11,11 @@ import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.particle.ItemStackParticleEffect;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -24,6 +28,7 @@ public class BoomerangEntity extends ProjectileEntity {
     private int age = 0;
     private int canDamageTicks = 0;
     private int returnTicks = 0;
+    private int storedSlot = -100;
     private boolean shouldReturn = false;
     private boolean shouldInsert;
     private ItemStack itemStack = ItemStack.EMPTY;
@@ -43,7 +48,11 @@ public class BoomerangEntity extends ProjectileEntity {
     @Override
     protected void initDataTracker() {
         this.dataTracker.startTracking(PIERCING, 0);
-        this.getDataTracker().startTracking(STACK, ItemStack.EMPTY);
+        this.dataTracker.startTracking(STACK, ItemStack.EMPTY);
+    }
+
+    public void setStoredSlot(int slot) {
+        this.storedSlot = slot;
     }
 
     public void setStack(ItemStack itemStack) {
@@ -67,16 +76,19 @@ public class BoomerangEntity extends ProjectileEntity {
         EntityHitResult entityHitResult = ProjectileUtil.getEntityCollision(this.world, this, this.getPos(), this.getPos()
                 .add(prevVelocity), this.getBoundingBox().stretch(prevVelocity).expand(1.0), e -> e != getOwner(), 0.2f);
         if (entityHitResult != null && entityHitResult.getEntity().collides()) {
-            Entity hit = entityHitResult.getEntity();
+            Entity entity = entityHitResult.getEntity();
             if (!world.isClient()) {
                 // ignore up to 5 iframes
-                if (hit instanceof LivingEntity livingEntity && livingEntity.hurtTime <= 5) {
+                if (entity instanceof LivingEntity livingEntity && livingEntity.hurtTime <= 5) {
                     livingEntity.hurtTime = 0;
                     livingEntity.timeUntilRegen = 0;
                 }
-                hit.damage(DamageSource.thrownProjectile(this, this.getOwner()), 5.0f);
+                entity.damage(DamageSource.thrownProjectile(this, this.getOwner()), 5.0f);
+                // use durability on hit
                 if (this.itemStack.damage(1, random, (ServerPlayerEntity) this.getOwner())) {
-                    // do item break stuff here
+                    this.world.sendEntityStatus(this, EntityStatuses.BREAK_MAINHAND);
+                    this.kill();
+                    this.discard();
                 }
             }
             // reverse velocity towards owner
@@ -88,8 +100,11 @@ public class BoomerangEntity extends ProjectileEntity {
         }
         if (!shouldReturn) {
             if (hitResult.getType() == HitResult.Type.BLOCK) {
+                // use durability on block hit
                 if (!this.world.isClient() && this.itemStack.damage(2, random, (ServerPlayerEntity) this.getOwner())) {
-                    // do item break stuff here
+                    this.world.sendEntityStatus(this, EntityStatuses.BREAK_MAINHAND);
+                    this.kill();
+                    this.discard();
                 }
                 if (this.getOwner() != null) {
                     // if has owner, return to owner
@@ -126,14 +141,15 @@ public class BoomerangEntity extends ProjectileEntity {
             // if owner within a certain distance, return to owner
             if (this.getOwner() != null && this.getPos().subtract(this.getOwner().getPos().add(0.0, 1.0, 0.0)).lengthSquared() < (0.15 * returnSpeed / 0.3)) {
                 if (shouldInsert && this.getOwner() instanceof PlayerEntity player) {
-                    if (player.getMainHandStack() == ItemStack.EMPTY) {
-                        player.setStackInHand(Hand.MAIN_HAND, this.itemStack);
-                    }
-                    else if (player.getOffHandStack() == ItemStack.EMPTY) {
+                    // -99 is magic number representing offhand, as insertStack does not work with offhand slot
+                    if (this.storedSlot == -99 && player.getOffHandStack() == ItemStack.EMPTY) {
                         player.setStackInHand(Hand.OFF_HAND, this.itemStack);
                     }
-                    else {
+                    else if (!player.getInventory().insertStack(this.storedSlot, this.itemStack)) {
                         player.giveItemStack(this.itemStack);
+                    }
+                    if (player instanceof ServerPlayerEntity serverPlayerEntity) {
+                        serverPlayerEntity.world.playSound(null, serverPlayerEntity.getX(), serverPlayerEntity.getY(), serverPlayerEntity.getZ(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2f, ((serverPlayerEntity.getRandom().nextFloat() - serverPlayerEntity.getRandom().nextFloat()) * 0.7f + 1.0f) * 2.0f);
                     }
                 }
                 this.kill();
@@ -161,6 +177,7 @@ public class BoomerangEntity extends ProjectileEntity {
         nbt.putShort("Age", (short)this.age);
         nbt.putShort("ReturnTicks", (short)this.returnTicks);
         nbt.putBoolean("ShouldReturn", this.shouldReturn);
+        nbt.putInt("StoredSlot", this.storedSlot);
         if (!this.getStack().isEmpty()) {
             nbt.put("Item", this.getStack().writeNbt(new NbtCompound()));
         }
@@ -172,11 +189,36 @@ public class BoomerangEntity extends ProjectileEntity {
         this.age = nbt.getShort("Age");
         this.returnTicks = nbt.getShort("ReturnTicks");
         this.shouldReturn = nbt.getBoolean("ShouldReturn");
+        this.storedSlot = nbt.getInt("StoredSlot");
         NbtCompound nbtCompound = nbt.getCompound("Item");
         this.setStack(ItemStack.fromNbt(nbtCompound));
         if (this.getStack().isEmpty()) {
             this.discard();
         }
         super.readCustomDataFromNbt(nbt);
+    }
+
+    @Override
+    public void handleStatus(byte status) {
+        /*
+        sync break sound and particle effects on client
+         */
+        switch (status) {
+            case EntityStatuses.BREAK_MAINHAND -> {
+                this.world.playSound(this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_ITEM_BREAK, this.getSoundCategory(), 0.8f, 0.8f + this.world.random.nextFloat() * 0.4f, true);
+                this.spawnBreakParticles(itemStack);
+            }
+        }
+    }
+
+    private void spawnBreakParticles(ItemStack stack) {
+        /*
+        spawnItemParticles from LivingEntity, modified
+         */
+        for (int i = 0; i < 15; ++i) {
+            Vec3d particleVelocity = new Vec3d(((double)this.random.nextFloat() - 0.5) * 0.1, Math.random() * 0.1,
+                    ((double)this.random.nextFloat() - 0.5) * 0.1).normalize().multiply(0.15 * (this.random.nextFloat() + 0.5));
+            this.world.addParticle(new ItemStackParticleEffect(ParticleTypes.ITEM, stack), this.getX(), this.getY(),this.getZ(), particleVelocity.x, particleVelocity.y + 0.05, particleVelocity.z);
+        }
     }
 }
