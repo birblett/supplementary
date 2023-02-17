@@ -19,6 +19,9 @@ import net.minecraft.util.math.Vec3f;
 
 @Environment(EnvType.CLIENT)
 public class BoomerangEntityRenderer extends EntityRenderer<BoomerangEntity> {
+    /*
+    Renderer component for boomerang entities. Do not call manually!
+     */
 
     private final ItemRenderer itemRenderer;
 
@@ -39,20 +42,27 @@ public class BoomerangEntityRenderer extends EntityRenderer<BoomerangEntity> {
          */
         if (!boomerangEntity.isRemoved()) {
             matrixStack.push();
-            // rotate to be flat instead of upright
-            matrixStack.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(90));
             // rotate based on yaw and pitch
-            // TODO: fix a bug with boomerangs facing straight up having a fixed orientation
-            matrixStack.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(boomerangEntity.getYaw() - 90.0f));
-            matrixStack.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(boomerangEntity.getPitch()));
+            if (boomerangEntity.getYaw() == 0) {
+                // handle facing straight up or down
+                int mult = boomerangEntity.getPitch() >= 0 ? 1 : -1;
+                matrixStack.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(boomerangEntity.getPitch()));
+                matrixStack.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(mult * (boomerangEntity.getStoredAngle() - 90)));
+            }
+            else {
+                matrixStack.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(boomerangEntity.getYaw() - 90.0f));
+                matrixStack.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(boomerangEntity.getPitch()));
+            }
             // get item model from boomerang, scaled to fit hitbox
             ItemStack itemStack = boomerangEntity.getStack();
             BakedModel bakedModel = this.itemRenderer.getModel(itemStack, boomerangEntity.world, null, boomerangEntity.getId());
             matrixStack.scale(1.2f, 1.2f, 1.2f);
             // handle spin animation
-            matrixStack.multiply(Vec3f.POSITIVE_Y.getRadialQuaternion(MathHelper.lerp(tickDelta, boomerangEntity.getAge(), boomerangEntity.getAge() + 1)));;
+            matrixStack.multiply(Vec3f.POSITIVE_Y.getRadialQuaternion(MathHelper.lerp(tickDelta, boomerangEntity.getAge(), boomerangEntity.getAge() + 1)));
             // center model on hitbox
             matrixStack.translate(0.03f, 0.05f, -0.15f);
+            // rotate to be flat instead of upright
+            matrixStack.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(90));
             matrixStack.push();
             this.itemRenderer.renderItem(itemStack, ModelTransformation.Mode.GROUND, false, matrixStack, vertexConsumerProvider, light, OverlayTexture.DEFAULT_UV, bakedModel);
             matrixStack.pop();

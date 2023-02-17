@@ -1,6 +1,5 @@
 package com.birblett.items;
 
-import com.birblett.Supplementary;
 import com.birblett.entities.BoomerangEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -25,7 +24,7 @@ public class BoomerangItem extends ToolItem {
         boomerangEntity.setStack(activeStack.copy());
         // -99: magic number for offhand slot
         boomerangEntity.setStoredSlot(hand == Hand.OFF_HAND ? -99 : user.getInventory().getSlotWithStack(activeStack));
-        boomerangEntity.setYaw(user.getYaw());
+        boomerangEntity.setYaw(user.getHeadYaw());
         boomerangEntity.setPitch(user.getPitch());
         boomerangEntity.setPosition(user.getEyePos());
         boomerangEntity.setVelocity(user.getRotationVector().normalize().multiply(1.6));

@@ -29,6 +29,7 @@ public class BoomerangEntity extends ProjectileEntity {
     private int canDamageTicks = 0;
     private int returnTicks = 0;
     private int storedSlot = -100;
+    private float storedAngle;
     private boolean shouldReturn = false;
     private boolean shouldInsert;
     private ItemStack itemStack = ItemStack.EMPTY;
@@ -45,41 +46,22 @@ public class BoomerangEntity extends ProjectileEntity {
         this.shouldInsert = shouldInsert;
     }
 
-    @Override
-    protected void initDataTracker() {
-        this.dataTracker.startTracking(PIERCING, 0);
-        this.dataTracker.startTracking(STACK, ItemStack.EMPTY);
-    }
-
-    public void setStoredSlot(int slot) {
-        this.storedSlot = slot;
-    }
-
-    public void setStack(ItemStack itemStack) {
-        this.getDataTracker().set(STACK, itemStack);
-    }
-
-    public ItemStack getStack() {
-        return this.itemStack;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
     public void tick() {
+        if (this.age == 0 && this.getOwner() != null) {
+            this.storedAngle = -this.getOwner().getHeadYaw() % 360;
+        }
         Vec3d prevVelocity = this.getVelocity();
         Vec3d position = this.getPos();
         Vec3d nextPos = position.add(prevVelocity);
         HitResult hitResult = this.world.raycast(new RaycastContext(position, nextPos, RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, this));
         // get a non-owner entity collision
         EntityHitResult entityHitResult = ProjectileUtil.getEntityCollision(this.world, this, this.getPos(), this.getPos()
-                .add(prevVelocity), this.getBoundingBox().stretch(prevVelocity).expand(1.0), e -> e != getOwner(), 0.2f);
+                .add(prevVelocity), this.getBoundingBox().stretch(prevVelocity).expand(1.0), e -> e != getOwner(), this.shouldReturn ? 0.3f : 0.2f);
         if (entityHitResult != null && entityHitResult.getEntity().collides()) {
             Entity entity = entityHitResult.getEntity();
             if (!world.isClient()) {
                 // ignore up to 5 iframes
-                if (entity instanceof LivingEntity livingEntity && livingEntity.hurtTime <= 5) {
+                if (entity instanceof LivingEntity livingEntity && livingEntity.hurtTime > 10) {
                     livingEntity.hurtTime = 0;
                     livingEntity.timeUntilRegen = 0;
                 }
@@ -87,7 +69,6 @@ public class BoomerangEntity extends ProjectileEntity {
                 // use durability on hit
                 if (this.itemStack.damage(1, random, (ServerPlayerEntity) this.getOwner())) {
                     this.world.sendEntityStatus(this, EntityStatuses.BREAK_MAINHAND);
-                    this.kill();
                     this.discard();
                 }
             }
@@ -103,7 +84,6 @@ public class BoomerangEntity extends ProjectileEntity {
                 // use durability on block hit
                 if (!this.world.isClient() && this.itemStack.damage(2, random, (ServerPlayerEntity) this.getOwner())) {
                     this.world.sendEntityStatus(this, EntityStatuses.BREAK_MAINHAND);
-                    this.kill();
                     this.discard();
                 }
                 if (this.getOwner() != null) {
@@ -118,7 +98,6 @@ public class BoomerangEntity extends ProjectileEntity {
                             this.getZ() - velocity.z, this.itemStack);
                     itemEntity.setVelocity(this.getVelocity().normalize().multiply(0.1));
                     this.getWorld().spawnEntity(itemEntity);
-                    this.kill();
                     this.discard();
                 }
             }
@@ -152,7 +131,6 @@ public class BoomerangEntity extends ProjectileEntity {
                         serverPlayerEntity.world.playSound(null, serverPlayerEntity.getX(), serverPlayerEntity.getY(), serverPlayerEntity.getZ(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2f, ((serverPlayerEntity.getRandom().nextFloat() - serverPlayerEntity.getRandom().nextFloat()) * 0.7f + 1.0f) * 2.0f);
                     }
                 }
-                this.kill();
                 this.discard();
             }
             this.returnTicks++;
@@ -170,6 +148,12 @@ public class BoomerangEntity extends ProjectileEntity {
         }
         this.itemStack = this.getDataTracker().get(STACK);
         super.tick();
+    }
+
+    @Override
+    protected void initDataTracker() {
+        this.dataTracker.startTracking(PIERCING, 0);
+        this.dataTracker.startTracking(STACK, ItemStack.EMPTY);
     }
 
     @Override
@@ -209,6 +193,26 @@ public class BoomerangEntity extends ProjectileEntity {
                 this.spawnBreakParticles(itemStack);
             }
         }
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setStack(ItemStack itemStack) {
+        this.getDataTracker().set(STACK, itemStack);
+    }
+
+    public ItemStack getStack() {
+        return this.itemStack;
+    }
+
+    public void setStoredSlot(int slot) {
+        this.storedSlot = slot;
+    }
+
+    public float getStoredAngle() {
+        return this.storedAngle;
     }
 
     private void spawnBreakParticles(ItemStack stack) {
