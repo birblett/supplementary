@@ -46,6 +46,23 @@ public class BoomerangEntity extends ProjectileEntity {
      tracked data
         PIERCING - pierce level of the boomerang; required for rendering movement properly on piercing boomerangs
         STACK - stored item of the boomerang; required to render correct item models clientside
+
+     methods
+        tick - primary tick loop; handles collisions and travel
+        getAttackDamage(Entity) - returns attack damage based on stored item and damage mods
+        pickupStack(ItemEntity) - attempts to pick up an item entity and store in internal inventory
+        spawnBreakParticles(ItemStack) - copied and modified from LivingEntity; spawns break particles on item break
+        getAge() - returns current age, used for spinning animation in renderer
+        setPickupLevel(int) - sets pickup enchantment level
+        setPierceLevel(int) - sets piercing enchantment level
+        set/getStack(ItemStack) - sets/returns stored ItemStack
+        setStoredSlot(int) - sets the inventory slot the item should return to
+        getStoredAngle() - return the initial throw angle, used in renderer
+
+     method overrides
+        initDataTracker() - initializes PIERCING and STACK data trackers
+        write/readCustomDataToNbt - writes/reads non-tracked values to/from nbt
+        handleStatus - syncs break sound and particle effect in case of reaching <0 durability
      */
 
     private int age = 0;
@@ -111,7 +128,7 @@ public class BoomerangEntity extends ProjectileEntity {
                 }
             }
             else if (this.pickupLevel > 0 && entityHitResult.getEntity() instanceof ItemEntity item && !this.world.isClient()
-                    && this.takeStack(item)) {
+                    && this.pickupStack(item)) {
                 // if enchanted with pickup, this picks up and stores the nearest item entity
                 this.world.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2f, ((this.random.nextFloat() - this.random.nextFloat()) * 0.7f + 1.0f) * 2.0f);
             }
@@ -228,61 +245,7 @@ public class BoomerangEntity extends ProjectileEntity {
         return 1;
     }
 
-    @Override
-    protected void initDataTracker() {
-        this.dataTracker.startTracking(PIERCING, 0);
-        this.dataTracker.startTracking(STACK, ItemStack.EMPTY);
-    }
-
-    @Override
-    public void writeCustomDataToNbt(NbtCompound nbt) {
-        nbt.putShort("Age", (short)this.age);
-        nbt.putBoolean("IsReturning", this.isReturning);
-        nbt.putShort("ReturnTicks", (short)this.returnTicks);
-        nbt.putFloat("StoredAngle", this.storedAngle);
-        nbt.putInt("StoredSlot", this.storedSlot);
-        if (this.pickupLevel > 0) {
-            nbt.putInt("PickupLevel", this.pickupLevel);
-            NbtList nbtList = new NbtList();
-            for (ItemStack itemStack : this.inventory) {
-                nbtList.add(itemStack.writeNbt(new NbtCompound()));
-            }
-            nbt.put("Inventory", nbtList);
-        }
-        if (!this.getStack().isEmpty()) {
-            nbt.put("Item", this.getStack().writeNbt(new NbtCompound()));
-        }
-        super.writeCustomDataToNbt(nbt);
-    }
-
-    @Override
-    public void readCustomDataFromNbt(NbtCompound nbt) {
-        this.age = nbt.getShort("Age");
-        this.pickupLevel = nbt.getInt("PickupLevel");
-        this.isReturning = nbt.getBoolean("IsReturning");
-        this.returnTicks = nbt.getShort("ReturnTicks");
-        this.storedAngle = nbt.getFloat("StoredAngle");
-        this.storedSlot = nbt.getInt("StoredSlot");
-        NbtCompound nbtCompound = nbt.getCompound("Item");
-        this.setStack(ItemStack.fromNbt(nbtCompound));
-        if (this.getStack().isEmpty()) {
-            this.discard();
-        }
-        super.readCustomDataFromNbt(nbt);
-    }
-
-    @Override
-    public void handleStatus(byte status) {
-        /*
-        sync break sound and particle effects on client
-         */
-        if (status == EntityStatuses.BREAK_MAINHAND) {
-            this.world.playSound(this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_ITEM_BREAK, this.getSoundCategory(), 0.8f, 0.8f + this.world.random.nextFloat() * 0.4f, true);
-            this.spawnBreakParticles(itemStack);
-        }
-    }
-
-    public boolean takeStack(ItemEntity itemEntity) {
+    public boolean pickupStack(ItemEntity itemEntity) {
         /*
         tries to pick up an ItemEntity; first iterates through own inventory to append to existing stacks, then add
         remainder if there is still room in the internal inventory
@@ -348,5 +311,59 @@ public class BoomerangEntity extends ProjectileEntity {
 
     public float getStoredAngle() {
         return this.storedAngle;
+    }
+
+    @Override
+    protected void initDataTracker() {
+        this.dataTracker.startTracking(PIERCING, 0);
+        this.dataTracker.startTracking(STACK, ItemStack.EMPTY);
+    }
+
+    @Override
+    public void writeCustomDataToNbt(NbtCompound nbt) {
+        nbt.putShort("Age", (short)this.age);
+        nbt.putBoolean("IsReturning", this.isReturning);
+        nbt.putShort("ReturnTicks", (short)this.returnTicks);
+        nbt.putFloat("StoredAngle", this.storedAngle);
+        nbt.putInt("StoredSlot", this.storedSlot);
+        if (this.pickupLevel > 0) {
+            nbt.putInt("PickupLevel", this.pickupLevel);
+            NbtList nbtList = new NbtList();
+            for (ItemStack itemStack : this.inventory) {
+                nbtList.add(itemStack.writeNbt(new NbtCompound()));
+            }
+            nbt.put("Inventory", nbtList);
+        }
+        if (!this.getStack().isEmpty()) {
+            nbt.put("Item", this.getStack().writeNbt(new NbtCompound()));
+        }
+        super.writeCustomDataToNbt(nbt);
+    }
+
+    @Override
+    public void readCustomDataFromNbt(NbtCompound nbt) {
+        this.age = nbt.getShort("Age");
+        this.pickupLevel = nbt.getInt("PickupLevel");
+        this.isReturning = nbt.getBoolean("IsReturning");
+        this.returnTicks = nbt.getShort("ReturnTicks");
+        this.storedAngle = nbt.getFloat("StoredAngle");
+        this.storedSlot = nbt.getInt("StoredSlot");
+        NbtCompound nbtCompound = nbt.getCompound("Item");
+        this.setStack(ItemStack.fromNbt(nbtCompound));
+        if (this.getStack().isEmpty()) {
+            this.discard();
+        }
+        super.readCustomDataFromNbt(nbt);
+    }
+
+    @Override
+    public void handleStatus(byte status) {
+        /*
+        sync break sound and particle effects on client
+         */
+        if (status == EntityStatuses.BREAK_MAINHAND) {
+            this.world.playSound(this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_ITEM_BREAK, this.getSoundCategory(), 0.8f, 0.8f + this.world.random.nextFloat() * 0.4f, true);
+            this.spawnBreakParticles(itemStack);
+        }
     }
 }
