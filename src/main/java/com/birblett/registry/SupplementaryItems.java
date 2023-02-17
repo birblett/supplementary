@@ -61,7 +61,8 @@ public class SupplementaryItems {
         registerSnowballVariant(String, Item) - registers item + registers snowball dispenser behavior for the item
      */
 
-    public static final Item IRON_BOOMERANG = new BoomerangItem(ToolMaterials.IRON, 3, 1,new FabricItemSettings().group(ItemGroup.MISC).maxCount(1));
+    public static final Item IRON_BOOMERANG = new BoomerangItem(ToolMaterials.IRON,
+            new FabricItemSettings().group(ItemGroup.MISC).maxCount(1));
 
     public static final Item CAPE = new CapeItem(new FabricItemSettings().group(ItemGroup.MISC).maxCount(1));
 

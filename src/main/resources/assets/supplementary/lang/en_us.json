@@ -8,6 +8,7 @@
   "enchantment.supplementary.grappling": "Grappling",
   "enchantment.supplementary.lightning_bolt": "Lightning Bolt",
   "enchantment.supplementary.marked": "Marked",
+  "enchantment.supplementary.pickup": "Pickup",
 
   "item.supplementary.blowball": "Blowball",
   "item.supplementary.glowball": "Glowball",
@@ -15,6 +16,7 @@
   "item.supplementary.slowball": "Slowball",
   "item.supplementary.snowgolemball": "Snowgolemball",
 
+  "item.supplementary.iron_boomerange": "Iron Boomerang",
   "item.supplementary.cape": "Cape",
   "item.supplementary.steel_helmet": "Steel Helmet",
   "item.supplementary.steel_chestplate": "Steel Chestplate",

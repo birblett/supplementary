@@ -3,6 +3,8 @@
   "package": "com.birblett.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "EnchantmentCompabilityMixin",
+    "EnchantmentHelperCompatMixin",
     "LoomScreenHandlerMixin",
     "SnowGolemEntitySnowballVariantsMixin",
     "events.BowFiringEventMixin",

@@ -61,7 +61,9 @@ public class EnchantmentBuilder extends Enchantment {
     private int maxPowerScale = 0;
     private final List<ComponentKey<BaseComponent>> components =
             new ArrayList<>();
-    private final List<Item> acceptableTypes =
+    private final List<Item> acceptableItems =
+            new ArrayList<>();
+    private final List<Class<?>> acceptableItemClasses =
             new ArrayList<>();
     private final Identifier identifier;
     private boolean isCurse = false;
@@ -116,7 +118,12 @@ public class EnchantmentBuilder extends Enchantment {
     }
 
     public EnchantmentBuilder addCompatibleItems(Item... items) {
-        this.acceptableTypes.addAll(List.of(items));
+        this.acceptableItems.addAll(List.of(items));
+        return this;
+    }
+
+    public EnchantmentBuilder addCompatibleClasses(Class<?>... classes) {
+        this.acceptableItemClasses.addAll(List.of(classes));
         return this;
     }
 
@@ -158,11 +165,11 @@ public class EnchantmentBuilder extends Enchantment {
 
     @Override
     public boolean isAcceptableItem(ItemStack item) {
-        if (this.acceptableTypes.isEmpty()) {
+        if (this.acceptableItems.isEmpty() && this.acceptableItemClasses.isEmpty()) {
             return super.isAcceptableItem(item);
         }
         else {
-            return this.acceptableTypes.contains(item.getItem());
+            return this.acceptableItems.contains(item.getItem()) || this.acceptableItemClasses.contains(item.getItem().getClass());
         }
     }
 

@@ -1,5 +1,6 @@
 package com.birblett.registry;
 
+import com.birblett.items.BoomerangItem;
 import com.birblett.lib.builders.EnchantmentBuilder;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentTarget;
@@ -15,11 +16,13 @@ public class SupplementaryEnchantments {
     public static final EnchantmentBuilder BURST_FIRE = new EnchantmentBuilder("burst_fire", Enchantment.Rarity.VERY_RARE,
             EnchantmentTarget.CROSSBOW, BOTH_HANDS);
     public static final EnchantmentBuilder GRAPPLING = new EnchantmentBuilder("grappling", Enchantment.Rarity.UNCOMMON,
-            null, MAIN_HAND);
+            EnchantmentTarget.CROSSBOW, MAIN_HAND);
     public static final EnchantmentBuilder LIGHTNING_BOLT = new EnchantmentBuilder("lightning_bolt", Enchantment.Rarity.VERY_RARE,
             EnchantmentTarget.BOW, BOTH_HANDS);
     public static final EnchantmentBuilder MARKED = new EnchantmentBuilder("marked", Enchantment.Rarity.VERY_RARE,
             EnchantmentTarget.CROSSBOW, BOTH_HANDS);
+    public static final EnchantmentBuilder PICKUP = new EnchantmentBuilder("pickup", Enchantment.Rarity.UNCOMMON,
+            null, BOTH_HANDS);
 
     public static void buildAndRegister() {
         BURST_FIRE.makeIncompatible(Enchantments.MULTISHOT)
@@ -40,6 +43,10 @@ public class SupplementaryEnchantments {
                 .setPower(20, 5, 25, 5)
                 .setMaxLevel(3)
                 .addComponents(SupplementaryComponents.MARKED_LEVEL)
+                .build();
+        PICKUP.setPower(10, 100)
+                .setMaxLevel(1)
+                .addCompatibleClasses(BoomerangItem.class)
                 .build();
     }
 }
