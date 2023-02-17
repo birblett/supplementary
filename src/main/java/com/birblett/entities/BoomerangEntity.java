@@ -1,6 +1,8 @@
 package com.birblett.entities;
 
+import com.birblett.items.BoomerangItem;
 import com.birblett.registry.SupplementaryEntities;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.*;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
@@ -26,19 +28,35 @@ import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class BoomerangEntity extends ProjectileEntity {
+    /*
+    projectile entity corresponding to the BoomerangEntity class
+
+    fields
+        age - lifetime, in ticks, of the boomerang
+        pickupLevel - level of pickup enchantment on the boomerang
+        inventory - stored ItemStacks from the pickup enchantment
+        isReturning - whether the boomerang is currently returning to its owner or not
+        returnTicks - how many ticks the boomerang has been returning for
+        storedAngle - the initial horizontal angle of the boomerang
+        storedSlot - initial inventory slot that this boomerang was thrown from. -100 for no slot, -99 for offhand
+        shouldInsert - whether this should insert into user inventory upon returning
+
+     tracked data
+        PIERCING - pierce level of the boomerang; required for rendering movement properly on piercing boomerangs
+        STACK - stored item of the boomerang; required to render correct item models clientside
+     */
 
     private int age = 0;
-    private int canDamageTicks = 0;
+    private int damageCooldown = 0;
     private int pickupLevel = 0;
     private final List<ItemStack> inventory = new ArrayList<>();
     private ItemStack itemStack = ItemStack.EMPTY;
+    private boolean isReturning = false;
     private int returnTicks = 0;
-    private int storedSlot = -100;
     private float storedAngle;
-    private boolean shouldReturn = false;
+    private int storedSlot = -100;
     private boolean shouldInsert;
     private static final TrackedData<Integer> PIERCING = DataTracker.registerData(BoomerangEntity.class, TrackedDataHandlerRegistry.INTEGER);
     private static final TrackedData<ItemStack> STACK = DataTracker.registerData(BoomerangEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
@@ -63,17 +81,18 @@ public class BoomerangEntity extends ProjectileEntity {
         HitResult hitResult = this.world.raycast(new RaycastContext(position, nextPos, RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, this));
         // get a non-owner entity collision
         EntityHitResult entityHitResult = ProjectileUtil.getEntityCollision(this.world, this, this.getPos(), this.getPos()
-                .add(prevVelocity), this.getBoundingBox().stretch(prevVelocity).expand(1.0), e -> e != getOwner(), this.shouldReturn ? 0.3f : 0.2f);
+                .add(prevVelocity), this.getBoundingBox().stretch(prevVelocity).expand(1.0), e -> e != getOwner(), this.isReturning ? 0.3f : 0.2f);
         if (entityHitResult != null) {
-            if (entityHitResult.getEntity().collides()) {
-                Entity entity = entityHitResult.getEntity();
+            Entity entity = entityHitResult.getEntity();
+            if (entity.collides() && this.damageCooldown <= 0) {
+                // set a damage cooldown of 5 ticks minimum
+                this.damageCooldown = 5;
                 if (!world.isClient()) {
-                    // ignore up to 5 iframes
-                    if (entity instanceof LivingEntity livingEntity && livingEntity.hurtTime > 10) {
+                    if (entity instanceof LivingEntity livingEntity) {
                         livingEntity.hurtTime = 0;
                         livingEntity.timeUntilRegen = 0;
                     }
-                    entity.damage(DamageSource.thrownProjectile(this, this.getOwner()), 5.0f);
+                    entity.damage(DamageSource.thrownProjectile(this, this.getOwner()), getAttackDamage(entity));
                     // use durability on hit
                     if (this.itemStack.damage(1, random, (ServerPlayerEntity) this.getOwner())) {
                         this.world.sendEntityStatus(this, EntityStatuses.BREAK_MAINHAND);
@@ -85,7 +104,7 @@ public class BoomerangEntity extends ProjectileEntity {
                     this.dataTracker.set(PIERCING, this.dataTracker.get(PIERCING) - 1);
                 }
                 else {
-                    this.shouldReturn = true;
+                    this.isReturning = true;
                     if (this.getOwner() != null) {
                         this.setVelocity(this.getPos().subtract(this.getOwner().getPos().add(0.0, 1.0, 0.0)).normalize().multiply(-0.9));
                     }
@@ -93,11 +112,11 @@ public class BoomerangEntity extends ProjectileEntity {
             }
             else if (this.pickupLevel > 0 && entityHitResult.getEntity() instanceof ItemEntity item && !this.world.isClient()
                     && this.takeStack(item)) {
-                // if enchanted with pickup, store items in inv
+                // if enchanted with pickup, this picks up and stores the nearest item entity
                 this.world.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2f, ((this.random.nextFloat() - this.random.nextFloat()) * 0.7f + 1.0f) * 2.0f);
             }
         }
-        if (!shouldReturn) {
+        if (!isReturning) {
             if (hitResult.getType() == HitResult.Type.BLOCK) {
                 // use durability on block hit
                 if (!this.world.isClient() && this.itemStack.damage(2, random, (ServerPlayerEntity) this.getOwner())) {
@@ -107,7 +126,7 @@ public class BoomerangEntity extends ProjectileEntity {
                 if (this.getOwner() != null) {
                     // if has owner, return to owner
                     this.setVelocity(this.getPos().subtract(this.getOwner().getPos().add(0.0, 1.0, 0.0)).normalize().multiply(-0.9));
-                    this.shouldReturn = true;
+                    this.isReturning = true;
                 }
                 else {
                     // spawn an item of corresponding type if no owner is found
@@ -133,7 +152,7 @@ public class BoomerangEntity extends ProjectileEntity {
             }
             this.setVelocity(this.getVelocity().multiply(0.9));
             if (this.getVelocity().lengthSquared() < 0.1) {
-                this.shouldReturn = true;
+                this.isReturning = true;
             }
             // apply velocity to pos
         }
@@ -188,11 +207,25 @@ public class BoomerangEntity extends ProjectileEntity {
         this.setPosition(this.getPos().add(finalVelocity));
         this.velocityModified = true;
         this.age++;
-        if (this.canDamageTicks > 0) {
-            canDamageTicks--;
-        }
         this.itemStack = this.getDataTracker().get(STACK);
+        if (this.damageCooldown > 0) {
+            this.damageCooldown--;
+        }
         super.tick();
+    }
+
+    private float getAttackDamage(Entity target) {
+        /*
+        apply damage modifiers to boomerang damaging instances
+         */
+        if (!this.itemStack.isEmpty() && this.itemStack.getItem() instanceof BoomerangItem boomerangItem) {
+            float damage = boomerangItem.getMaterial().getAttackDamage() + 3;
+            if (target instanceof LivingEntity livingEntity) {
+                damage += EnchantmentHelper.getAttackDamage(this.itemStack, livingEntity.getGroup()) * 0.6f;
+            }
+            return damage;
+        }
+        return 1;
     }
 
     @Override
@@ -204,8 +237,9 @@ public class BoomerangEntity extends ProjectileEntity {
     @Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
         nbt.putShort("Age", (short)this.age);
+        nbt.putBoolean("IsReturning", this.isReturning);
         nbt.putShort("ReturnTicks", (short)this.returnTicks);
-        nbt.putBoolean("ShouldReturn", this.shouldReturn);
+        nbt.putFloat("StoredAngle", this.storedAngle);
         nbt.putInt("StoredSlot", this.storedSlot);
         if (this.pickupLevel > 0) {
             nbt.putInt("PickupLevel", this.pickupLevel);
@@ -225,8 +259,9 @@ public class BoomerangEntity extends ProjectileEntity {
     public void readCustomDataFromNbt(NbtCompound nbt) {
         this.age = nbt.getShort("Age");
         this.pickupLevel = nbt.getInt("PickupLevel");
+        this.isReturning = nbt.getBoolean("IsReturning");
         this.returnTicks = nbt.getShort("ReturnTicks");
-        this.shouldReturn = nbt.getBoolean("ShouldReturn");
+        this.storedAngle = nbt.getFloat("StoredAngle");
         this.storedSlot = nbt.getInt("StoredSlot");
         NbtCompound nbtCompound = nbt.getCompound("Item");
         this.setStack(ItemStack.fromNbt(nbtCompound));
@@ -241,43 +276,17 @@ public class BoomerangEntity extends ProjectileEntity {
         /*
         sync break sound and particle effects on client
          */
-        switch (status) {
-            case EntityStatuses.BREAK_MAINHAND -> {
-                this.world.playSound(this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_ITEM_BREAK, this.getSoundCategory(), 0.8f, 0.8f + this.world.random.nextFloat() * 0.4f, true);
-                this.spawnBreakParticles(itemStack);
-            }
+        if (status == EntityStatuses.BREAK_MAINHAND) {
+            this.world.playSound(this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_ITEM_BREAK, this.getSoundCategory(), 0.8f, 0.8f + this.world.random.nextFloat() * 0.4f, true);
+            this.spawnBreakParticles(itemStack);
         }
     }
 
-    public int getAge() {
-        return age;
-    }
-
-    public void setPickupLevel(int pickupLevel) {
-        this.pickupLevel = pickupLevel;
-    }
-
-    public void setPierceLevel(int level) {
-        this.dataTracker.set(PIERCING, level);
-    }
-
-    public void setStack(ItemStack itemStack) {
-        this.getDataTracker().set(STACK, itemStack);
-    }
-
-    public ItemStack getStack() {
-        return this.itemStack;
-    }
-
-    public void setStoredSlot(int slot) {
-        this.storedSlot = slot;
-    }
-
-    public float getStoredAngle() {
-        return this.storedAngle;
-    }
-
     public boolean takeStack(ItemEntity itemEntity) {
+        /*
+        tries to pick up an ItemEntity; first iterates through own inventory to append to existing stacks, then add
+        remainder if there is still room in the internal inventory
+         */
         ItemStack item = itemEntity.getStack();
         boolean tookStack = false;
         for (ItemStack itemStack : this.inventory) {
@@ -311,5 +320,33 @@ public class BoomerangEntity extends ProjectileEntity {
                     ((double)this.random.nextFloat() - 0.5) * 0.1).normalize().multiply(0.15 * (this.random.nextFloat() + 0.5));
             this.world.addParticle(new ItemStackParticleEffect(ParticleTypes.ITEM, stack), this.getX(), this.getY(),this.getZ(), particleVelocity.x, particleVelocity.y + 0.05, particleVelocity.z);
         }
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setPickupLevel(int pickupLevel) {
+        this.pickupLevel = pickupLevel;
+    }
+
+    public void setPierceLevel(int level) {
+        this.dataTracker.set(PIERCING, level);
+    }
+
+    public void setStack(ItemStack itemStack) {
+        this.getDataTracker().set(STACK, itemStack);
+    }
+
+    public ItemStack getStack() {
+        return this.itemStack;
+    }
+
+    public void setStoredSlot(int slot) {
+        this.storedSlot = slot;
+    }
+
+    public float getStoredAngle() {
+        return this.storedAngle;
     }
 }

@@ -17,7 +17,7 @@ import java.util.List;
 
 public class BoomerangItem extends ToolItem implements SupplementaryEnchantable {
 
-    private final List<Class<? extends Enchantment>> enchantments = List.of(PiercingEnchantment.class);
+    private final List<Class<? extends Enchantment>> enchantments = List.of(PiercingEnchantment.class, DamageEnchantment.class);
 
     public BoomerangItem(ToolMaterial toolMaterial, Settings settings) {
         super(toolMaterial, settings);
