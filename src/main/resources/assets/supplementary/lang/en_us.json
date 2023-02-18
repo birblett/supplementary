@@ -23,9 +23,5 @@
   "item.supplementary.diamond_boomerang": "Diamond Boomerang",
   "item.supplementary.netherite_boomerang": "Netherite Boomerang",
 
-  "item.supplementary.cape": "Cape",
-  "item.supplementary.steel_helmet": "Steel Helmet",
-  "item.supplementary.steel_chestplate": "Steel Chestplate",
-  "item.supplementary.steel_leggings": "Steel Leggings",
-  "item.supplementary.steel_boots": "Steel Boots"
+  "item.supplementary.cape": "Cape"
 }

@@ -7,7 +7,6 @@ import com.birblett.items.BoomerangItem;
 import com.birblett.items.SnowballVariantItem;
 import com.birblett.trinkets.CapeItem;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
-import com.birblett.armor_materials.steel_plate.SteelPlateArmorMaterial;
 import net.minecraft.block.DispenserBlock;
 import net.minecraft.block.dispenser.ProjectileDispenserBehavior;
 import net.minecraft.entity.Entity;
@@ -22,7 +21,6 @@ import net.minecraft.entity.mob.BlazeEntity;
 import net.minecraft.entity.passive.SnowGolemEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.*;
-import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.hit.BlockHitResult;
@@ -55,13 +53,6 @@ public class SupplementaryItems {
         GOLD_BOOMERANG - registered under id supplementary:gold_boomerang
         DIAMOND_BOOMERANG - registered under id supplementary:diamond_boomerang
         NETHERITE_BOOMERANG - registered under id supplementary:netherite_boomerang
-    Armor
-        STEEL_PLATE_ARMOR_MATERIAL - armor material for steel armor set
-            Implementation - com.birblett.armor_materials.steel_plate.SteelPlateArmorMaterial
-        STEEL_HELMET - ArmorItem, registered under id supplementary:steel_helmet
-        STEEL_CHESTPLATE - ArmorItem, registered under id supplementary:steel_chestplate
-        STEEL_LEGGINGS - ArmorItem, registered under id supplementary:steel_leggings
-        STEEL_BOOTS - ArmorItem, registered under id supplementary:steel_boots
 
     Methods:
         registerItem(String, Item) - registers the item under the provided id
@@ -69,16 +60,6 @@ public class SupplementaryItems {
      */
 
     public static final Item CAPE = new CapeItem(new FabricItemSettings().group(ItemGroup.MISC).maxCount(1));
-
-    public static final ArmorMaterial STEEL_PLATE_ARMOR_MATERIAL = new SteelPlateArmorMaterial();
-    public static final Item STEEL_HELMET = new ArmorItem(STEEL_PLATE_ARMOR_MATERIAL, EquipmentSlot.HEAD,
-            new FabricItemSettings().group(ItemGroup.COMBAT).maxCount(1));
-    public static final Item STEEL_CHESTPLATE = new ArmorItem(STEEL_PLATE_ARMOR_MATERIAL, EquipmentSlot.CHEST,
-            new FabricItemSettings().group(ItemGroup.COMBAT).maxCount(1));
-    public static final Item STEEL_LEGGINGS = new ArmorItem(STEEL_PLATE_ARMOR_MATERIAL, EquipmentSlot.LEGS,
-            new FabricItemSettings().group(ItemGroup.COMBAT).maxCount(1));
-    public static final Item STEEL_BOOTS = new ArmorItem(STEEL_PLATE_ARMOR_MATERIAL, EquipmentSlot.FEET,
-            new FabricItemSettings().group(ItemGroup.COMBAT).maxCount(1));
 
     public static final Item SNOWGOLEMBALL = new SnowballVariantItem(new Item.Settings().maxCount(16).group(ItemGroup.MISC)) {
         @Override
@@ -194,10 +175,6 @@ public class SupplementaryItems {
         registerItem("netherite_boomerang", NETHERITE_BOOMERANG);
 
         registerItem("cape", CAPE);
-        registerItem("steel_helmet", STEEL_HELMET);
-        registerItem("steel_chestplate", STEEL_CHESTPLATE);
-        registerItem("steel_leggings", STEEL_LEGGINGS);
-        registerItem("steel_boots", STEEL_BOOTS);
 
         registerSnowballVariant("blowball", BLOWBALL);
         registerSnowballVariant("glowball", GLOWBALL);
