@@ -31,6 +31,7 @@ public class EnchantmentBuilder extends Enchantment {
         maxPowerScale - amount maximum power requirement should scale per additional level
         components - list of component keys to iterate through when a game event invokes this enchantment
         acceptableTypes - list of acceptable items, overrides the vanilla acceptable item type behavior if set
+        acceptableItemClasses - list of acceptable item classes, overrides the vanilla acceptable item behavior if set
         identifier - registry namespace to register under (format: "supplementary:identifier")
         isCurse - whether the enchantment is considered a curse or not
         isTreasure - whether the enchantment is considered a treasure enchantment or not
@@ -47,6 +48,7 @@ public class EnchantmentBuilder extends Enchantment {
         setAvailability(boolean, boolean) - setter for availableForRandomOffer, availableForRandomSelection
         makeIncompatible(Enchantment...) - makes provided enchantment(s) incompatible with this enchantment
         addCompatibleItems(Item...) - makes provided item(s) compatible with this enchantment
+        addCompatibleClasses(Class...) - makes provided item classes compatible with this enchantment
         addComponent(ComponentKey<BaseComponent>) - attaches provided ComponentKey to this enchantment
         build() - builds + registers the enchantment
 

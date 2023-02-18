@@ -1,6 +1,5 @@
 package com.birblett.client.render.entities;
 
-import com.birblett.Supplementary;
 import com.birblett.entities.BoomerangEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -36,7 +35,7 @@ public class BoomerangEntityRenderer extends EntityRenderer<BoomerangEntity> {
     }
 
     @Override
-    public void render(BoomerangEntity boomerangEntity, float wtf, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light) {
+    public void render(BoomerangEntity boomerangEntity, float yaw, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light) {
         /*
         heavily simplified and modified item renderer
          */
@@ -67,7 +66,7 @@ public class BoomerangEntityRenderer extends EntityRenderer<BoomerangEntity> {
             this.itemRenderer.renderItem(itemStack, ModelTransformation.Mode.GROUND, false, matrixStack, vertexConsumerProvider, light, OverlayTexture.DEFAULT_UV, bakedModel);
             matrixStack.pop();
             matrixStack.pop();
-            super.render(boomerangEntity, wtf, tickDelta, matrixStack, vertexConsumerProvider, light);
+            super.render(boomerangEntity, yaw, tickDelta, matrixStack, vertexConsumerProvider, light);
         }
     }
 }

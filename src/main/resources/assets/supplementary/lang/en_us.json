@@ -16,7 +16,13 @@
   "item.supplementary.slowball": "Slowball",
   "item.supplementary.snowgolemball": "Snowgolemball",
 
-  "item.supplementary.iron_boomerange": "Iron Boomerang",
+  "item.supplementary.wooden_boomerang": "Wooden Boomerang",
+  "item.supplementary.stone_boomerang": "Stone Boomerang",
+  "item.supplementary.iron_boomerang": "Iron Boomerang",
+  "item.supplementary.gold_boomerang": "Gold Boomerang",
+  "item.supplementary.diamond_boomerang": "Diamond Boomerang",
+  "item.supplementary.netherite_boomerang": "Netherite Boomerang",
+
   "item.supplementary.cape": "Cape",
   "item.supplementary.steel_helmet": "Steel Helmet",
   "item.supplementary.steel_chestplate": "Steel Chestplate",

@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "boomerangs",
+  "pattern": [
+    "#oo",
+    "o  ",
+    "o  "
+  ],
+  "key": {
+    "o": {
+      "item": "minecraft:diamond"
+    },
+    "#": {
+      "item": "minecraft:leather"
+    }
+  },
+  "result": {
+    "item": "supplementary:diamond_boomerang"
+  }
+}

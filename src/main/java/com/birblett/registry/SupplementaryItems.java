@@ -42,12 +42,19 @@ public class SupplementaryItems {
         CAPE - CapeItem, registered under id supplementary:cape
             Implementation - com.birblett.trinkets.CapeItem
             Renderer - com.birblett.client.render.items.CapeFeatureRenderer, instantiated in com.birblett.mixin.render.PlayerCapeRender
-    Snowball variants - Implementations of the SnowballVariantItem class, may replace normal snowballs thrown by snow golems
+    Snowball variants
         SNOWGOLEMBALL - Registered under id supplementary:snowgolemball, cannot replace normal snow golem projectiles
         GLOWBALL - Registered under id supplementary:glowball
         ICEBALL - Registered under id supplementary:snowgolemball
         SLOWBALL - Registered under id supplementary:snowgolemball
         BLOWBALL - Registered under id supplementary:snowgolemball
+    Boomerangs
+        WOODEN_BOOMERANG - registered under id supplementary:wooden_boomerang
+        STONE_BOOMERANG - registered under id supplementary:stone_boomerang
+        IRON_BOOMERANG - registered under id supplementary:iron_boomerang
+        GOLD_BOOMERANG - registered under id supplementary:gold_boomerang
+        DIAMOND_BOOMERANG - registered under id supplementary:diamond_boomerang
+        NETHERITE_BOOMERANG - registered under id supplementary:netherite_boomerang
     Armor
         STEEL_PLATE_ARMOR_MATERIAL - armor material for steel armor set
             Implementation - com.birblett.armor_materials.steel_plate.SteelPlateArmorMaterial
@@ -60,9 +67,6 @@ public class SupplementaryItems {
         registerItem(String, Item) - registers the item under the provided id
         registerSnowballVariant(String, Item) - registers item + registers snowball dispenser behavior for the item
      */
-
-    public static final Item IRON_BOOMERANG = new BoomerangItem(ToolMaterials.IRON,
-            new FabricItemSettings().group(ItemGroup.MISC).maxCount(1));
 
     public static final Item CAPE = new CapeItem(new FabricItemSettings().group(ItemGroup.MISC).maxCount(1));
 
@@ -154,6 +158,19 @@ public class SupplementaryItems {
         }
     };
 
+    public static final Item WOODEN_BOOMERANG = new BoomerangItem(ToolMaterials.WOOD,
+            new FabricItemSettings().group(ItemGroup.COMBAT).maxCount(1));
+    public static final Item STONE_BOOMERANG = new BoomerangItem(ToolMaterials.STONE,
+            new FabricItemSettings().group(ItemGroup.COMBAT).maxCount(1));
+    public static final Item IRON_BOOMERANG = new BoomerangItem(ToolMaterials.IRON,
+            new FabricItemSettings().group(ItemGroup.COMBAT).maxCount(1));
+    public static final Item GOLD_BOOMERANG = new BoomerangItem(ToolMaterials.GOLD,
+            new FabricItemSettings().group(ItemGroup.COMBAT).maxCount(1));
+    public static final Item DIAMOND_BOOMERANG = new BoomerangItem(ToolMaterials.DIAMOND,
+            new FabricItemSettings().group(ItemGroup.COMBAT).maxCount(1));
+    public static final Item NETHERITE_BOOMERANG = new BoomerangItem(ToolMaterials.NETHERITE,
+            new FabricItemSettings().group(ItemGroup.COMBAT).maxCount(1));
+
     private static void registerItem(String id, Item item) {
         Registry.register(Registry.ITEM, new Identifier(MODID, id), item);
     }
@@ -169,7 +186,12 @@ public class SupplementaryItems {
     }
 
     public static void register() {
+        registerItem("wooden_boomerang", WOODEN_BOOMERANG);
+        registerItem("stone_boomerang", STONE_BOOMERANG);
         registerItem("iron_boomerang", IRON_BOOMERANG);
+        registerItem("gold_boomerang", GOLD_BOOMERANG);
+        registerItem("diamond_boomerang", DIAMOND_BOOMERANG);
+        registerItem("netherite_boomerang", NETHERITE_BOOMERANG);
 
         registerItem("cape", CAPE);
         registerItem("steel_helmet", STEEL_HELMET);
