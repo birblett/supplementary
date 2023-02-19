@@ -14,6 +14,7 @@
     "events.ItemUseEventMixin",
     "events.LivingEntityEventMixin",
     "events.PersistentProjectileEventMixin",
+    "events.PlayerEntityEventMixin",
     "render.PlayerCapeRenderer"
   ],
   "injectors": {

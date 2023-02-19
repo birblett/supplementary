@@ -5,7 +5,9 @@ import com.birblett.lib.components.BaseComponent;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentTarget;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
@@ -193,5 +195,13 @@ public class EnchantmentBuilder extends Enchantment {
     @Override
     public boolean isAvailableForRandomSelection() {
         return this.availableForRandomSelection;
+    }
+
+    public float onAttack(LivingEntity user, Entity target, int level, boolean isCritical, float damageAmount) {
+        return 0.0f;
+    }
+
+    public float onUserDamaged(LivingEntity user, LivingEntity attacker, int level, float damageAmount) {
+        return 0.0f;
     }
 }
