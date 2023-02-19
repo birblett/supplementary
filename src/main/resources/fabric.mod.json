@@ -38,7 +38,6 @@
 	"custom": {
 		"cardinal-components": [
 			"supplementary:burst_fire_timer",
-			"supplementary:enchantment_handler",
 			"supplementary:grappling",
 			"supplementary:grappling_tracking_component",
 			"supplementary:ignores_iframes",
