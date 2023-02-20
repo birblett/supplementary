@@ -1,4 +1,4 @@
-package com.birblett.mixin.implementation;
+package com.birblett.mixin.functional;
 
 import com.birblett.entities.SnowballVariantEntity;
 import com.birblett.registry.SupplementaryComponents;
@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(SnowGolemEntity.class)
-public class SnowballVariantsGolemImpl {
+public class SnowballVariantsGolemMixin {
     /*
     Replaces snow golem snowballs with variant snowballs
      */

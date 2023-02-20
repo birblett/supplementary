@@ -20,6 +20,8 @@ public class SupplementaryEnchantments {
     Equipment slot presets
         MAIN_HAND - mainhand
         BOTH_HANDS - mainhand and offhand
+        ALL_ARMOR - private, from Enchantments class; all armor slots
+        NONE - no valid slots
 
     Standard enchantments
         BURST_FIRE - for crossbows; fires a 3 round burst of slightly weakened arrows
@@ -30,11 +32,13 @@ public class SupplementaryEnchantments {
         LIGHTNING_BOLT - for bows; projectiles summon lightning
         MARKED - for crossbows; initial hit will "mark" a target; subsequent projectiles will home in on the target
         PICKUP - for boomerangs; unlocks the internal inventory of boomerangs, and can pick up items
+        SLIMED - for boots; become bouncy and slippery and take less fall damage
         SOULBOUND - for any tool; item remains in inventory on death, at the cost of durability; does not stay if not enough durability
      */
 
     public static final EquipmentSlot[] MAIN_HAND = new EquipmentSlot[]{EquipmentSlot.MAINHAND};
     public static final EquipmentSlot[] BOTH_HANDS = new EquipmentSlot[]{EquipmentSlot.MAINHAND, EquipmentSlot.OFFHAND};
+    private static final EquipmentSlot[] ALL_ARMOR = new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
     public static final EquipmentSlot[] NONE = new EquipmentSlot[]{};
 
     public static final EnchantmentBuilder BURST_FIRE = new EnchantmentBuilder("burst_fire", Enchantment.Rarity.RARE,
@@ -76,6 +80,8 @@ public class SupplementaryEnchantments {
             EnchantmentTarget.CROSSBOW, BOTH_HANDS);
     public static final EnchantmentBuilder PICKUP = new EnchantmentBuilder("pickup", Enchantment.Rarity.UNCOMMON,
             null, BOTH_HANDS);
+    public static final EnchantmentBuilder SLIMED = new EnchantmentBuilder("slimed", Enchantment.Rarity.VERY_RARE,
+            EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
     public static final EnchantmentBuilder SOULBOUND = new EnchantmentBuilder("soulbound", Enchantment.Rarity.RARE,
             EnchantmentTarget.BREAKABLE, NONE);
 
@@ -114,6 +120,9 @@ public class SupplementaryEnchantments {
         PICKUP.setPower(10, 10, 20, 20)
                 .setMaxLevel(3)
                 .addCompatibleClasses(BoomerangItem.class)
+                .build();
+        SLIMED.makeIncompatible(Enchantments.FEATHER_FALLING)
+                .setPower(50, 50)
                 .build();
         SOULBOUND.makeIncompatible(EMPOWERED)
                 .setPower(20, 50)

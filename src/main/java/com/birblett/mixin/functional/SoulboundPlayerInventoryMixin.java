@@ -1,4 +1,4 @@
-package com.birblett.mixin.implementation;
+package com.birblett.mixin.functional;
 
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @Mixin(PlayerInventory.class)
-public class SoulboundPlayerInventoryImpl {
+public class SoulboundPlayerInventoryMixin {
     /*
     Preserves items enchanted with Soulbound instead of removing them, which are copied to the respawned player in SouldboundServerPlayerEntityImpl
      */

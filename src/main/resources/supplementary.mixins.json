@@ -14,10 +14,12 @@
     "events.LivingEntityEventMixin",
     "events.PersistentProjectileEventMixin",
     "events.PlayerEntityEventMixin",
-    "implementation.EmpoweredEnchantmentHelperImpl",
-    "implementation.SnowballVariantsGolemImpl",
-    "implementation.SoulboundPlayerInventoryImpl",
-    "implementation.SoulboundServerPlayerEntityImpl",
+    "functional.EmpoweredEnchantmentHelperMixin",
+    "functional.SlimedEntityMixin",
+    "functional.SlimedLivingEntityMixin",
+    "functional.SnowballVariantsGolemMixin",
+    "functional.SoulboundPlayerInventoryMixin",
+    "functional.SoulboundServerPlayerEntityMixin",
     "render.PlayerCapeRenderer"
   ],
   "injectors": {

@@ -1,4 +1,4 @@
-package com.birblett.mixin.implementation;
+package com.birblett.mixin.functional;
 
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.enchantment.Enchantment;
@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(EnchantmentHelper.class)
-public abstract class EmpoweredEnchantmentHelperImpl {
+public abstract class EmpoweredEnchantmentHelperMixin {
     /*
     Modifies the effective level of enchantments to be +1
      */

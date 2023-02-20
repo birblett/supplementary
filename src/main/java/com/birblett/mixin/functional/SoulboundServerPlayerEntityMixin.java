@@ -1,4 +1,4 @@
-package com.birblett.mixin.implementation;
+package com.birblett.mixin.functional;
 
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayerEntity.class)
-public class SoulboundServerPlayerEntityImpl {
+public class SoulboundServerPlayerEntityMixin {
     /*
     When respawning a player after death, copies items over to the new player object, preserving armor slots
      */
