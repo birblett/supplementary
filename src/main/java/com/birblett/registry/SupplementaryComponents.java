@@ -1,5 +1,6 @@
 package com.birblett.registry;
 
+import com.birblett.entities.BoomerangEntity;
 import com.birblett.lib.components.*;
 import com.birblett.lib.helper.RenderHelper;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;

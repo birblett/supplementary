@@ -4,7 +4,7 @@ import net.minecraft.nbt.NbtCompound;
 
 import static com.birblett.Supplementary.MODID;
 
-public class SimpleIntTrackingComponent implements SimpleEntityComponent {
+public class SimpleIntTrackingComponent implements SimpleEntityComponent<Integer> {
     /*
     A component designed to track a single value.
 
@@ -30,6 +30,14 @@ public class SimpleIntTrackingComponent implements SimpleEntityComponent {
     public void setValue(int value) {
         this.value = value;
     }
+
+    @Override
+    public Integer getObject() {
+        return null;
+    }
+
+    @Override
+    public void setObject(Integer object) {}
 
     /*
     methods for storing value to NBT - do not call manually!

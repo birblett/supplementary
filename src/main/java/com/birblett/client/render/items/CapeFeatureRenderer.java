@@ -1,4 +1,4 @@
-package com.birblett.trinkets.render;
+package com.birblett.client.render.items;
 
 
 import com.birblett.registry.SupplementaryItems;

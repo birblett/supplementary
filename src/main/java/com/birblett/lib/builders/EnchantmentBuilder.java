@@ -31,6 +31,7 @@ public class EnchantmentBuilder extends Enchantment {
         maxPowerScale - amount maximum power requirement should scale per additional level
         components - list of component keys to iterate through when a game event invokes this enchantment
         acceptableTypes - list of acceptable items, overrides the vanilla acceptable item type behavior if set
+        acceptableItemClasses - list of acceptable item classes, overrides the vanilla acceptable item behavior if set
         identifier - registry namespace to register under (format: "supplementary:identifier")
         isCurse - whether the enchantment is considered a curse or not
         isTreasure - whether the enchantment is considered a treasure enchantment or not
@@ -47,6 +48,7 @@ public class EnchantmentBuilder extends Enchantment {
         setAvailability(boolean, boolean) - setter for availableForRandomOffer, availableForRandomSelection
         makeIncompatible(Enchantment...) - makes provided enchantment(s) incompatible with this enchantment
         addCompatibleItems(Item...) - makes provided item(s) compatible with this enchantment
+        addCompatibleClasses(Class...) - makes provided item classes compatible with this enchantment
         addComponent(ComponentKey<BaseComponent>) - attaches provided ComponentKey to this enchantment
         build() - builds + registers the enchantment
 
@@ -61,7 +63,9 @@ public class EnchantmentBuilder extends Enchantment {
     private int maxPowerScale = 0;
     private final List<ComponentKey<BaseComponent>> components =
             new ArrayList<>();
-    private final List<Item> acceptableTypes =
+    private final List<Item> acceptableItems =
+            new ArrayList<>();
+    private final List<Class<?>> acceptableItemClasses =
             new ArrayList<>();
     private final Identifier identifier;
     private boolean isCurse = false;
@@ -116,7 +120,12 @@ public class EnchantmentBuilder extends Enchantment {
     }
 
     public EnchantmentBuilder addCompatibleItems(Item... items) {
-        this.acceptableTypes.addAll(List.of(items));
+        this.acceptableItems.addAll(List.of(items));
+        return this;
+    }
+
+    public EnchantmentBuilder addCompatibleClasses(Class<?>... classes) {
+        this.acceptableItemClasses.addAll(List.of(classes));
         return this;
     }
 
@@ -158,11 +167,11 @@ public class EnchantmentBuilder extends Enchantment {
 
     @Override
     public boolean isAcceptableItem(ItemStack item) {
-        if (this.acceptableTypes.isEmpty()) {
+        if (this.acceptableItems.isEmpty() && this.acceptableItemClasses.isEmpty()) {
             return super.isAcceptableItem(item);
         }
         else {
-            return this.acceptableTypes.contains(item.getItem());
+            return this.acceptableItems.contains(item.getItem()) || this.acceptableItemClasses.contains(item.getItem().getClass());
         }
     }
 
