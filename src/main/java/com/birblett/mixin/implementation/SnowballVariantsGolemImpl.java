@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(SnowGolemEntity.class)
-public class SnowGolemSnowballVariantsImpl {
+public class SnowballVariantsGolemImpl {
     /*
     Replaces snow golem snowballs with variant snowballs
      */

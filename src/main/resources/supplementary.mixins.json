@@ -14,7 +14,8 @@
     "events.LivingEntityEventMixin",
     "events.PersistentProjectileEventMixin",
     "events.PlayerEntityEventMixin",
-    "implementation.SnowGolemSnowballVariantsImpl",
+    "implementation.EmpoweredEnchantmentHelperImpl",
+    "implementation.SnowballVariantsGolemImpl",
     "implementation.SoulboundPlayerInventoryImpl",
     "implementation.SoulboundServerPlayerEntityImpl",
     "render.PlayerCapeRenderer"

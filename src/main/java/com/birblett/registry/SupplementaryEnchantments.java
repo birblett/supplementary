@@ -23,6 +23,7 @@ public class SupplementaryEnchantments {
 
     Standard enchantments
         BURST_FIRE - for crossbows; fires a 3 round burst of slightly weakened arrows
+        EMPOWERED - for any tool; increases the effective level of existing enchantments by 1
         GRAPPLING - for fishing rods and crossbows; projectiles trail lines behind them, and will pull the user in
         FRANTIC - for swords; gain a speed boost on crit, and deal additional damage while speed is boosted
         FRENZY - for swords; take more damage, deal more melee damage as health gets lower
@@ -34,9 +35,12 @@ public class SupplementaryEnchantments {
 
     public static final EquipmentSlot[] MAIN_HAND = new EquipmentSlot[]{EquipmentSlot.MAINHAND};
     public static final EquipmentSlot[] BOTH_HANDS = new EquipmentSlot[]{EquipmentSlot.MAINHAND, EquipmentSlot.OFFHAND};
+    public static final EquipmentSlot[] NONE = new EquipmentSlot[]{};
 
     public static final EnchantmentBuilder BURST_FIRE = new EnchantmentBuilder("burst_fire", Enchantment.Rarity.RARE,
             EnchantmentTarget.CROSSBOW, BOTH_HANDS);
+    public static final EnchantmentBuilder EMPOWERED = new EnchantmentBuilder("empowered", Enchantment.Rarity.RARE,
+            EnchantmentTarget.BREAKABLE, NONE);
     public static final EnchantmentBuilder GRAPPLING = new EnchantmentBuilder("grappling", Enchantment.Rarity.UNCOMMON,
             EnchantmentTarget.CROSSBOW, MAIN_HAND);
     public static final EnchantmentBuilder FRANTIC = new EnchantmentBuilder("frantic", Enchantment.Rarity.UNCOMMON,
@@ -73,12 +77,16 @@ public class SupplementaryEnchantments {
     public static final EnchantmentBuilder PICKUP = new EnchantmentBuilder("pickup", Enchantment.Rarity.UNCOMMON,
             null, BOTH_HANDS);
     public static final EnchantmentBuilder SOULBOUND = new EnchantmentBuilder("soulbound", Enchantment.Rarity.RARE,
-            EnchantmentTarget.BREAKABLE, null);
+            EnchantmentTarget.BREAKABLE, NONE);
 
     public static void buildAndRegister() {
         BURST_FIRE.makeIncompatible(Enchantments.MULTISHOT)
                 .setPower(20, 50)
                 .addComponent(SupplementaryComponents.BURST_FIRE_TIMER)
+                .build();
+        EMPOWERED.makeIncompatible(SOULBOUND)
+                .setPower(20, 50)
+                .setTreasure(true)
                 .build();
         GRAPPLING.makeIncompatible(Enchantments.QUICK_CHARGE, Enchantments.MULTISHOT)
                 .setPower(20,50)
@@ -107,8 +115,9 @@ public class SupplementaryEnchantments {
                 .setMaxLevel(3)
                 .addCompatibleClasses(BoomerangItem.class)
                 .build();
-        SOULBOUND.makeIncompatible()
+        SOULBOUND.makeIncompatible(EMPOWERED)
                 .setPower(20, 50)
+                .setTreasure(true)
                 .build();
     }
 }
