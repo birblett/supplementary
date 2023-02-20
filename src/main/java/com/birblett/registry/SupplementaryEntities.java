@@ -3,6 +3,7 @@ package com.birblett.registry;
 import com.birblett.client.render.entities.BoomerangEntityRenderer;
 import com.birblett.entities.BoomerangEntity;
 import com.birblett.entities.SnowballVariantEntity;
+import com.birblett.entities.damage_sources.MagicSandDamage;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.client.render.entity.EntityRendererFactory;
@@ -17,6 +18,8 @@ import net.minecraft.util.registry.Registry;
 import static com.birblett.Supplementary.MODID;
 
 public class SupplementaryEntities {
+
+    public static final MagicSandDamage MAGIC_SAND_DAMAGE = new MagicSandDamage("magic_sand");
 
     public static final EntityType<SnowballVariantEntity> SNOWBALL_VARIANT = FabricEntityTypeBuilder.<SnowballVariantEntity>create(
             SpawnGroup.MISC, SnowballVariantEntity::new)

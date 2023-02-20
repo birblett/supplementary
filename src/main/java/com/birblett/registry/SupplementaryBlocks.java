@@ -14,7 +14,7 @@ import net.minecraft.util.registry.Registry;
 public class SupplementaryBlocks {
 
     // TODO: proper registration of item settings, block properties match stone atm
-    public static final Block MAGIC_SAND = new MagicSand(FabricBlockSettings.of(Material.AGGREGATE).resistance(1200.0f).hardness(0.5f).requiresTool().sounds(BlockSoundGroup.SAND));
+    public static final Block MAGIC_SAND = new MagicSand(FabricBlockSettings.of(Material.AGGREGATE).resistance(1200.0f).hardness(0.5f).requiresTool().sounds(BlockSoundGroup.SAND).noCollision());
 
     public static void register() {
         Registry.register(Registry.BLOCK, new Identifier(Supplementary.MODID, "magic_sand"), MAGIC_SAND);

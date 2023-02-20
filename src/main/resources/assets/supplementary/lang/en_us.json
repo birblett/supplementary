@@ -4,6 +4,8 @@
   "block.supplementary.magic_sand": "Magic Sand",
   "item.supplementary.magic_sand": "Magic Sand",
 
+  "death.magic_sand": "%1$s fell into magic sand and couldn't escape",
+
   "enchantment.supplementary.burst_fire": "Burst Fire",
   "enchantment.supplementary.grappling": "Grappling",
   "enchantment.supplementary.lightning_bolt": "Lightning Bolt",
