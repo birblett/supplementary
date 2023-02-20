@@ -6,7 +6,6 @@
     "EnchantmentCompabilityMixin",
     "EnchantmentHelperCompatMixin",
     "LoomScreenHandlerMixin",
-    "SnowGolemEntitySnowballVariantsMixin",
     "events.BowFiringEventMixin",
     "events.CrossbowFiringEventMixin",
     "events.FishingBobberEventMixin",
@@ -15,6 +14,9 @@
     "events.LivingEntityEventMixin",
     "events.PersistentProjectileEventMixin",
     "events.PlayerEntityEventMixin",
+    "implementation.SnowGolemSnowballVariantsImpl",
+    "implementation.SoulboundPlayerInventoryImpl",
+    "implementation.SoulboundServerPlayerEntityImpl",
     "render.PlayerCapeRenderer"
   ],
   "injectors": {

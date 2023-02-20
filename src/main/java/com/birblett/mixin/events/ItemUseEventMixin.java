@@ -22,9 +22,14 @@ public class ItemUseEventMixin {
     @Inject(method = "use", at = @At("HEAD"))
     private void onUseEvent(World world, PlayerEntity user, Hand hand, CallbackInfoReturnable<TypedActionResult<ItemStack>> cir) {
         EnchantmentHelper.get(user.getStackInHand(hand)).forEach((enchantment, level) -> {
-            if (enchantment instanceof EnchantmentBuilder) {
-                for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.PLAYER_TICKING_COMPONENTS) {
-                    componentKey.maybeGet(user).ifPresent(component -> component.onUse(user, hand));
+            if (enchantment instanceof EnchantmentBuilder enchantmentBuilder) {
+                if (enchantmentBuilder.hasComponent()) {
+                    for (ComponentKey<BaseComponent> componentKey : enchantmentBuilder.getComponents()) {
+                        componentKey.maybeGet(user).ifPresent(component -> component.onUse(user, hand));
+                    }
+                }
+                else {
+                    enchantmentBuilder.onUse(user, hand);
                 }
             }
         });

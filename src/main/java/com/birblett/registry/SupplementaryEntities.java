@@ -34,6 +34,6 @@ public class SupplementaryEntities {
         Registry.register(Registry.ENTITY_TYPE, new Identifier(MODID, "snowball_variant"), SNOWBALL_VARIANT);
         Registry.register(Registry.ENTITY_TYPE, new Identifier(MODID, "boomerang"), BOOMERANG);
         EntityRendererRegistry.register(SNOWBALL_VARIANT, (EntityRendererFactory<Entity>) context -> new FlyingItemEntityRenderer(context));
-        EntityRendererRegistry.register(BOOMERANG, context -> new BoomerangEntityRenderer(context));
+        EntityRendererRegistry.register(BOOMERANG, BoomerangEntityRenderer::new);
     }
 }

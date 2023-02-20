@@ -36,8 +36,13 @@ public class FishingRodCastEventMixin {
         FishingBobberEntity fishingBobberEntity = (FishingBobberEntity) entity;
         EnchantmentHelper.get(supplementary$FishingRodItemStack).forEach((enchantment, level) -> {
             if (enchantment instanceof EnchantmentBuilder enchantmentBuilder) {
-                for (ComponentKey<BaseComponent> componentKey : enchantmentBuilder.getComponents()) {
-                    componentKey.maybeGet(fishingBobberEntity).ifPresent(component -> component.onProjectileFire(supplementary$FishingRodUser, fishingBobberEntity, level));
+                if (enchantmentBuilder.hasComponent()) {
+                    for (ComponentKey<BaseComponent> componentKey : enchantmentBuilder.getComponents()) {
+                        componentKey.maybeGet(fishingBobberEntity).ifPresent(component -> component.onProjectileFire(supplementary$FishingRodUser, fishingBobberEntity, level));
+                    }
+                }
+                else {
+                    enchantmentBuilder.onProjectileFire(supplementary$FishingRodUser, fishingBobberEntity, level);
                 }
             }
         });

@@ -1,6 +1,5 @@
 package com.birblett.mixin.events;
 
-import com.birblett.Supplementary;
 import com.birblett.lib.builders.EnchantmentBuilder;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;

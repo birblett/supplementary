@@ -58,6 +58,7 @@ public class BoomerangEntity extends ProjectileEntity {
         set/getStack(ItemStack) - sets/returns stored ItemStack
         setStoredSlot(int) - sets the inventory slot the item should return to
         getStoredAngle() - return the initial throw angle, used in renderer
+        returnToOwner() - remove the current entity and return the item(s) to the owner
 
      method overrides
         initDataTracker() - initializes PIERCING and STACK data trackers
@@ -113,6 +114,15 @@ public class BoomerangEntity extends ProjectileEntity {
                     // use durability on hit
                     if (this.itemStack.damage(1, random, (ServerPlayerEntity) this.getOwner())) {
                         this.world.sendEntityStatus(this, EntityStatuses.BREAK_MAINHAND);
+                        // drop inventory items if necessary
+                        if (!this.inventory.isEmpty()) {
+                            Vec3d velocity = this.getVelocity();
+                            for (ItemStack itemStack : this.inventory) {
+                                ItemEntity itemEntity = new ItemEntity(this.getWorld(), this.getX() - velocity.x, this.getY() - velocity.y,
+                                        this.getZ() - velocity.z, itemStack);
+                                this.getWorld().spawnEntity(itemEntity);
+                            }
+                        }
                         this.discard();
                     }
                 }
@@ -138,6 +148,15 @@ public class BoomerangEntity extends ProjectileEntity {
                 // use durability on block hit
                 if (!this.world.isClient() && this.itemStack.damage(2, random, (ServerPlayerEntity) this.getOwner())) {
                     this.world.sendEntityStatus(this, EntityStatuses.BREAK_MAINHAND);
+                    // drop inventory items if necessary
+                    if (!this.inventory.isEmpty()) {
+                        Vec3d velocity = this.getVelocity();
+                        for (ItemStack itemStack : this.inventory) {
+                            ItemEntity itemEntity = new ItemEntity(this.getWorld(), this.getX() - velocity.x, this.getY() - velocity.y,
+                                    this.getZ() - velocity.z, itemStack);
+                            this.getWorld().spawnEntity(itemEntity);
+                        }
+                    }
                     this.discard();
                 }
                 if (this.getOwner() != null) {
@@ -180,39 +199,9 @@ public class BoomerangEntity extends ProjectileEntity {
                 returnSpeed = 1.0;
             }
             // if owner within a certain distance, return to owner
-            if (this.getOwner() != null && this.getPos().subtract(this.getOwner().getPos().add(0.0, 1.0, 0.0)).lengthSquared() < (0.15 * returnSpeed / 0.3)) {
-                if (this.getOwner() instanceof PlayerEntity player) {
-                    this.setPosition(player.getPos());
-                    if (this.shouldInsert) {
-                        // -99 is magic number representing offhand, as insertStack does not work with offhand slot
-                        if (this.storedSlot == -99 && player.getOffHandStack() == ItemStack.EMPTY) {
-                            player.setStackInHand(Hand.OFF_HAND, this.itemStack);
-                            if (player instanceof ServerPlayerEntity serverPlayerEntity) {
-                                serverPlayerEntity.world.playSound(null, serverPlayerEntity.getX(), serverPlayerEntity.getY(), serverPlayerEntity.getZ(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2f, ((serverPlayerEntity.getRandom().nextFloat() - serverPlayerEntity.getRandom().nextFloat()) * 0.7f + 1.0f) * 2.0f);
-                            }
-                        }
-                        else if (player.getInventory().getStack(this.storedSlot).isEmpty()) {
-                            player.getInventory().insertStack(this.storedSlot, this.itemStack);
-                            if (player instanceof ServerPlayerEntity serverPlayerEntity) {
-                                serverPlayerEntity.world.playSound(null, serverPlayerEntity.getX(), serverPlayerEntity.getY(), serverPlayerEntity.getZ(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2f, ((serverPlayerEntity.getRandom().nextFloat() - serverPlayerEntity.getRandom().nextFloat()) * 0.7f + 1.0f) * 2.0f);
-                            }
-                        }
-                        else {
-                            ItemEntity itemEntity = this.dropStack(this.itemStack, 1.0f);
-                            if (itemEntity != null) {
-                                itemEntity.setPickupDelay(0);
-                            }
-                        }
-                    }
-                    // also give stored inventory to player
-                    for (ItemStack itemStack : this.inventory) {
-                        ItemEntity itemEntity = this.dropStack(itemStack, 0.1f);
-                        if (itemEntity != null) {
-                            itemEntity.setPickupDelay(0);
-                        }
-                    }
-                }
-                this.discard();
+            if (this.getOwner() instanceof PlayerEntity player && (this.getOwner().getWorld() != this.getWorld() ||
+                    this.getPos().subtract(player.getPos().add(0.0, 1.0, 0.0)).lengthSquared() < (0.15 * returnSpeed / 0.3))) {
+                returnToOwner(player);
             }
             this.returnTicks++;
             // move at a constant direction towards owner
@@ -311,6 +300,38 @@ public class BoomerangEntity extends ProjectileEntity {
 
     public float getStoredAngle() {
         return this.storedAngle;
+    }
+
+    public void returnToOwner(PlayerEntity player) {
+        if (!this.world.isClient() && !player.getWorld().isClient()) {
+            if (this.shouldInsert) {
+                // -99 is magic number representing offhand, as insertStack does not work with offhand slot
+                if (this.storedSlot == -99 && player.getOffHandStack() == ItemStack.EMPTY) {
+                    player.setStackInHand(Hand.OFF_HAND, this.itemStack);
+                    if (player instanceof ServerPlayerEntity serverPlayerEntity) {
+                        serverPlayerEntity.world.playSound(null, serverPlayerEntity.getX(), serverPlayerEntity.getY(), serverPlayerEntity.getZ(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2f, ((serverPlayerEntity.getRandom().nextFloat() - serverPlayerEntity.getRandom().nextFloat()) * 0.7f + 1.0f) * 2.0f);
+                    }
+                } else if (player.getInventory().getStack(this.storedSlot).isEmpty()) {
+                    player.getInventory().insertStack(this.storedSlot, this.itemStack);
+                    if (player instanceof ServerPlayerEntity serverPlayerEntity) {
+                        serverPlayerEntity.world.playSound(null, serverPlayerEntity.getX(), serverPlayerEntity.getY(), serverPlayerEntity.getZ(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2f, ((serverPlayerEntity.getRandom().nextFloat() - serverPlayerEntity.getRandom().nextFloat()) * 0.7f + 1.0f) * 2.0f);
+                    }
+                } else {
+                    ItemEntity itemEntity = player.dropStack(this.itemStack, 1.0f);
+                    if (itemEntity != null) {
+                        itemEntity.setPickupDelay(0);
+                    }
+                }
+            }
+            // also give stored inventory to player
+            for (ItemStack itemStack : this.inventory) {
+                ItemEntity itemEntity = player.dropStack(itemStack, 0.1f);
+                if (itemEntity != null) {
+                    itemEntity.setPickupDelay(0);
+                }
+            }
+            this.discard();
+        }
     }
 
     @Override

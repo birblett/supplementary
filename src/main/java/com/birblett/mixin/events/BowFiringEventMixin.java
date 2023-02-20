@@ -25,8 +25,13 @@ public class BowFiringEventMixin {
     public void addEnchantmentsToArrowEntity(ItemStack stack, World world, LivingEntity user, int remainingUseTicks, CallbackInfo ci, PlayerEntity playerEntity, boolean bl, ItemStack itemStack, int i, float f, boolean bl2, ArrowItem arrowItem, PersistentProjectileEntity persistentProjectileEntity) {
         EnchantmentHelper.get(stack).forEach((enchantment, level) -> {
             if (enchantment instanceof EnchantmentBuilder enchantmentBuilder) {
-                for (ComponentKey<BaseComponent> componentKey : enchantmentBuilder.getComponents()) {
-                    componentKey.maybeGet(persistentProjectileEntity).ifPresent(component -> component.onProjectileFire(user, persistentProjectileEntity, level));
+                if (enchantmentBuilder.hasComponent()) {
+                    for (ComponentKey<BaseComponent> componentKey : enchantmentBuilder.getComponents()) {
+                        componentKey.maybeGet(persistentProjectileEntity).ifPresent(component -> component.onProjectileFire(user, persistentProjectileEntity, level));
+                    }
+                }
+                else {
+                    enchantmentBuilder.onProjectileFire(user, persistentProjectileEntity, level);
                 }
             }
         });

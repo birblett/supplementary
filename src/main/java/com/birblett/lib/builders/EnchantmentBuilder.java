@@ -8,8 +8,13 @@ import net.minecraft.enchantment.EnchantmentTarget;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.PersistentProjectileEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
@@ -131,9 +136,13 @@ public class EnchantmentBuilder extends Enchantment {
         return this;
     }
 
-    public EnchantmentBuilder addComponents(ComponentKey<BaseComponent> key) {
+    public EnchantmentBuilder addComponent(ComponentKey<BaseComponent> key) {
         this.components.add(key);
         return this;
+    }
+
+    public boolean hasComponent() {
+        return !this.components.isEmpty();
     }
 
     public List<ComponentKey<BaseComponent>> getComponents() {
@@ -201,7 +210,13 @@ public class EnchantmentBuilder extends Enchantment {
         return 0.0f;
     }
 
-    public float onUserDamaged(LivingEntity user, LivingEntity attacker, int level, float damageAmount) {
+    public void onProjectileFire(LivingEntity user, ProjectileEntity persistentProjectileEntity, int level) {}
+
+    public void onCrossbowUse(ItemStack stack, Hand hand, ItemStack savedProjectile) {}
+
+    public void onUse(PlayerEntity user, Hand hand) {}
+
+    public float onDamage(LivingEntity user, DamageSource source, int level, float damageAmount, EquipmentSlot.Type type) {
         return 0.0f;
     }
 }

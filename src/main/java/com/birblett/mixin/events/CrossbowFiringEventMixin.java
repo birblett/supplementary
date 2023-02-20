@@ -30,8 +30,13 @@ public class CrossbowFiringEventMixin {
         EnchantmentHelper.get(itemStack).forEach((enchantment, lvl) -> {
             if (enchantment instanceof EnchantmentBuilder enchantmentBuilder) {
                 List<ItemStack> projectiles = CrossbowItem.getProjectiles(itemStack);
-                for (ComponentKey<BaseComponent> componentKey : enchantmentBuilder.getComponents()) {
-                    componentKey.maybeGet(user).ifPresent(component -> component.onCrossbowUse(itemStack, hand, projectiles.get(0)));
+                if (enchantmentBuilder.hasComponent()) {
+                    for (ComponentKey<BaseComponent> componentKey : enchantmentBuilder.getComponents()) {
+                        componentKey.maybeGet(user).ifPresent(component -> component.onCrossbowUse(itemStack, hand, projectiles.get(0)));
+                    }
+                }
+                else {
+                    enchantmentBuilder.onCrossbowUse(itemStack, hand, projectiles.get(0));
                 }
             }
         });
@@ -41,8 +46,13 @@ public class CrossbowFiringEventMixin {
     private static void arrowCreationEvent(World world, LivingEntity user, ItemStack crossbow, ItemStack arrow, CallbackInfoReturnable<PersistentProjectileEntity> cir, ArrowItem arrowItem, PersistentProjectileEntity persistentProjectileEntity) {
         EnchantmentHelper.get(crossbow).forEach((enchantment, level) -> {
             if (enchantment instanceof EnchantmentBuilder enchantmentBuilder) {
-                for (ComponentKey<BaseComponent> componentKey : enchantmentBuilder.getComponents()) {
-                    componentKey.maybeGet(persistentProjectileEntity).ifPresent(component -> component.onProjectileFire(user, persistentProjectileEntity, level));
+                if (enchantmentBuilder.hasComponent()) {
+                    for (ComponentKey<BaseComponent> componentKey : enchantmentBuilder.getComponents()) {
+                        componentKey.maybeGet(persistentProjectileEntity).ifPresent(component -> component.onProjectileFire(user, persistentProjectileEntity, level));
+                    }
+                }
+                else {
+                    enchantmentBuilder.onProjectileFire(user, persistentProjectileEntity, level);
                 }
             }
         });

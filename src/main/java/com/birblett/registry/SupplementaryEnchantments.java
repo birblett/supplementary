@@ -8,7 +8,7 @@ import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.Items;
@@ -21,7 +21,7 @@ public class SupplementaryEnchantments {
         MAIN_HAND - mainhand
         BOTH_HANDS - mainhand and offhand
 
-    Enchantments
+    Standard enchantments
         BURST_FIRE - for crossbows; fires a 3 round burst of slightly weakened arrows
         GRAPPLING - for fishing rods and crossbows; projectiles trail lines behind them, and will pull the user in
         FRANTIC - for swords; gain a speed boost on crit, and deal additional damage while speed is boosted
@@ -29,6 +29,7 @@ public class SupplementaryEnchantments {
         LIGHTNING_BOLT - for bows; projectiles summon lightning
         MARKED - for crossbows; initial hit will "mark" a target; subsequent projectiles will home in on the target
         PICKUP - for boomerangs; unlocks the internal inventory of boomerangs, and can pick up items
+        SOULBOUND - for any tool; item remains in inventory on death, at the cost of durability; does not stay if not enough durability
      */
 
     public static final EquipmentSlot[] MAIN_HAND = new EquipmentSlot[]{EquipmentSlot.MAINHAND};
@@ -59,6 +60,11 @@ public class SupplementaryEnchantments {
             float lostHealthPercent = 2 * Math.max(0.5f, 1 - user.getHealth() / user.getMaxHealth());
             return lostHealthPercent * 0.2f * level * damageAmount;
         }
+
+        @Override
+        public float onDamage(LivingEntity user, DamageSource source, int level, float damageAmount, EquipmentSlot.Type type) {
+            return source.getAttacker() != null ? damageAmount * 0.2f : 0.0f;
+        }
     };
     public static final EnchantmentBuilder LIGHTNING_BOLT = new EnchantmentBuilder("lightning_bolt", Enchantment.Rarity.VERY_RARE,
             EnchantmentTarget.BOW, BOTH_HANDS);
@@ -66,15 +72,17 @@ public class SupplementaryEnchantments {
             EnchantmentTarget.CROSSBOW, BOTH_HANDS);
     public static final EnchantmentBuilder PICKUP = new EnchantmentBuilder("pickup", Enchantment.Rarity.UNCOMMON,
             null, BOTH_HANDS);
+    public static final EnchantmentBuilder SOULBOUND = new EnchantmentBuilder("soulbound", Enchantment.Rarity.RARE,
+            EnchantmentTarget.BREAKABLE, null);
 
     public static void buildAndRegister() {
         BURST_FIRE.makeIncompatible(Enchantments.MULTISHOT)
                 .setPower(20, 50)
-                .addComponents(SupplementaryComponents.BURST_FIRE_TIMER)
+                .addComponent(SupplementaryComponents.BURST_FIRE_TIMER)
                 .build();
         GRAPPLING.makeIncompatible(Enchantments.QUICK_CHARGE, Enchantments.MULTISHOT)
                 .setPower(20,50)
-                .addComponents(SupplementaryComponents.GRAPPLING)
+                .addComponent(SupplementaryComponents.GRAPPLING)
                 .setTreasure(true)
                 .addCompatibleItems(Items.CROSSBOW, Items.FISHING_ROD)
                 .build();
@@ -88,16 +96,19 @@ public class SupplementaryEnchantments {
                 .build();
         LIGHTNING_BOLT.makeIncompatible(Enchantments.POWER)
                 .setPower(20, 50)
-                .addComponents(SupplementaryComponents.LIGHTNING_BOLT)
+                .addComponent(SupplementaryComponents.LIGHTNING_BOLT)
                 .build();
         MARKED.makeIncompatible(BURST_FIRE)
                 .setPower(20, 5, 25, 5)
                 .setMaxLevel(3)
-                .addComponents(SupplementaryComponents.MARKED_LEVEL)
+                .addComponent(SupplementaryComponents.MARKED_LEVEL)
                 .build();
         PICKUP.setPower(10, 10, 20, 20)
                 .setMaxLevel(3)
                 .addCompatibleClasses(BoomerangItem.class)
+                .build();
+        SOULBOUND.makeIncompatible()
+                .setPower(20, 50)
                 .build();
     }
 }

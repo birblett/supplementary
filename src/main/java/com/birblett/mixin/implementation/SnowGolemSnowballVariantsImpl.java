@@ -1,21 +1,22 @@
-package com.birblett.mixin;
+package com.birblett.mixin.implementation;
 
 import com.birblett.entities.SnowballVariantEntity;
 import com.birblett.registry.SupplementaryComponents;
 import com.birblett.registry.SupplementaryItems;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.SnowGolemEntity;
-import net.minecraft.entity.projectile.thrown.SnowballEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.sound.SoundEvents;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(SnowGolemEntity.class)
-public class SnowGolemEntitySnowballVariantsMixin {
+public class SnowGolemSnowballVariantsImpl {
+    /*
+    Replaces snow golem snowballs with variant snowballs
+     */
 
     @Inject(method = "attack", at = @At("HEAD"), cancellable = true)
     private void replaceSnowballs(LivingEntity target, float pullProgress, CallbackInfo ci) {
