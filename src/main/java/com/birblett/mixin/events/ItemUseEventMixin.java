@@ -1,8 +1,8 @@
 package com.birblett.mixin.events;
 
+import com.birblett.api.ItemEvents;
 import com.birblett.lib.builders.EnchantmentBuilder;
 import com.birblett.lib.components.BaseComponent;
-import com.birblett.registry.SupplementaryComponents;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.PlayerEntity;
@@ -21,17 +21,6 @@ public class ItemUseEventMixin {
 
     @Inject(method = "use", at = @At("HEAD"))
     private void onUseEvent(World world, PlayerEntity user, Hand hand, CallbackInfoReturnable<TypedActionResult<ItemStack>> cir) {
-        EnchantmentHelper.get(user.getStackInHand(hand)).forEach((enchantment, level) -> {
-            if (enchantment instanceof EnchantmentBuilder enchantmentBuilder) {
-                if (enchantmentBuilder.hasComponent()) {
-                    for (ComponentKey<BaseComponent> componentKey : enchantmentBuilder.getComponents()) {
-                        componentKey.maybeGet(user).ifPresent(component -> component.onUse(user, hand));
-                    }
-                }
-                else {
-                    enchantmentBuilder.onUse(user, hand);
-                }
-            }
-        });
+        ItemEvents.GENERIC_ITEM_USE.invoker().onItemUse(user, hand);
     }
 }

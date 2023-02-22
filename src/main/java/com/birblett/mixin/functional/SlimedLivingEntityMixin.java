@@ -1,7 +1,6 @@
 package com.birblett.mixin.functional;
 
 import com.birblett.registry.SupplementaryEnchantments;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
@@ -9,9 +8,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleTypes;
-import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
@@ -23,8 +20,6 @@ public abstract class SlimedLivingEntityMixin {
     /*
     Applies slimed slipperiness and jump boost
      */
-
-    @Shadow protected abstract void fall(double heightDifference, boolean onGround, BlockState landedState, BlockPos landedPosition);
 
     @Inject(method = "getJumpVelocity", at = @At("RETURN"), cancellable = true)
     private void applyJumpBoost(CallbackInfoReturnable<Float> cir) {

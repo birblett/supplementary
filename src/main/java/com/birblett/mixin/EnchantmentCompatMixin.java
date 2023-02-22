@@ -1,6 +1,5 @@
 package com.birblett.mixin;
 
-import com.birblett.Supplementary;
 import com.birblett.items.SupplementaryEnchantable;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.item.ItemStack;
@@ -10,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Enchantment.class)
-public class EnchantmentCompabilityMixin {
+public class EnchantmentCompatMixin {
 
     @Inject(method = "isAcceptableItem", at = @At("TAIL"), cancellable = true)
     private void makeItemCompatible(ItemStack stack, CallbackInfoReturnable<Boolean> cir) {

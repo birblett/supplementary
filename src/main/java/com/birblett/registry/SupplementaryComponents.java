@@ -1,6 +1,5 @@
 package com.birblett.registry;
 
-import com.birblett.entities.BoomerangEntity;
 import com.birblett.lib.components.*;
 import com.birblett.lib.helper.RenderHelper;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
@@ -53,9 +52,6 @@ public class SupplementaryComponents implements EntityComponentInitializer {
 
     public static final List<ComponentKey<BaseComponent>> ENTITY_TICKING_COMPONENTS = List.of(
             BURST_FIRE_TIMER
-    );
-    public static final List<ComponentKey<BaseComponent>> PLAYER_TICKING_COMPONENTS = List.of(
-            GRAPPLING_TRACKING_COMPONENT
     );
     public static final List<ComponentKey<BaseComponent>> PROJECTILE_COMPONENTS = List.of(
             IGNORES_IFRAMES,

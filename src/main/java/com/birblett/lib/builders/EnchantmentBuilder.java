@@ -216,7 +216,7 @@ public class EnchantmentBuilder extends Enchantment {
 
     public void onUse(PlayerEntity user, Hand hand) {}
 
-    public float onDamage(LivingEntity user, DamageSource source, int level, float damageAmount, EquipmentSlot.Type type) {
+    public float onDamage(LivingEntity user, DamageSource source, int level, float damageAmount) {
         return 0.0f;
     }
 }

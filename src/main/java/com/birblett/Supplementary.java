@@ -1,9 +1,6 @@
 package com.birblett;
 
-import com.birblett.registry.SupplementaryBlocks;
-import com.birblett.registry.SupplementaryEnchantments;
-import com.birblett.registry.SupplementaryEntities;
-import com.birblett.registry.SupplementaryItems;
+import com.birblett.registry.*;
 import net.fabricmc.api.ModInitializer;
 
 import org.slf4j.Logger;
@@ -23,5 +20,6 @@ public class Supplementary implements ModInitializer {
 		SupplementaryEnchantments.buildAndRegister();
 		SupplementaryEntities.register();
 		SupplementaryItems.register();
+		SupplementaryEvents.register();
 	}
 }

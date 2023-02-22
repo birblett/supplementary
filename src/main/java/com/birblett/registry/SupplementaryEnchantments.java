@@ -41,6 +41,8 @@ public class SupplementaryEnchantments {
     private static final EquipmentSlot[] ALL_ARMOR = new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
     public static final EquipmentSlot[] NONE = new EquipmentSlot[]{};
 
+    public static final EnchantmentBuilder BOOSTING = new EnchantmentBuilder("boosting", Enchantment.Rarity.VERY_RARE,
+            EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
     public static final EnchantmentBuilder BURST_FIRE = new EnchantmentBuilder("burst_fire", Enchantment.Rarity.RARE,
             EnchantmentTarget.CROSSBOW, BOTH_HANDS);
     public static final EnchantmentBuilder EMPOWERED = new EnchantmentBuilder("empowered", Enchantment.Rarity.RARE,
@@ -70,7 +72,7 @@ public class SupplementaryEnchantments {
         }
 
         @Override
-        public float onDamage(LivingEntity user, DamageSource source, int level, float damageAmount, EquipmentSlot.Type type) {
+        public float onDamage(LivingEntity user, DamageSource source, int level, float damageAmount) {
             return source.getAttacker() != null ? damageAmount * 0.2f : 0.0f;
         }
     };
@@ -84,15 +86,24 @@ public class SupplementaryEnchantments {
             EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
     public static final EnchantmentBuilder SOULBOUND = new EnchantmentBuilder("soulbound", Enchantment.Rarity.RARE,
             EnchantmentTarget.BREAKABLE, NONE);
+    public static final EnchantmentBuilder WATER_WALKING = new EnchantmentBuilder("water_walking", Enchantment.Rarity.VERY_RARE,
+            EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
 
     public static void buildAndRegister() {
-        BURST_FIRE.makeIncompatible(Enchantments.MULTISHOT)
-                .setPower(20, 50)
-                .addComponent(SupplementaryComponents.BURST_FIRE_TIMER)
-                .build();
+        // general enchants
         EMPOWERED.makeIncompatible(SOULBOUND)
                 .setPower(20, 50)
                 .setTreasure(true)
+                .build();
+        SOULBOUND.makeIncompatible(EMPOWERED)
+                .setPower(20, 50)
+                .setTreasure(true)
+                .build();
+
+        // crossbow enchants
+        BURST_FIRE.makeIncompatible(Enchantments.MULTISHOT)
+                .setPower(20, 50)
+                .addComponent(SupplementaryComponents.BURST_FIRE_TIMER)
                 .build();
         GRAPPLING.makeIncompatible(Enchantments.QUICK_CHARGE, Enchantments.MULTISHOT)
                 .setPower(20,50)
@@ -100,6 +111,13 @@ public class SupplementaryEnchantments {
                 .setTreasure(true)
                 .addCompatibleItems(Items.CROSSBOW, Items.FISHING_ROD)
                 .build();
+        MARKED.makeIncompatible(BURST_FIRE)
+                .setPower(20, 5, 25, 5)
+                .setMaxLevel(3)
+                .addComponent(SupplementaryComponents.MARKED_LEVEL)
+                .build();
+
+        // sword enchants
         FRANTIC.makeIncompatible(Enchantments.FIRE_ASPECT, Enchantments.KNOCKBACK)
                 .setPower(15, 5, 25, 5)
                 .setMaxLevel(3)
@@ -108,25 +126,27 @@ public class SupplementaryEnchantments {
                 .setPower(20, 10, 30, 10)
                 .setMaxLevel(3)
                 .build();
+
+        // bow enchants
         LIGHTNING_BOLT.makeIncompatible(Enchantments.POWER)
                 .setPower(20, 50)
                 .addComponent(SupplementaryComponents.LIGHTNING_BOLT)
                 .build();
-        MARKED.makeIncompatible(BURST_FIRE)
-                .setPower(20, 5, 25, 5)
-                .setMaxLevel(3)
-                .addComponent(SupplementaryComponents.MARKED_LEVEL)
-                .build();
+
+        // boomerang
         PICKUP.setPower(10, 10, 20, 20)
                 .setMaxLevel(3)
                 .addCompatibleClasses(BoomerangItem.class)
                 .build();
-        SLIMED.makeIncompatible(Enchantments.FEATHER_FALLING)
+
+        BOOSTING.makeIncompatible(SLIMED, WATER_WALKING)
                 .setPower(50, 50)
                 .build();
-        SOULBOUND.makeIncompatible(EMPOWERED)
-                .setPower(20, 50)
-                .setTreasure(true)
+        SLIMED.makeIncompatible(BOOSTING, WATER_WALKING)
+                .setPower(50, 50)
+                .build();
+        WATER_WALKING.makeIncompatible(SLIMED, BOOSTING)
+                .setPower(50, 50)
                 .build();
     }
 }

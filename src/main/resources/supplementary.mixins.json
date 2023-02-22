@@ -3,7 +3,7 @@
   "package": "com.birblett.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "EnchantmentCompabilityMixin",
+    "EnchantmentCompatMixin",
     "EnchantmentHelperCompatMixin",
     "LoomScreenHandlerMixin",
     "events.BowFiringEventMixin",
@@ -14,19 +14,22 @@
     "events.LivingEntityEventMixin",
     "events.PersistentProjectileEventMixin",
     "events.PlayerEntityEventMixin",
+    "functional.BoostingEntityMixin",
     "functional.EmpoweredEnchantmentHelperMixin",
     "functional.SlimedEntityMixin",
     "functional.SlimedLivingEntityMixin",
     "functional.SnowballVariantsGolemMixin",
     "functional.SoulboundPlayerInventoryMixin",
     "functional.SoulboundServerPlayerEntityMixin",
-    "render.PlayerCapeRenderer"
+    "functional.WaterWalkingBlockCollisionSpliteratorMixin",
+    "functional.WaterWalkingEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1
   },
   "client": [
     "LoomScreenMixin",
+    "render.PlayerCapeRenderer",
     "render.ProjectileEntityRendererMixin"
   ]
 }

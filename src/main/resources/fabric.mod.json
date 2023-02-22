@@ -45,6 +45,9 @@
 			"supplementary:marked",
 			"supplementary:marked_tracked_entity",
 			"supplementary:snowball_type"
-		]
+		],
+		"lithium:options": {
+			"mixin.entity.collisions.movement": false
+		}
 	}
 }
