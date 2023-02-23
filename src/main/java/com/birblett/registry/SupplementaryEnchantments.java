@@ -13,6 +13,8 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.Items;
 
+import java.util.List;
+
 public class SupplementaryEnchantments {
     /*
     Declarations and registry for enchantments.
@@ -42,6 +44,8 @@ public class SupplementaryEnchantments {
     public static final EquipmentSlot[] NONE = new EquipmentSlot[]{};
 
     public static final EnchantmentBuilder BOOSTING = new EnchantmentBuilder("boosting", Enchantment.Rarity.VERY_RARE,
+            EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
+    public static final EnchantmentBuilder BUNNYHOP = new EnchantmentBuilder("bunnyhop", Enchantment.Rarity.VERY_RARE,
             EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
     public static final EnchantmentBuilder BURST_FIRE = new EnchantmentBuilder("burst_fire", Enchantment.Rarity.RARE,
             EnchantmentTarget.CROSSBOW, BOTH_HANDS);
@@ -88,6 +92,8 @@ public class SupplementaryEnchantments {
             EnchantmentTarget.BREAKABLE, NONE);
     public static final EnchantmentBuilder WATER_WALKING = new EnchantmentBuilder("water_walking", Enchantment.Rarity.VERY_RARE,
             EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
+
+    public static final EnchantmentBuilder[] MOBILITY_INCOMPATIBILITY_GROUP = {BOOSTING, BUNNYHOP, SLIMED, WATER_WALKING};
 
     public static void buildAndRegister() {
         // general enchants
@@ -139,13 +145,17 @@ public class SupplementaryEnchantments {
                 .addCompatibleClasses(BoomerangItem.class)
                 .build();
 
-        BOOSTING.makeIncompatible(SLIMED, WATER_WALKING)
+        // mobility enchants
+        BOOSTING.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
                 .setPower(50, 50)
                 .build();
-        SLIMED.makeIncompatible(BOOSTING, WATER_WALKING)
+        BUNNYHOP.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
                 .setPower(50, 50)
                 .build();
-        WATER_WALKING.makeIncompatible(SLIMED, BOOSTING)
+        SLIMED.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
+                .setPower(50, 50)
+                .build();
+        WATER_WALKING.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
                 .setPower(50, 50)
                 .build();
     }

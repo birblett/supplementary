@@ -15,6 +15,8 @@
     "events.PersistentProjectileEventMixin",
     "events.PlayerEntityEventMixin",
     "functional.BoostingEntityMixin",
+    "functional.BunnyHopEntityMixin",
+    "functional.BunnyhopLivingEntityMixin",
     "functional.EmpoweredEnchantmentHelperMixin",
     "functional.SlimedEntityMixin",
     "functional.SlimedLivingEntityMixin",
