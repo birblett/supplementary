@@ -19,7 +19,7 @@ public class BowFiringEventMixin {
 
     @Inject(method = "onStoppedUsing", at = @At(value = "INVOKE", target = "net/minecraft/entity/projectile/PersistentProjectileEntity.setVelocity(Lnet/minecraft/entity/Entity;FFFFF)V"),
             locals = LocalCapture.CAPTURE_FAILSOFT)
-    public void addEnchantmentsToArrowEntity(ItemStack stack, World world, LivingEntity user, int remainingUseTicks, CallbackInfo ci, PlayerEntity playerEntity, boolean bl, ItemStack itemStack, int i, float f, boolean bl2, ArrowItem arrowItem, PersistentProjectileEntity persistentProjectileEntity) {
-        ItemEvents.ON_PROJECTILE_FIRED.invoker().onProjectileFire(user, persistentProjectileEntity, itemStack);
+    public void bowProjectileFireEvent(ItemStack stack, World world, LivingEntity user, int remainingUseTicks, CallbackInfo ci, PlayerEntity playerEntity, boolean bl, ItemStack itemStack, int i, float f, boolean bl2, ArrowItem arrowItem, PersistentProjectileEntity persistentProjectileEntity) {
+        ItemEvents.ARROW_PROJECTILE_FIRED.invoker().onProjectileFire(user, persistentProjectileEntity, stack);
     }
 }

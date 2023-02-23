@@ -219,7 +219,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                     playerEntity.setVelocity(playerEntity.getVelocity().add(pullStrength));
                     playerEntity.velocityModified = true;
                 }
-                return false;
+                return target != null;
             }
         });
         registry.registerFor(LivingEntity.class, GRAPPLING_TRACKING_COMPONENT, e -> new TrackingComponent() {

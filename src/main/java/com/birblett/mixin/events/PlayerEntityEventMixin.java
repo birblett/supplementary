@@ -1,5 +1,6 @@
 package com.birblett.mixin.events;
 
+import com.birblett.api.EntityEvents;
 import com.birblett.lib.builders.EnchantmentBuilder;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -27,13 +28,8 @@ public class PlayerEntityEventMixin {
                              float attackCooldownProgress, boolean isMaxCharge, boolean sprintingWhileMaxCharge,
                              int knockbackAmount, boolean isCritical, boolean unused, double speedDelta,
                              float healthBeforeAttack, boolean setOnFire, int fireAspectLevel, Vec3d targetVelocity) {
-        PlayerEntity self = (PlayerEntity) (Object) this;
-        float currentDamage = damageAmount;
-        for (Map.Entry<Enchantment, Integer> enchantment : EnchantmentHelper.get(self.getMainHandStack()).entrySet()) {
-            if (enchantment.getKey() instanceof EnchantmentBuilder enchantmentBuilder) {
-                currentDamage += enchantmentBuilder.onAttack(self, target, enchantment.getValue(), isCritical, currentDamage);
-            }
-        }
+        float currentDamage = EntityEvents.LIVING_ENTITY_ATTACK_EVENT.invoker().onAttack((PlayerEntity) (Object) this, target,
+                damageAmount, isCritical);
         this.damageModifier = currentDamage - damageAmount;
     }
 

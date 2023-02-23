@@ -1,5 +1,6 @@
 package com.birblett.mixin.events;
 
+import com.birblett.api.EntityEvents;
 import com.birblett.lib.components.BaseComponent;
 import com.birblett.registry.SupplementaryComponents;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
@@ -21,59 +22,28 @@ public class PersistentProjectileEventMixin {
     @ModifyVariable(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/PersistentProjectileEntity;getVelocity()Lnet/minecraft/util/math/Vec3d;"),
                     index = 2)
     private Vec3d onTravelEvent(Vec3d velocity) {
-        for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
-            PersistentProjectileEntity self = (PersistentProjectileEntity) (Object) this;
-            if (componentKey.get(self).getValue() > 0) {
-                Vec3d newVelocity =  componentKey.get(self).onTravel(self, componentKey.get(self).getValue(), velocity);
-                if (newVelocity != velocity) {
-                    self.setVelocity(newVelocity);
-                    self.velocityModified = true;
-                    velocity = newVelocity;
-                }
-            }
-        }
+        velocity = EntityEvents.PROJECTILE_TRAVEL_TICK.invoker().onTravelTick((PersistentProjectileEntity) (Object) this, velocity);
         return velocity;
     }
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/PersistentProjectileEntity;shouldFall()Z"))
     private void inBlockTickEvent(CallbackInfo ci) {
-        for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
-            PersistentProjectileEntity self = (PersistentProjectileEntity) (Object) this;
-            if (componentKey.get(self).getValue() > 0) {
-                componentKey.get(self).inBlockTick(self, componentKey.get(self).getValue());
-            }
-        }
+        EntityEvents.PROJECTILE_IN_BLOCK_TICK.invoker().onEntityTick((PersistentProjectileEntity) (Object) this);
     }
 
     @Inject(method = "onBlockHit", at = @At("HEAD"))
     private void onBlockHitEvent(BlockHitResult blockHitResult, CallbackInfo ci) {
-        for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
-            PersistentProjectileEntity self = (PersistentProjectileEntity) (Object) this;
-            if (componentKey.get(self).getValue() > 0) {
-                componentKey.get(self).onBlockHit(blockHitResult, self, componentKey.get(self).getValue());
-            }
-        }
+        EntityEvents.ARROW_BLOCK_HIT_EVENT.invoker().onHitEvent(blockHitResult, (PersistentProjectileEntity) (Object) this);
     }
 
     @Inject(method = "onEntityHit", at = @At("HEAD"), locals = LocalCapture.CAPTURE_FAILSOFT)
     private void preEntityHitEvent(EntityHitResult entityHitResult, CallbackInfo ci) {
-        for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
-            PersistentProjectileEntity self = (PersistentProjectileEntity) (Object) this;
-            if (componentKey.get(self).getValue() > 0) {
-                componentKey.get(self).preEntityHit(entityHitResult.getEntity(), self, componentKey.get(self).getValue());
-            }
-        }
+        EntityEvents.ARROW_PRE_ENTITY_HIT_EVENT.invoker().onHitEvent(entityHitResult, (PersistentProjectileEntity) (Object) this);
     }
 
     @Inject(method = "onEntityHit", at = @At("TAIL"),
             locals = LocalCapture.CAPTURE_FAILSOFT)
     private void postEntityHitEvent(EntityHitResult entityHitResult, CallbackInfo ci) {
-        Entity entity = entityHitResult.getEntity();
-        for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
-            PersistentProjectileEntity self = (PersistentProjectileEntity) (Object) this;
-            if (componentKey.get(self).getValue() > 0) {
-                componentKey.get(self).postEntityHit(entity, self, componentKey.get(self).getValue());
-            }
-        }
+        EntityEvents.ARROW_POST_ENTITY_HIT_EVENT.invoker().onHitEvent(entityHitResult, (PersistentProjectileEntity) (Object) this);
     }
 }

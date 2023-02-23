@@ -30,7 +30,7 @@ public class SlimedEntityMixin {
     private Block replaceSlime(Block block) {
         this.oldBlock = block;
         if ((Entity) (Object) this instanceof LivingEntity self && EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.SLIMED, self) > 0
-                && !self.isTouchingWater()) {
+                && !self.isTouchingWater() && self.isOnGround()) {
             block = Blocks.SLIME_BLOCK;
         }
         return block;

@@ -10,12 +10,19 @@ import net.minecraft.util.Hand;
 
 public class ItemEvents {
 
-    public static final Event<ProjectileFiredEvent> ON_PROJECTILE_FIRED = EventFactory.createArrayBacked(ProjectileFiredEvent.class,
+    public static final Event<ProjectileFiredEvent> ARROW_PROJECTILE_FIRED = EventFactory.createArrayBacked(ProjectileFiredEvent.class,
             callbacks -> (user, persistentProjectileEntity, itemStack) -> {
         for (ProjectileFiredEvent callback : callbacks) {
             callback.onProjectileFire(user, persistentProjectileEntity, itemStack);
         }
     });
+
+    public static final Event<ProjectileFiredEvent> FISHING_ROD_USE = EventFactory.createArrayBacked(ProjectileFiredEvent.class,
+            callbacks -> (user, persistentProjectileEntity, itemStack) -> {
+                for (ProjectileFiredEvent callback : callbacks) {
+                    callback.onProjectileFire(user, persistentProjectileEntity, itemStack);
+                }
+            });
 
     public static final Event<CrossbowPrefireEvent> CROSSBOW_PREFIRE = EventFactory.createArrayBacked(CrossbowPrefireEvent.class,
             callbacks -> (user, crossbow, hand) -> {
