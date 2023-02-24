@@ -61,6 +61,10 @@ public class EnchantmentBuilder extends Enchantment {
 
     Non-inherited methods
         getComponents() - returns components list
+        onProjectileFire(user, persistentProjectileEntity, level) - called when an arrow is fired or fishing bobber is cast
+        onCrossbowUse(stack, hand, savedProjectile) - called when crossbow is fired, before arrow creation
+        onUse(user, hand) - generic on-use method
+        onDamage(user, source, level, damageAmount) - called when damaged; returns an additive damage modifier
      */
 
     private int maxLevel = 1;

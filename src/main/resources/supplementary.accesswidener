@@ -1,7 +1,8 @@
 accessWidener  v1	   named
 accessible     class   net/minecraft/enchantment/EnchantmentHelper$Consumer
-accessible     method  net/minecraft/item/CrossbowItem                   getProjectiles  (Lnet/minecraft/item/ItemStack;)Ljava/util/List;
-accessible     method  net/minecraft/item/CrossbowItem                   getSoundPitch   (ZLjava/util/Random;)F
-accessible     method  net/minecraft/item/CrossbowItem                   getSpeed        (Lnet/minecraft/item/ItemStack;)F
-accessible     method  net/minecraft/item/CrossbowItem                   shoot           (Lnet/minecraft/world/World;Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/util/Hand;Lnet/minecraft/item/ItemStack;Lnet/minecraft/item/ItemStack;FZFFF)V
-accessible     method  net/minecraft/entity/projectile/ProjectileEntity  <init>          (Lnet/minecraft/entity/EntityType;Lnet/minecraft/world/World;)V
+accessible     field   net/minecraft/client/network/ClientPlayerEntity       ticksLeftToDoubleTapSprint  I
+accessible     method  net/minecraft/item/CrossbowItem                       getProjectiles              (Lnet/minecraft/item/ItemStack;)Ljava/util/List;
+accessible     method  net/minecraft/item/CrossbowItem                       getSoundPitch               (ZLjava/util/Random;)F
+accessible     method  net/minecraft/item/CrossbowItem                       getSpeed                    (Lnet/minecraft/item/ItemStack;)F
+accessible     method  net/minecraft/item/CrossbowItem                       shoot                       (Lnet/minecraft/world/World;Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/util/Hand;Lnet/minecraft/item/ItemStack;Lnet/minecraft/item/ItemStack;FZFFF)V
+accessible     method  net/minecraft/entity/projectile/ProjectileEntity      <init>                      (Lnet/minecraft/entity/EntityType;Lnet/minecraft/world/World;)V

@@ -20,8 +20,8 @@ public class BunnyhopLivingEntityMixin {
     private void boostJumpSpeed(Args args) {
         LivingEntity self = (LivingEntity) (Object) this;
         if (EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.BUNNYHOP, self) > 0) {
-            args.set(0, (double) args.get(0) * 2.4);
-            args.set(2, (double) args.get(2) * 2.4);
+            args.set(0, (double) args.get(0) * 2.5);
+            args.set(2, (double) args.get(2) * 2.5);
         }
     }
 
@@ -29,7 +29,7 @@ public class BunnyhopLivingEntityMixin {
     private void decreaseJumpHeight(CallbackInfoReturnable<Float> cir) {
         LivingEntity self = (LivingEntity) (Object) this;
         if (EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.BUNNYHOP, self) > 0) {
-            cir.setReturnValue(cir.getReturnValue() * 0.7f);
+            cir.setReturnValue(cir.getReturnValue() * 0.75f);
         }
     }
 

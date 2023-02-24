@@ -13,8 +13,6 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.Items;
 
-import java.util.List;
-
 public class SupplementaryEnchantments {
     /*
     Declarations and registry for enchantments.
@@ -25,17 +23,33 @@ public class SupplementaryEnchantments {
         ALL_ARMOR - private, from Enchantments class; all armor slots
         NONE - no valid slots
 
-    Standard enchantments
-        BURST_FIRE - for crossbows; fires a 3 round burst of slightly weakened arrows
-        EMPOWERED - for any tool; increases the effective level of existing enchantments by 1
-        GRAPPLING - for fishing rods and crossbows; projectiles trail lines behind them, and will pull the user in
+    General enchantments
+        EMPOWERED - increases the effective level of existing enchantments by 1
+        SOULBOUND - item remains in inventory on death, at the cost of durability; does not stay if not enough durability
+
+    Boomerang enchantments
+        PICKUP - nlocks the internal inventory of boomerangs, and can pick up items
+
+    Bow enchantments
+        LIGHTNING_BOLT - projectiles summon lightning
+
+    Crossbow enchantments
+        BURST_FIRE - fires a 3 round burst of slightly weakened arrows
+        MARKED - for crossbows; initial hit will "mark" a target; subsequent projectiles will home in on the target
+
+    Sword enchantments
         FRANTIC - for swords; gain a speed boost on crit, and deal additional damage while speed is boosted
         FRENZY - for swords; take more damage, deal more melee damage as health gets lower
-        LIGHTNING_BOLT - for bows; projectiles summon lightning
-        MARKED - for crossbows; initial hit will "mark" a target; subsequent projectiles will home in on the target
-        PICKUP - for boomerangs; unlocks the internal inventory of boomerangs, and can pick up items
+
+    Mobility enchants
+        ACROBATIC - for boots; gain a limited number of airjumps and wallclings; regain on touching ground
+        AIR_DASH - for boots; double-tap forward in the air to do a short dash in the facing direction
+        BOOSTING - for boots; added step height
+        BUNNYHOP - for boots; jump height is decreased, but initial horizontal jump velocity is increased and you can
+                scale short vertical gaps while jumping
+        GRAPPLING - for fishing rods and crossbows; projectiles trail lines behind them, and will pull the user in
         SLIMED - for boots; become bouncy and slippery and take less fall damage
-        SOULBOUND - for any tool; item remains in inventory on death, at the cost of durability; does not stay if not enough durability
+        WATER_WALKING - for boots; walk on water, shift to stop walking on water
      */
 
     public static final EquipmentSlot[] MAIN_HAND = new EquipmentSlot[]{EquipmentSlot.MAINHAND};
@@ -43,16 +57,27 @@ public class SupplementaryEnchantments {
     private static final EquipmentSlot[] ALL_ARMOR = new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
     public static final EquipmentSlot[] NONE = new EquipmentSlot[]{};
 
-    public static final EnchantmentBuilder BOOSTING = new EnchantmentBuilder("boosting", Enchantment.Rarity.VERY_RARE,
-            EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
-    public static final EnchantmentBuilder BUNNYHOP = new EnchantmentBuilder("bunnyhop", Enchantment.Rarity.VERY_RARE,
-            EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
-    public static final EnchantmentBuilder BURST_FIRE = new EnchantmentBuilder("burst_fire", Enchantment.Rarity.RARE,
-            EnchantmentTarget.CROSSBOW, BOTH_HANDS);
+    // general enchants
     public static final EnchantmentBuilder EMPOWERED = new EnchantmentBuilder("empowered", Enchantment.Rarity.RARE,
             EnchantmentTarget.BREAKABLE, NONE);
-    public static final EnchantmentBuilder GRAPPLING = new EnchantmentBuilder("grappling", Enchantment.Rarity.UNCOMMON,
-            EnchantmentTarget.CROSSBOW, MAIN_HAND);
+    public static final EnchantmentBuilder SOULBOUND = new EnchantmentBuilder("soulbound", Enchantment.Rarity.RARE,
+            EnchantmentTarget.BREAKABLE, NONE);
+
+    // boomerang enchants
+    public static final EnchantmentBuilder PICKUP = new EnchantmentBuilder("pickup", Enchantment.Rarity.UNCOMMON,
+            null, BOTH_HANDS);
+
+    // bow enchants
+    public static final EnchantmentBuilder LIGHTNING_BOLT = new EnchantmentBuilder("lightning_bolt", Enchantment.Rarity.VERY_RARE,
+            EnchantmentTarget.BOW, BOTH_HANDS);
+
+    // crossbow enchants
+    public static final EnchantmentBuilder BURST_FIRE = new EnchantmentBuilder("burst_fire", Enchantment.Rarity.RARE,
+            EnchantmentTarget.CROSSBOW, BOTH_HANDS);
+    public static final EnchantmentBuilder MARKED = new EnchantmentBuilder("marked", Enchantment.Rarity.RARE,
+            EnchantmentTarget.CROSSBOW, BOTH_HANDS);
+
+    // sword enchants
     public static final EnchantmentBuilder FRANTIC = new EnchantmentBuilder("frantic", Enchantment.Rarity.UNCOMMON,
             EnchantmentTarget.WEAPON, MAIN_HAND) {
         @Override
@@ -80,20 +105,25 @@ public class SupplementaryEnchantments {
             return source.getAttacker() != null ? damageAmount * 0.2f : 0.0f;
         }
     };
-    public static final EnchantmentBuilder LIGHTNING_BOLT = new EnchantmentBuilder("lightning_bolt", Enchantment.Rarity.VERY_RARE,
-            EnchantmentTarget.BOW, BOTH_HANDS);
-    public static final EnchantmentBuilder MARKED = new EnchantmentBuilder("marked", Enchantment.Rarity.RARE,
-            EnchantmentTarget.CROSSBOW, BOTH_HANDS);
-    public static final EnchantmentBuilder PICKUP = new EnchantmentBuilder("pickup", Enchantment.Rarity.UNCOMMON,
-            null, BOTH_HANDS);
+
+    // mobility enchants
+    public static final EnchantmentBuilder ACROBATIC = new EnchantmentBuilder("acrobatic", Enchantment.Rarity.VERY_RARE,
+            EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
+    public static final EnchantmentBuilder AIR_DASH = new EnchantmentBuilder("air_dash", Enchantment.Rarity.VERY_RARE,
+            EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
+    public static final EnchantmentBuilder BOOSTING = new EnchantmentBuilder("boosting", Enchantment.Rarity.VERY_RARE,
+            EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
+    public static final EnchantmentBuilder BUNNYHOP = new EnchantmentBuilder("bunnyhop", Enchantment.Rarity.VERY_RARE,
+            EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
+    public static final EnchantmentBuilder GRAPPLING = new EnchantmentBuilder("grappling", Enchantment.Rarity.UNCOMMON,
+            EnchantmentTarget.CROSSBOW, MAIN_HAND);
     public static final EnchantmentBuilder SLIMED = new EnchantmentBuilder("slimed", Enchantment.Rarity.VERY_RARE,
             EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
-    public static final EnchantmentBuilder SOULBOUND = new EnchantmentBuilder("soulbound", Enchantment.Rarity.RARE,
-            EnchantmentTarget.BREAKABLE, NONE);
     public static final EnchantmentBuilder WATER_WALKING = new EnchantmentBuilder("water_walking", Enchantment.Rarity.VERY_RARE,
             EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
 
-    public static final EnchantmentBuilder[] MOBILITY_INCOMPATIBILITY_GROUP = {BOOSTING, BUNNYHOP, SLIMED, WATER_WALKING};
+    // sets of enchantments for incompatibility
+    public static final EnchantmentBuilder[] MOBILITY_INCOMPATIBILITY_GROUP = {ACROBATIC, AIR_DASH, BOOSTING, BUNNYHOP, SLIMED, WATER_WALKING};
 
     public static void buildAndRegister() {
         // general enchants
@@ -106,16 +136,22 @@ public class SupplementaryEnchantments {
                 .setTreasure(true)
                 .build();
 
+        // boomerang enchants
+        PICKUP.setPower(10, 10, 20, 20)
+                .setMaxLevel(3)
+                .addCompatibleClasses(BoomerangItem.class)
+                .build();
+
+        // bow enchants
+        LIGHTNING_BOLT.makeIncompatible(Enchantments.POWER)
+                .setPower(20, 50)
+                .addComponent(SupplementaryComponents.LIGHTNING_BOLT)
+                .build();
+
         // crossbow enchants
-        BURST_FIRE.makeIncompatible(Enchantments.MULTISHOT)
+        BURST_FIRE.makeIncompatible(Enchantments.MULTISHOT, MARKED)
                 .setPower(20, 50)
                 .addComponent(SupplementaryComponents.BURST_FIRE_TIMER)
-                .build();
-        GRAPPLING.makeIncompatible(Enchantments.QUICK_CHARGE, Enchantments.MULTISHOT)
-                .setPower(20,50)
-                .addComponent(SupplementaryComponents.GRAPPLING)
-                .setTreasure(true)
-                .addCompatibleItems(Items.CROSSBOW, Items.FISHING_ROD)
                 .build();
         MARKED.makeIncompatible(BURST_FIRE)
                 .setPower(20, 5, 25, 5)
@@ -133,30 +169,30 @@ public class SupplementaryEnchantments {
                 .setMaxLevel(3)
                 .build();
 
-        // bow enchants
-        LIGHTNING_BOLT.makeIncompatible(Enchantments.POWER)
-                .setPower(20, 50)
-                .addComponent(SupplementaryComponents.LIGHTNING_BOLT)
-                .build();
-
-        // boomerang
-        PICKUP.setPower(10, 10, 20, 20)
-                .setMaxLevel(3)
-                .addCompatibleClasses(BoomerangItem.class)
-                .build();
-
         // mobility enchants
+        AIR_DASH.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
+                .setPower(20, 50)
+                .build();
         BOOSTING.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
-                .setPower(50, 50)
+                .setPower(20, 50)
                 .build();
         BUNNYHOP.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
-                .setPower(50, 50)
+                .setPower(20, 50)
+                .build();
+        GRAPPLING.makeIncompatible(Enchantments.QUICK_CHARGE, Enchantments.MULTISHOT)
+                .setPower(20,50)
+                .addComponent(SupplementaryComponents.GRAPPLING)
+                .setTreasure(true)
+                .addCompatibleItems(Items.CROSSBOW, Items.FISHING_ROD)
+                .build();
+        ACROBATIC.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
+                .setPower(20, 50)
                 .build();
         SLIMED.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
-                .setPower(50, 50)
+                .setPower(20, 50)
                 .build();
         WATER_WALKING.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
-                .setPower(50, 50)
+                .setPower(20, 50)
                 .build();
     }
 }

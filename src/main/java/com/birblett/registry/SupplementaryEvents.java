@@ -1,14 +1,12 @@
 package com.birblett.registry;
 
-import com.birblett.Supplementary;
 import com.birblett.api.EntityEvents;
 import com.birblett.api.ItemEvents;
 import com.birblett.api.VoidEventReturnable;
 import com.birblett.lib.builders.EnchantmentBuilder;
 import com.birblett.lib.components.BaseComponent;
+import com.birblett.lib.helper.EntityHelper;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ShapeContext;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.LivingEntity;
@@ -20,10 +18,7 @@ import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.shape.VoxelShape;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -212,22 +207,10 @@ public class SupplementaryEvents {
     };
     public static final EntityEvents.EntityTickEvent FISHING_BOBBER_IN_BLOCK_TICK = (entity) -> {
         if (entity instanceof FishingBobberEntity self) {
-            Box box = self.getBoundingBox().expand(0.02);
-            double[] corners = {box.minX, box.maxX, box.minY, box.maxY, box.minZ, box.maxZ};
-            for (int xPos = 0; xPos < 2; xPos++) {
-                for (int yPos = 2; yPos < 4; yPos++) {
-                    for (int zPos = 4; zPos < 6; zPos++) {
-                        BlockPos corner = new BlockPos(corners[xPos], corners[yPos], corners[zPos]);
-                        BlockState blockState = self.world.getBlockState(corner);
-                        VoxelShape vs = blockState.getCollisionShape(self.world, corner, ShapeContext.of(self));
-                        if (!vs.isEmpty() && vs.getBoundingBox().offset(corner).intersects(box)) {
-                            for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
-                                if (componentKey.isProvidedBy(self) && componentKey.get(self).getValue() > 0) {
-                                    componentKey.get(self).inBlockTick(self, componentKey.get(self).getValue());
-                                }
-                            }
-                            break;
-                        }
+            if (EntityHelper.isTouchingBlock(self, 0.02)) {
+                for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
+                    if (componentKey.isProvidedBy(self) && componentKey.get(self).getValue() > 0) {
+                        componentKey.get(self).inBlockTick(self, componentKey.get(self).getValue());
                     }
                 }
             }

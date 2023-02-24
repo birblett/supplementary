@@ -14,6 +14,7 @@
     "events.LivingEntityEventMixin",
     "events.PersistentProjectileEventMixin",
     "events.PlayerEntityEventMixin",
+    "functional.AirDashClientPlayerMixin",
     "functional.BoostingEntityMixin",
     "functional.BunnyHopEntityMixin",
     "functional.BunnyhopLivingEntityMixin",
@@ -31,6 +32,7 @@
   },
   "client": [
     "LoomScreenMixin",
+    "functional.AcrobaticClientPlayerMixin",
     "render.PlayerCapeRenderer",
     "render.ProjectileEntityRendererMixin"
   ]

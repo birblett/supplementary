@@ -161,6 +161,11 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             @Override
             public void onProjectileFire(LivingEntity user, ProjectileEntity persistentProjectileEntity, int level) {
                 if (!persistentProjectileEntity.world.isClient()) {
+                    Entity lastProjectile;
+                    if ((lastProjectile = GRAPPLING_TRACKING_COMPONENT.get(user).getEntity()) != null && lastProjectile instanceof PersistentProjectileEntity) {
+                        GRAPPLING.get(lastProjectile).setValue(0);
+                        GRAPPLING.sync(lastProjectile);
+                    }
                     SupplementaryComponents.GRAPPLING.get(persistentProjectileEntity).setValue(1);
                     GRAPPLING_TRACKING_COMPONENT.get(user).setEntity(persistentProjectileEntity);
                     GRAPPLING.sync(persistentProjectileEntity);
