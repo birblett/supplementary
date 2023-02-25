@@ -15,7 +15,7 @@
     "events.PersistentProjectileEventMixin",
     "events.PlayerEntityEventMixin",
     "functional.AirDashClientPlayerMixin",
-    "functional.BoostingEntityMixin",
+    "functional.AllTerrainEntityMixin",
     "functional.BunnyHopEntityMixin",
     "functional.BunnyhopLivingEntityMixin",
     "functional.EmpoweredEnchantmentHelperMixin",
@@ -24,8 +24,7 @@
     "functional.SnowballVariantsGolemMixin",
     "functional.SoulboundPlayerInventoryMixin",
     "functional.SoulboundServerPlayerEntityMixin",
-    "functional.WaterWalkingBlockCollisionSpliteratorMixin",
-    "functional.WaterWalkingEntityMixin"
+    "functional.AllTerrainBlockCollisionSpliteratorMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -6,7 +6,7 @@
 
   "enchantment.supplementary.acrobatic": "Acrobatic",
   "enchantment.supplementary.air_dash": "Air Dash",
-  "enchantment.supplementary.boosting": "Boosting",
+  "enchantment.supplementary.boosting": "All Terrain",
   "enchantment.supplementary.bunnyhop": "Bunnyhop",
   "enchantment.supplementary.burst_fire": "Burst Fire",
   "enchantment.supplementary.empowered": "Empowered",
@@ -18,7 +18,6 @@
   "enchantment.supplementary.pickup": "Pickup",
   "enchantment.supplementary.slimed": "Slimed",
   "enchantment.supplementary.soulbound": "Soulbound",
-  "enchantment.supplementary.water_walking": "Water Walking",
 
   "item.supplementary.blowball": "Blowball",
   "item.supplementary.glowball": "Glowball",

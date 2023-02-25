@@ -1,6 +1,5 @@
 package com.birblett.mixin.functional;
 
-import com.birblett.Supplementary;
 import com.birblett.lib.mixinterface.BlockCollisionSpliteratorInterface;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -21,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(BlockCollisionSpliterator.class)
-public class WaterWalkingBlockCollisionSpliteratorMixin implements BlockCollisionSpliteratorInterface {
+public class AllTerrainBlockCollisionSpliteratorMixin implements BlockCollisionSpliteratorInterface {
     /*
     Allows for Water Walking's custom collision behavior
      */
@@ -45,11 +44,10 @@ public class WaterWalkingBlockCollisionSpliteratorMixin implements BlockCollisio
     @Inject(method = "computeNext()Lnet/minecraft/util/shape/VoxelShape;", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/block/BlockState;getCollisionShape(Lnet/minecraft/world/BlockView;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/ShapeContext;)Lnet/minecraft/util/shape/VoxelShape;"),
             locals = LocalCapture.CAPTURE_FAILSOFT)
-    private void ya(CallbackInfoReturnable<VoxelShape> cir, int i, int j, int k, int l, BlockView blockView, BlockState blockState) {
+    private void getBlockInfo(CallbackInfoReturnable<VoxelShape> cir, int i, int j, int k, int l, BlockView blockView, BlockState blockState) {
         this.supplementary$blockPos = new BlockPos(i, j, k);
         this.supplementary$blockState = blockState;
     }
-
 
     @ModifyVariable(method = "computeNext()Lnet/minecraft/util/shape/VoxelShape;", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/util/shape/VoxelShapes;fullCube()Lnet/minecraft/util/shape/VoxelShape;"))

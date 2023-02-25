@@ -28,7 +28,7 @@ public class SupplementaryEnchantments {
         SOULBOUND - item remains in inventory on death, at the cost of durability; does not stay if not enough durability
 
     Boomerang enchantments
-        PICKUP - nlocks the internal inventory of boomerangs, and can pick up items
+        PICKUP - unlocks the internal inventory of boomerangs, and can pick up items
 
     Bow enchantments
         LIGHTNING_BOLT - projectiles summon lightning
@@ -44,12 +44,11 @@ public class SupplementaryEnchantments {
     Mobility enchants
         ACROBATIC - for boots; gain a limited number of airjumps and wallclings; regain on touching ground
         AIR_DASH - for boots; double-tap forward in the air to do a short dash in the facing direction
-        BOOSTING - for boots; added step height
+        BOOSTING - for boots; added step height, allows walking on water
         BUNNYHOP - for boots; jump height is decreased, but initial horizontal jump velocity is increased and you can
                 scale short vertical gaps while jumping
         GRAPPLING - for fishing rods and crossbows; projectiles trail lines behind them, and will pull the user in
         SLIMED - for boots; become bouncy and slippery and take less fall damage
-        WATER_WALKING - for boots; walk on water, shift to stop walking on water
      */
 
     public static final EquipmentSlot[] MAIN_HAND = new EquipmentSlot[]{EquipmentSlot.MAINHAND};
@@ -111,7 +110,7 @@ public class SupplementaryEnchantments {
             EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
     public static final EnchantmentBuilder AIR_DASH = new EnchantmentBuilder("air_dash", Enchantment.Rarity.VERY_RARE,
             EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
-    public static final EnchantmentBuilder BOOSTING = new EnchantmentBuilder("boosting", Enchantment.Rarity.VERY_RARE,
+    public static final EnchantmentBuilder ALL_TERRAIN = new EnchantmentBuilder("all_terrain", Enchantment.Rarity.VERY_RARE,
             EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
     public static final EnchantmentBuilder BUNNYHOP = new EnchantmentBuilder("bunnyhop", Enchantment.Rarity.VERY_RARE,
             EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
@@ -119,11 +118,9 @@ public class SupplementaryEnchantments {
             EnchantmentTarget.CROSSBOW, MAIN_HAND);
     public static final EnchantmentBuilder SLIMED = new EnchantmentBuilder("slimed", Enchantment.Rarity.VERY_RARE,
             EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
-    public static final EnchantmentBuilder WATER_WALKING = new EnchantmentBuilder("water_walking", Enchantment.Rarity.VERY_RARE,
-            EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
 
     // sets of enchantments for incompatibility
-    public static final EnchantmentBuilder[] MOBILITY_INCOMPATIBILITY_GROUP = {ACROBATIC, AIR_DASH, BOOSTING, BUNNYHOP, SLIMED, WATER_WALKING};
+    public static final EnchantmentBuilder[] MOBILITY_INCOMPATIBILITY_GROUP = {ACROBATIC, AIR_DASH, ALL_TERRAIN, BUNNYHOP, SLIMED};
 
     public static void buildAndRegister() {
         // general enchants
@@ -173,7 +170,7 @@ public class SupplementaryEnchantments {
         AIR_DASH.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
                 .setPower(20, 50)
                 .build();
-        BOOSTING.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
+        ALL_TERRAIN.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
                 .setPower(20, 50)
                 .build();
         BUNNYHOP.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
@@ -189,9 +186,6 @@ public class SupplementaryEnchantments {
                 .setPower(20, 50)
                 .build();
         SLIMED.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
-                .setPower(20, 50)
-                .build();
-        WATER_WALKING.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
                 .setPower(20, 50)
                 .build();
     }
