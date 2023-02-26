@@ -12,10 +12,7 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.EntityDamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.item.BowItem;
-import net.minecraft.item.FishingRodItem;
-import net.minecraft.item.Items;
-import net.minecraft.item.ShieldItem;
+import net.minecraft.item.*;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
@@ -87,11 +84,11 @@ public class SupplementaryEnchantments {
             EnchantmentTarget.BOW, BOTH_HANDS);
     public static final EnchantmentBuilder OVERSIZED = new EnchantmentBuilder("oversized", Enchantment.Rarity.UNCOMMON,
             EnchantmentTarget.BOW, BOTH_HANDS);
+    public static final EnchantmentBuilder MARKED = new EnchantmentBuilder("marked", Enchantment.Rarity.RARE,
+            EnchantmentTarget.BOW, BOTH_HANDS);
 
     // crossbow enchants
     public static final EnchantmentBuilder BURST_FIRE = new EnchantmentBuilder("burst_fire", Enchantment.Rarity.RARE,
-            EnchantmentTarget.CROSSBOW, BOTH_HANDS);
-    public static final EnchantmentBuilder MARKED = new EnchantmentBuilder("marked", Enchantment.Rarity.RARE,
             EnchantmentTarget.CROSSBOW, BOTH_HANDS);
 
     // sword enchants
@@ -171,16 +168,15 @@ public class SupplementaryEnchantments {
                 .setMaxLevel(2)
                 .addComponent(SupplementaryComponents.OVERSIZED_PROJECTILE)
                 .build();
-
-        // crossbow enchants
-        BURST_FIRE.makeIncompatible(Enchantments.MULTISHOT, MARKED)
-                .setPower(20, 50)
-                .addComponent(SupplementaryComponents.BURST_FIRE_TIMER)
-                .build();
-        MARKED.makeIncompatible(BURST_FIRE)
-                .setPower(20, 5, 25, 5)
+        MARKED.setPower(20, 5, 25, 5)
                 .setMaxLevel(3)
                 .addComponent(SupplementaryComponents.MARKED_LEVEL)
+                .build();
+
+        // crossbow enchants
+        BURST_FIRE.makeIncompatible(Enchantments.MULTISHOT)
+                .setPower(20, 50)
+                .addComponent(SupplementaryComponents.BURST_FIRE_TIMER)
                 .build();
 
         // sword enchants

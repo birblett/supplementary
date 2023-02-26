@@ -83,6 +83,10 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                 if (projectileEntity instanceof PersistentProjectileEntity persistentProjectileEntity) {
                     persistentProjectileEntity.setDamage(persistentProjectileEntity.getDamage() - 0.3);
                     SupplementaryComponents.IGNORES_IFRAMES.get(projectileEntity).setValue(1);
+                    persistentProjectileEntity.setVelocity(persistentProjectileEntity.getVelocity().multiply(0.7));
+                    if (user instanceof PlayerEntity player) {
+                        player.getItemCooldownManager().set(user.getActiveItem().getItem(), 30);
+                    }
                 }
             }
 
@@ -348,6 +352,15 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             public void onProjectileRender(ProjectileEntity projectileEntity, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int level) {
                 float scale = 1.3f + level * 0.2f;
                 matrixStack.scale(scale, scale, scale);
+            }
+
+            @Override
+            public boolean postEntityHit(Entity target, ProjectileEntity projectileEntity, int lvl) {
+                if (target instanceof PlayerEntity player && player.isBlocking()) {
+                    ((LivingEntity) player).damageShield(2.0f);
+                    player.disableShield(false);
+                }
+                return false;
             }
         });
         registry.registerFor(SnowGolemEntity.class, SNOWBALL_TYPE, e -> new SimpleIntTrackingComponent("snowball_type"));
