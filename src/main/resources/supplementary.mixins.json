@@ -22,6 +22,7 @@
     "functional.BunnyHopEntityMixin",
     "functional.BunnyhopLivingEntityMixin",
     "functional.EmpoweredEnchantmentHelperMixin",
+    "functional.OversizedBowItemMixin",
     "functional.SlimedEntityMixin",
     "functional.SlimedLivingEntityMixin",
     "functional.SnowballVariantsGolemMixin",
@@ -34,6 +35,10 @@
   "client": [
     "LoomScreenMixin",
     "functional.AcrobaticClientPlayerMixin",
+    "functional.render.OversizedAbstractClientPlayerMixin",
+    "functional.render.OversizedHeldItemFeatureRendererMixin",
+    "functional.render.OversizedHeldItemRendererMixin",
+    "functional.render.OversizedModelProviderRegistryMixin",
     "render.PlayerCapeRenderer",
     "render.ProjectileEntityRendererMixin"
   ]

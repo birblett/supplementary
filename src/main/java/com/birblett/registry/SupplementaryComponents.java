@@ -2,6 +2,7 @@ package com.birblett.registry;
 
 import com.birblett.lib.components.*;
 import com.birblett.lib.helper.RenderHelper;
+import com.birblett.lib.helper.SupplementaryEnchantmentHelper;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import dev.onyxstudios.cca.api.v3.component.ComponentRegistry;
 import dev.onyxstudios.cca.api.v3.entity.EntityComponentFactoryRegistry;
@@ -19,6 +20,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.FishingBobberEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.item.BowItem;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -47,6 +49,8 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             ComponentRegistry.getOrCreate(new Identifier(MODID, "marked"), BaseComponent.class);
     public static final ComponentKey<BaseComponent> MARKED_TRACKED_ENTITY =
             ComponentRegistry.getOrCreate(new Identifier(MODID, "marked_tracked_entity"), BaseComponent.class);
+    public static final ComponentKey<BaseComponent> OVERSIZED_PROJECTILE =
+            ComponentRegistry.getOrCreate(new Identifier(MODID, "oversized_projectile"), BaseComponent.class);
     public static final ComponentKey<SimpleEntityComponent> SNOWBALL_TYPE =
             ComponentRegistry.getOrCreate(new Identifier(MODID, "snowball_type"), SimpleEntityComponent.class);
 
@@ -57,6 +61,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             IGNORES_IFRAMES,
             LIGHTNING_BOLT,
             MARKED_LEVEL,
+            OVERSIZED_PROJECTILE,
             GRAPPLING
     );
 
@@ -175,9 +180,9 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             @Override
             public Vec3d onTravel(ProjectileEntity persistentProjectileEntity, int level, Vec3d velocity) {
                 if (!persistentProjectileEntity.world.isClient()) {
-                    persistentProjectileEntity.ignoreCameraFrustum = true;
                     GRAPPLING.sync(persistentProjectileEntity);
                 }
+                persistentProjectileEntity.ignoreCameraFrustum = true;
                 return velocity;
             }
 
@@ -187,7 +192,8 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                 if (owner instanceof LivingEntity livingEntity && owner.isAlive() && owner.getWorld() == projectileEntity.getWorld() &&
                         projectileEntity.getOwner().getPos().subtract(projectileEntity.getPos()).lengthSquared() < 2500 &&
                         EnchantmentHelper.getLevel(SupplementaryEnchantments.GRAPPLING, livingEntity.getMainHandStack()) > 0 &&
-                        livingEntity.getMainHandStack().isOf(Items.CROSSBOW)) {
+                        (livingEntity.getMainHandStack().getItem() instanceof CrossbowItem || livingEntity.getMainHandStack().getItem()
+                        instanceof BowItem)) {
                     RenderHelper.ropeRender(projectileEntity, tickDelta, matrixStack, vertexConsumerProvider, owner);
                 } else {
                     this.setValue(0);
@@ -327,6 +333,23 @@ public class SupplementaryComponents implements EntityComponentInitializer {
         });
         registry.registerFor(PersistentProjectileEntity.class, MARKED_TRACKED_ENTITY, e -> new TrackingComponent());
         registry.registerFor(LivingEntity.class, MARKED_TRACKED_ENTITY, e -> new TrackingComponent());
+        registry.registerFor(PersistentProjectileEntity.class, OVERSIZED_PROJECTILE, e -> new SyncedEnchantmentComponent("oversized_projectile") {
+            @Override
+            public void onProjectileFire(LivingEntity user, ProjectileEntity projectileEntity, int level) {
+                if (projectileEntity instanceof PersistentProjectileEntity persistentProjectileEntity) {
+                    this.setValue(level);
+                    projectileEntity.setVelocity(projectileEntity.getVelocity().multiply(Math.pow(1.3, level)));
+                    persistentProjectileEntity.setDamage(persistentProjectileEntity.getDamage() + 0.5 * level);
+                    OVERSIZED_PROJECTILE.sync(projectileEntity);
+                }
+            }
+
+            @Override
+            public void onProjectileRender(ProjectileEntity projectileEntity, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int level) {
+                float scale = 1.3f + level * 0.2f;
+                matrixStack.scale(scale, scale, scale);
+            }
+        });
         registry.registerFor(SnowGolemEntity.class, SNOWBALL_TYPE, e -> new SimpleIntTrackingComponent("snowball_type"));
     }
 }

@@ -12,7 +12,8 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.EntityDamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.BowItem;
+import net.minecraft.item.FishingRodItem;
 import net.minecraft.item.Items;
 import net.minecraft.item.ShieldItem;
 import net.minecraft.text.Text;
@@ -83,6 +84,8 @@ public class SupplementaryEnchantments {
 
     // bow enchants
     public static final EnchantmentBuilder LIGHTNING_BOLT = new EnchantmentBuilder("lightning_bolt", Enchantment.Rarity.VERY_RARE,
+            EnchantmentTarget.BOW, BOTH_HANDS);
+    public static final EnchantmentBuilder OVERSIZED = new EnchantmentBuilder("oversized", Enchantment.Rarity.UNCOMMON,
             EnchantmentTarget.BOW, BOTH_HANDS);
 
     // crossbow enchants
@@ -159,9 +162,14 @@ public class SupplementaryEnchantments {
                 .build();
 
         // bow enchants
-        LIGHTNING_BOLT.makeIncompatible(Enchantments.POWER)
+        LIGHTNING_BOLT.makeIncompatible(Enchantments.POWER, OVERSIZED)
                 .setPower(20, 50)
                 .addComponent(SupplementaryComponents.LIGHTNING_BOLT)
+                .build();
+        OVERSIZED.makeIncompatible(LIGHTNING_BOLT)
+                .setPower(20, 5, 30, 10)
+                .setMaxLevel(2)
+                .addComponent(SupplementaryComponents.OVERSIZED_PROJECTILE)
                 .build();
 
         // crossbow enchants
@@ -203,7 +211,8 @@ public class SupplementaryEnchantments {
                 .setPower(20,50)
                 .addComponent(SupplementaryComponents.GRAPPLING)
                 .setTreasure(true)
-                .addCompatibleItems(Items.CROSSBOW, Items.FISHING_ROD)
+                .addCompatibleClasses(FishingRodItem.class, BowItem.class)
+                .addCompatibleItems(Items.CROSSBOW)
                 .build();
         ACROBATIC.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
                 .setPower(20, 50)

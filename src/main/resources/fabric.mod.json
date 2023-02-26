@@ -44,6 +44,7 @@
 			"supplementary:lightning_bolt",
 			"supplementary:marked",
 			"supplementary:marked_tracked_entity",
+			"supplementary:oversized_projectile",
 			"supplementary:snowball_type"
 		],
 		"lithium:options": {
