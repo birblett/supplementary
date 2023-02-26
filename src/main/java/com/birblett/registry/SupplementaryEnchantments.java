@@ -9,9 +9,14 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.EntityDamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.ShieldItem;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 
 public class SupplementaryEnchantments {
     /*
@@ -44,6 +49,7 @@ public class SupplementaryEnchantments {
     Mobility enchants
         ACROBATIC - for boots; gain a limited number of airjumps and wallclings; regain on touching ground
         AIR_DASH - for boots; double-tap forward in the air to do a short dash in the facing direction
+        ASSAULT_DASH - for shields; blocking initiates a dash, deal damage while dashing and shield held up
         BOOSTING - for boots; added step height, allows walking on water
         BUNNYHOP - for boots; jump height is decreased, but initial horizontal jump velocity is increased and you can
                 scale short vertical gaps while jumping
@@ -55,6 +61,15 @@ public class SupplementaryEnchantments {
     public static final EquipmentSlot[] BOTH_HANDS = new EquipmentSlot[]{EquipmentSlot.MAINHAND, EquipmentSlot.OFFHAND};
     private static final EquipmentSlot[] ALL_ARMOR = new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
     public static final EquipmentSlot[] NONE = new EquipmentSlot[]{};
+
+    public static DamageSource shieldBash(LivingEntity source) {
+        return new EntityDamageSource("shield_bash", source) {
+            @Override
+            public Text getDeathMessage(LivingEntity entity) {
+                return new TranslatableText("death.attack." + this.name + ".player", entity.getDisplayName(), this.source.getDisplayName());
+            }
+        };
+    }
 
     // general enchants
     public static final EnchantmentBuilder EMPOWERED = new EnchantmentBuilder("empowered", Enchantment.Rarity.RARE,
@@ -82,11 +97,13 @@ public class SupplementaryEnchantments {
         @Override
         public float onAttack(LivingEntity user, Entity target, int level, boolean isCritical, float damageAmount) {
             float modifier = 0.0f;
-            if (user.hasStatusEffect(StatusEffects.SPEED)) {
-                modifier = 0.1f * level * damageAmount;
-            }
-            if (isCritical) {
-                user.addStatusEffect(new StatusEffectInstance(StatusEffects.SPEED, 50));
+            if (!user.world.isClient()) {
+                if (user.hasStatusEffect(StatusEffects.SPEED)) {
+                    modifier = 0.1f * level * damageAmount;
+                }
+                if (isCritical) {
+                    user.addStatusEffect(new StatusEffectInstance(StatusEffects.SPEED, 50));
+                }
             }
             return modifier;
         }
@@ -112,6 +129,8 @@ public class SupplementaryEnchantments {
             EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
     public static final EnchantmentBuilder ALL_TERRAIN = new EnchantmentBuilder("all_terrain", Enchantment.Rarity.VERY_RARE,
             EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
+    public static final EnchantmentBuilder ASSAULT_DASH = new EnchantmentBuilder("assault_dash", Enchantment.Rarity.VERY_RARE,
+            null, BOTH_HANDS);
     public static final EnchantmentBuilder BUNNYHOP = new EnchantmentBuilder("bunnyhop", Enchantment.Rarity.VERY_RARE,
             EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
     public static final EnchantmentBuilder GRAPPLING = new EnchantmentBuilder("grappling", Enchantment.Rarity.UNCOMMON,
@@ -172,6 +191,10 @@ public class SupplementaryEnchantments {
                 .build();
         ALL_TERRAIN.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
                 .setPower(20, 50)
+                .build();
+        ASSAULT_DASH.setPower(15, 15, 30, 15)
+                .setMaxLevel(2)
+                .addCompatibleClasses(ShieldItem.class)
                 .build();
         BUNNYHOP.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
                 .setPower(20, 50)

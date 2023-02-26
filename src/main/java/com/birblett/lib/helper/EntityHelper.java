@@ -1,11 +1,21 @@
 package com.birblett.lib.helper;
 
+import com.birblett.Supplementary;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 public class EntityHelper {
 
@@ -29,5 +39,20 @@ public class EntityHelper {
             }
         }
         return false;
+    }
+
+    public static List<EntityHitResult> getEntityCollisions(World world, Entity entity, Vec3d min, Vec3d max, Box box,
+                                                            Predicate<Entity> predicate, float f) {
+        double d = Double.MAX_VALUE;
+        List<EntityHitResult> list = new ArrayList<>();
+        for (Entity entityInBox : world.getOtherEntities(entity, box, predicate)) {
+            double e;
+            Box box2 = entityInBox.getBoundingBox().expand(f);
+            Optional<Vec3d> optional = box2.raycast(min, max);
+            if (optional.isEmpty() || !((e = min.squaredDistanceTo(optional.get())) < d)) continue;
+            list.add(new EntityHitResult(entityInBox));
+            d = e;
+        }
+        return list;
     }
 }

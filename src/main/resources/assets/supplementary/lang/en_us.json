@@ -6,7 +6,8 @@
 
   "enchantment.supplementary.acrobatic": "Acrobatic",
   "enchantment.supplementary.air_dash": "Air Dash",
-  "enchantment.supplementary.boosting": "All Terrain",
+  "enchantment.supplementary.all_terrain": "All Terrain",
+  "enchantment.supplementary.assault_dash": "Assault Dash",
   "enchantment.supplementary.bunnyhop": "Bunnyhop",
   "enchantment.supplementary.burst_fire": "Burst Fire",
   "enchantment.supplementary.empowered": "Empowered",
@@ -32,5 +33,7 @@
   "item.supplementary.diamond_boomerang": "Diamond Boomerang",
   "item.supplementary.netherite_boomerang": "Netherite Boomerang",
 
-  "item.supplementary.cape": "Cape"
+  "item.supplementary.cape": "Cape",
+
+  "death.attack.shield_bash.player": "%1$s was shield bashed by %2$s"
 }
