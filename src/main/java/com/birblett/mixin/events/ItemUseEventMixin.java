@@ -1,10 +1,6 @@
 package com.birblett.mixin.events;
 
-import com.birblett.api.ItemEvents;
-import com.birblett.lib.builders.EnchantmentBuilder;
-import com.birblett.lib.components.BaseComponent;
-import dev.onyxstudios.cca.api.v3.component.ComponentKey;
-import net.minecraft.enchantment.EnchantmentHelper;
+import com.birblett.lib.api.ItemEvents;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;

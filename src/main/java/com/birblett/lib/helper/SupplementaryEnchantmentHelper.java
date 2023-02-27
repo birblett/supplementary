@@ -5,7 +5,8 @@ import net.minecraft.item.ItemStack;
 
 public class SupplementaryEnchantmentHelper {
 
-    public static float getOversizedDrawspeedModifier(float pullProgress, ItemStack stack) {
-        return (float) (pullProgress * Math.pow(0.75, net.minecraft.enchantment.EnchantmentHelper.getLevel(SupplementaryEnchantments.OVERSIZED, stack)));
+    public static float getDrawspeedModifier(float base, ItemStack stack) {
+        float oversizedModifier = (float) Math.pow(0.75, net.minecraft.enchantment.EnchantmentHelper.getLevel(SupplementaryEnchantments.OVERSIZED, stack));
+        return base * oversizedModifier;
     }
 }

@@ -1,6 +1,6 @@
 package com.birblett.mixin.events;
 
-import com.birblett.api.EntityEvents;
+import com.birblett.lib.api.EntityEvents;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.util.Hand;
@@ -19,7 +19,7 @@ public abstract class LivingEntityEventMixin {
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void onEntityTickEvent(CallbackInfo ci) {
-        EntityEvents.POST_TICK.invoker().onEntityTick((LivingEntity) (Object) this);
+        EntityEvents.ENTITY_GENERIC_TICK.invoker().onEntityTick((LivingEntity) (Object) this);
     }
 
     @Inject(method = "swingHand(Lnet/minecraft/util/Hand;)V", at = @At("HEAD"))

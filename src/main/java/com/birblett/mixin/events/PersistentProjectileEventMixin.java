@@ -1,10 +1,6 @@
 package com.birblett.mixin.events;
 
-import com.birblett.api.EntityEvents;
-import com.birblett.lib.components.BaseComponent;
-import com.birblett.registry.SupplementaryComponents;
-import dev.onyxstudios.cca.api.v3.component.ComponentKey;
-import net.minecraft.entity.Entity;
+import com.birblett.lib.api.EntityEvents;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;

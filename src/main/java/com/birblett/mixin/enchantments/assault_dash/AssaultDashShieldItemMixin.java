@@ -1,6 +1,6 @@
-package com.birblett.mixin.functional;
+package com.birblett.mixin.enchantments.assault_dash;
 
-import com.birblett.lib.mixinterface.AssaultDashLivingEntityInterface;
+import com.birblett.lib.accessor.LivingEntityInterface;
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.PlayerEntity;
@@ -30,7 +30,7 @@ public class AssaultDashShieldItemMixin {
             if (user instanceof ServerPlayerEntity) {
                 stack.damage(1, user.getRandom(), (ServerPlayerEntity) user);
             }
-            ((AssaultDashLivingEntityInterface) user).setAssaultDash(10, user.getRotationVecClient().multiply(1, 0, 1).normalize().multiply(0.6 + level * 0.3));
+            ((LivingEntityInterface) user).setAssaultDash(10, user.getRotationVecClient().multiply(1, 0, 1).normalize().multiply(0.6 + level * 0.3));
         }
     }
 }

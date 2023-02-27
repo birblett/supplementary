@@ -1,10 +1,7 @@
 package com.birblett.mixin.events;
 
-import com.birblett.api.EntityEvents;
-import com.birblett.api.VoidEventReturnable;
-import com.birblett.lib.components.BaseComponent;
-import com.birblett.registry.SupplementaryComponents;
-import dev.onyxstudios.cca.api.v3.component.ComponentKey;
+import com.birblett.lib.api.EntityEvents;
+import com.birblett.lib.api.EventReturnable;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.projectile.FishingBobberEntity;
 import net.minecraft.item.ItemStack;
@@ -39,7 +36,7 @@ public class FishingBobberEventMixin {
     @Inject(method = "pullHookedEntity", at = @At("HEAD"), cancellable = true)
     private void onEntityReelEvent(Entity entity, CallbackInfo ci) {
         FishingBobberEntity self = ((FishingBobberEntity) (Object) this);
-        if (EntityEvents.FISHING_BOBBER_REEL_EVENT.invoker().onReel(self, entity) != VoidEventReturnable.NO_OP) {
+        if (EntityEvents.FISHING_BOBBER_REEL_EVENT.invoker().onReel(self, entity) != EventReturnable.NO_OP) {
             ci.cancel();
         }
     }
@@ -47,7 +44,7 @@ public class FishingBobberEventMixin {
     @Inject(method = "use", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/FishingBobberEntity;discard()V"), cancellable = true)
     private void onEmptyReelEvent(ItemStack usedItem, CallbackInfoReturnable<Integer> cir) {
         FishingBobberEntity self = (FishingBobberEntity) (Object) this;
-        if (EntityEvents.FISHING_BOBBER_REEL_EVENT.invoker().onReel(self, null) != VoidEventReturnable.NO_OP) {
+        if (EntityEvents.FISHING_BOBBER_REEL_EVENT.invoker().onReel(self, null) != EventReturnable.NO_OP) {
             cir.setReturnValue(1);
         }
     }

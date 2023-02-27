@@ -2,7 +2,6 @@ package com.birblett.registry;
 
 import com.birblett.lib.components.*;
 import com.birblett.lib.helper.RenderHelper;
-import com.birblett.lib.helper.SupplementaryEnchantmentHelper;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import dev.onyxstudios.cca.api.v3.component.ComponentRegistry;
 import dev.onyxstudios.cca.api.v3.entity.EntityComponentFactoryRegistry;
@@ -23,7 +22,6 @@ import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.BowItem;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
@@ -182,7 +180,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             }
 
             @Override
-            public Vec3d onTravel(ProjectileEntity persistentProjectileEntity, int level, Vec3d velocity) {
+            public Vec3d onProjectileTravel(ProjectileEntity persistentProjectileEntity, int level, Vec3d velocity) {
                 if (!persistentProjectileEntity.world.isClient()) {
                     GRAPPLING.sync(persistentProjectileEntity);
                 }
@@ -256,7 +254,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
         });
         registry.registerFor(PersistentProjectileEntity.class, IGNORES_IFRAMES, e -> new EnchantmentComponent("ignores_iframes") {
             @Override
-            public void preEntityHit(Entity target, ProjectileEntity persistentProjectileEntity, int lvl) {
+            public void preEntityHit(Entity target, ProjectileEntity projectileEntity, int lvl) {
                 if (target instanceof LivingEntity livingEntity) {
                     livingEntity.hurtTime = 0;
                     livingEntity.timeUntilRegen = 1;
@@ -281,11 +279,11 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             }
 
             @Override
-            public void onBlockHit(BlockHitResult blockHitResult, ProjectileEntity persistentProjectileEntity, int lvl) {
-                if (persistentProjectileEntity.getWorld().isSkyVisible(persistentProjectileEntity.getBlockPos())) {
-                    LightningEntity lightning = new LightningEntity(EntityType.LIGHTNING_BOLT, persistentProjectileEntity.getWorld());
-                    lightning.setPosition(persistentProjectileEntity.getPos());
-                    persistentProjectileEntity.getWorld().spawnEntity(lightning);
+            public void onBlockHit(BlockHitResult blockHitResult, ProjectileEntity projectileEntity, int lvl) {
+                if (projectileEntity.getWorld().isSkyVisible(projectileEntity.getBlockPos())) {
+                    LightningEntity lightning = new LightningEntity(EntityType.LIGHTNING_BOLT, projectileEntity.getWorld());
+                    lightning.setPosition(projectileEntity.getPos());
+                    projectileEntity.getWorld().spawnEntity(lightning);
                     this.setValue(0);
                 }
             }
@@ -302,7 +300,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             }
 
             @Override
-            public Vec3d onTravel(ProjectileEntity projectileEntity, int level, Vec3d velocity) {
+            public Vec3d onProjectileTravel(ProjectileEntity projectileEntity, int level, Vec3d velocity) {
                 if (projectileEntity instanceof PersistentProjectileEntity persistentProjectileEntity &&
                         projectileEntity.getOwner() instanceof LivingEntity owner && persistentProjectileEntity.isCritical()) {
                     Entity target = MARKED_TRACKED_ENTITY.get(owner).getEntity();

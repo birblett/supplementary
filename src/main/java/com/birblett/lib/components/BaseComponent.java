@@ -15,6 +15,8 @@ public interface BaseComponent extends Component {
 
     int getValue();
     void setValue(int level);
+    void decrement();
+    void increment();
     Entity getEntity();
     void setEntity(Entity entity);
     void inBlockTick(ProjectileEntity projectileEntity, int lvl);
@@ -27,8 +29,6 @@ public interface BaseComponent extends Component {
     void onHandSwingEvent(LivingEntity entity, Hand hand);
     void onUse(LivingEntity entity, Hand hand);
     void onTick(LivingEntity entity);
-    Vec3d onTravel(ProjectileEntity projectileEntity, int level, Vec3d velocity);
-    void decrement();
-    void increment();
+    Vec3d onProjectileTravel(ProjectileEntity projectileEntity, int level, Vec3d velocity);
 }
 

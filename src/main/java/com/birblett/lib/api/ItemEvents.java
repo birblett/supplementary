@@ -1,4 +1,4 @@
-package com.birblett.api;
+package com.birblett.lib.api;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;

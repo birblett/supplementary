@@ -1,4 +1,4 @@
-package com.birblett.mixin.functional;
+package com.birblett.mixin.enchantments.air_dash;
 
 import com.birblett.Supplementary;
 import com.birblett.registry.SupplementaryEnchantments;

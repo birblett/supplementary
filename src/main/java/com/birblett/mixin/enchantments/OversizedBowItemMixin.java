@@ -1,4 +1,4 @@
-package com.birblett.mixin.functional;
+package com.birblett.mixin.enchantments;
 
 import com.birblett.lib.helper.SupplementaryEnchantmentHelper;
 import net.minecraft.entity.LivingEntity;
@@ -24,6 +24,6 @@ public class OversizedBowItemMixin {
 
     @ModifyVariable(method = "getPullProgress", at = @At(value = "STORE", ordinal = 1), index = 1)
     private static float scalePullProgress(float pullProgress) {
-        return SupplementaryEnchantmentHelper.getOversizedDrawspeedModifier(pullProgress, supplementary$BowItemStack);
+        return SupplementaryEnchantmentHelper.getDrawspeedModifier(pullProgress, supplementary$BowItemStack);
     }
 }

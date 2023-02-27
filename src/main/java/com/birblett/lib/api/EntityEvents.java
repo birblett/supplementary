@@ -1,4 +1,4 @@
-package com.birblett.api;
+package com.birblett.lib.api;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
@@ -28,9 +28,10 @@ public class EntityEvents {
         }
         return velocity;
     };
+
     public static final Event<EntityTickEvent> PROJECTILE_GENERIC_TICK = EventFactory.createArrayBacked(EntityTickEvent.class, ENTITY_TICK_EVENT);
     public static final Event<EntityTickEvent> PROJECTILE_IN_BLOCK_TICK = EventFactory.createArrayBacked(EntityTickEvent.class, ENTITY_TICK_EVENT);
-    public static final Event<EntityTickEvent> POST_TICK = EventFactory.createArrayBacked(EntityTickEvent.class, ENTITY_TICK_EVENT);
+    public static final Event<EntityTickEvent> ENTITY_GENERIC_TICK = EventFactory.createArrayBacked(EntityTickEvent.class, ENTITY_TICK_EVENT);
     public static final Event<EntityTravelEvent> PROJECTILE_TRAVEL_TICK = EventFactory.createArrayBacked(EntityTravelEvent.class, ENTITY_TRAVEL_EVENT);
 
     // instance events
@@ -50,11 +51,11 @@ public class EntityEvents {
     });
     public static final Event<FishingBobberReelEvent> FISHING_BOBBER_REEL_EVENT = EventFactory.createArrayBacked(FishingBobberReelEvent.class,
             callbacks -> (fishingBobberEntity, target) -> {
-        VoidEventReturnable value = VoidEventReturnable.NO_OP, temp;
+        EventReturnable value = EventReturnable.NO_OP, temp;
         for (FishingBobberReelEvent callback : callbacks) {
-            if ((temp = callback.onReel(fishingBobberEntity, target)) != VoidEventReturnable.NO_OP) {
+            if ((temp = callback.onReel(fishingBobberEntity, target)) != EventReturnable.NO_OP) {
                 value = temp;
-                if (value == VoidEventReturnable.RETURN_IMMEDIATELY) {
+                if (value == EventReturnable.RETURN_IMMEDIATELY) {
                     return value;
                 }
             }
@@ -115,7 +116,7 @@ public class EntityEvents {
 
     @FunctionalInterface
     public interface FishingBobberReelEvent {
-        VoidEventReturnable onReel(FishingBobberEntity bobber, Entity target);
+        EventReturnable onReel(FishingBobberEntity bobber, Entity target);
     }
 
     @FunctionalInterface

@@ -1,6 +1,6 @@
-package com.birblett.mixin.functional;
+package com.birblett.mixin.enchantments.all_terrain;
 
-import com.birblett.lib.mixinterface.BlockCollisionSpliteratorInterface;
+import com.birblett.lib.accessor.BlockCollisionSpliteratorInterface;
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;

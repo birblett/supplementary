@@ -1,4 +1,4 @@
-package com.birblett.mixin.functional;
+package com.birblett.mixin.enchantments.acrobatic;
 
 import com.birblett.Supplementary;
 import com.birblett.lib.helper.EntityHelper;

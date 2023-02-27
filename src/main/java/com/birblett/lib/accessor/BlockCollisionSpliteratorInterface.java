@@ -1,4 +1,4 @@
-package com.birblett.lib.mixinterface;
+package com.birblett.lib.accessor;
 
 public interface BlockCollisionSpliteratorInterface {
 

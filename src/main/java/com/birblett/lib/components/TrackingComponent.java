@@ -66,7 +66,7 @@ public class TrackingComponent implements BaseComponent {
     public void onTick(LivingEntity entity) {}
 
     @Override
-    public Vec3d onTravel(ProjectileEntity projectileEntity, int level, Vec3d velocity) {
+    public Vec3d onProjectileTravel(ProjectileEntity projectileEntity, int level, Vec3d velocity) {
         return velocity;
     }
 

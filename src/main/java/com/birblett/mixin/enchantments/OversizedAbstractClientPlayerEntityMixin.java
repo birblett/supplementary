@@ -1,4 +1,4 @@
-package com.birblett.mixin.functional.render;
+package com.birblett.mixin.enchantments;
 
 import com.birblett.lib.helper.SupplementaryEnchantmentHelper;
 import net.fabricmc.api.EnvType;
@@ -10,10 +10,13 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 @Environment(EnvType.CLIENT)
 @Mixin(AbstractClientPlayerEntity.class)
-public class OversizedAbstractClientPlayerMixin {
+public class OversizedAbstractClientPlayerEntityMixin {
 
+    /**
+     * @whyhere FOV scaled based on current draw speed modifier
+     */
     @ModifyVariable(method = "getFovMultiplier", at = @At(value = "STORE"), index = 4)
-    private float scaleOversizedFOV(float fovScale) {
-        return SupplementaryEnchantmentHelper.getOversizedDrawspeedModifier(fovScale, ((AbstractClientPlayerEntity) (Object) this).getActiveItem());
+    private float scaledDrawSpeedFOV(float fovScale) {
+        return SupplementaryEnchantmentHelper.getDrawspeedModifier(fovScale, ((AbstractClientPlayerEntity) (Object) this).getActiveItem());
     }
 }

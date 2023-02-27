@@ -1,6 +1,6 @@
 package com.birblett.mixin.events;
 
-import com.birblett.api.ItemEvents;
+import com.birblett.lib.api.ItemEvents;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;

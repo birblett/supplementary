@@ -1,9 +1,6 @@
 package com.birblett.mixin.events;
 
-import com.birblett.api.EntityEvents;
-import com.birblett.lib.builders.EnchantmentBuilder;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
+import com.birblett.lib.api.EntityEvents;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Vec3d;
@@ -14,8 +11,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-
-import java.util.Map;
 
 @Mixin(PlayerEntity.class)
 public class PlayerEntityEventMixin {

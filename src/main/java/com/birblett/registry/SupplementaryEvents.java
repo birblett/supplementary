@@ -1,8 +1,8 @@
 package com.birblett.registry;
 
-import com.birblett.api.EntityEvents;
-import com.birblett.api.ItemEvents;
-import com.birblett.api.VoidEventReturnable;
+import com.birblett.lib.api.EntityEvents;
+import com.birblett.lib.api.ItemEvents;
+import com.birblett.lib.api.EventReturnable;
 import com.birblett.lib.builders.EnchantmentBuilder;
 import com.birblett.lib.components.BaseComponent;
 import com.birblett.lib.helper.EntityHelper;
@@ -42,7 +42,7 @@ public class SupplementaryEvents {
             });
         }
     };
-    public static final ItemEvents.CrossbowPrefireEvent ARROW_ITEMSTACK_COMPONENT_PROCESSOR = (user, crossbow, hand) ->
+    public static final ItemEvents.CrossbowPrefireEvent CROSSBOW_PREFIRE_COMPONENT_PROCESSOR = (user, crossbow, hand) ->
         EnchantmentHelper.get(crossbow).forEach((enchantment, lvl) -> {
             if (enchantment instanceof EnchantmentBuilder enchantmentBuilder) {
                 List<ItemStack> projectiles = CrossbowItem.getProjectiles(crossbow);
@@ -140,7 +140,7 @@ public class SupplementaryEvents {
                 }
             }
         }
-        return shouldReturn ? VoidEventReturnable.RETURN_AFTER_FINISH : VoidEventReturnable.NO_OP;
+        return shouldReturn ? EventReturnable.RETURN_AFTER_FINISH : EventReturnable.NO_OP;
     };
     public static final EntityEvents.FishingBobberReelEvent ENTITY_REEL_COMPONENT_PROCESSOR = (bobber, target) -> {
         boolean shouldReturn = false;
@@ -151,7 +151,7 @@ public class SupplementaryEvents {
                 }
             }
         }
-        return shouldReturn ? VoidEventReturnable.RETURN_AFTER_FINISH : VoidEventReturnable.NO_OP;
+        return shouldReturn ? EventReturnable.RETURN_AFTER_FINISH : EventReturnable.NO_OP;
     };
     public static final EntityEvents.LivingEntityHandSwingEvent GRAPPLING_HAND_SWING_EVENT = (entity, hand) -> {
         if (entity instanceof PlayerEntity) {
@@ -185,7 +185,7 @@ public class SupplementaryEvents {
         if (entity instanceof PersistentProjectileEntity self) {
             for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
                 if (componentKey.get(self).getValue() > 0) {
-                    Vec3d newVelocity =  componentKey.get(self).onTravel(self, componentKey.get(self).getValue(), velocity);
+                    Vec3d newVelocity =  componentKey.get(self).onProjectileTravel(self, componentKey.get(self).getValue(), velocity);
                     if (newVelocity != velocity) {
                         self.setVelocity(newVelocity);
                         self.velocityModified = true;
@@ -226,7 +226,7 @@ public class SupplementaryEvents {
 
     public static void register() {
         ItemEvents.GENERIC_ITEM_USE.register(ITEM_USE_COMPONENT_PROCESSOR);
-        ItemEvents.CROSSBOW_PREFIRE.register(ARROW_ITEMSTACK_COMPONENT_PROCESSOR);
+        ItemEvents.CROSSBOW_PREFIRE.register(CROSSBOW_PREFIRE_COMPONENT_PROCESSOR);
         ItemEvents.ARROW_PROJECTILE_FIRED.register(ARROW_FIRED_COMPONENT_PROCESSOR);
         ItemEvents.FISHING_ROD_USE.register(BOBBER_CAST_COMPONENT_PROCESSOR);
 
@@ -239,7 +239,7 @@ public class SupplementaryEvents {
         EntityEvents.LIVING_ENTITY_ATTACK_EVENT.register(PLAYER_ATTACK_EVENT);
         EntityEvents.SWING_HAND_EVENT.register(GRAPPLING_HAND_SWING_EVENT);
 
-        EntityEvents.POST_TICK.register(LIVING_ENTITY_TICK_COMPONENT_PROCESSOR);
+        EntityEvents.ENTITY_GENERIC_TICK.register(LIVING_ENTITY_TICK_COMPONENT_PROCESSOR);
         EntityEvents.PROJECTILE_GENERIC_TICK.register(FISHING_BOBBER_GENERIC_TICK);
         EntityEvents.PROJECTILE_IN_BLOCK_TICK.register(ARROW_IN_BLOCK_TICK);
         EntityEvents.PROJECTILE_IN_BLOCK_TICK.register(FISHING_BOBBER_IN_BLOCK_TICK);

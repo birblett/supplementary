@@ -1,4 +1,4 @@
-package com.birblett.mixin.functional.render;
+package com.birblett.mixin.enchantments;
 
 import com.birblett.lib.helper.SupplementaryEnchantmentHelper;
 import com.birblett.registry.SupplementaryEnchantments;
@@ -33,7 +33,7 @@ public class OversizedHeldItemRendererMixin {
 
     @ModifyVariable(method = "renderFirstPersonItem", at = @At(value = "STORE", ordinal = 2), index = 16)
     private float scaleModelPullProgress(float pullProgress){
-        return SupplementaryEnchantmentHelper.getOversizedDrawspeedModifier(pullProgress, supplementary$BowItemStack);
+        return SupplementaryEnchantmentHelper.getDrawspeedModifier(pullProgress, supplementary$BowItemStack);
     }
 
     @Inject(method = "renderFirstPersonItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;multiply(Lnet/minecraft/util/math/Quaternion;)V",

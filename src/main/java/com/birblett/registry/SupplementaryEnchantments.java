@@ -69,7 +69,9 @@ public class SupplementaryEnchantments {
         };
     }
 
-    // general enchants
+    /**
+     *
+     */
     public static final EnchantmentBuilder EMPOWERED = new EnchantmentBuilder("empowered", Enchantment.Rarity.RARE,
             EnchantmentTarget.BREAKABLE, NONE);
     public static final EnchantmentBuilder SOULBOUND = new EnchantmentBuilder("soulbound", Enchantment.Rarity.RARE,

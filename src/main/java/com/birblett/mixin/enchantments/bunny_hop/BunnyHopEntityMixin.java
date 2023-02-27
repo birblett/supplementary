@@ -1,4 +1,4 @@
-package com.birblett.mixin.functional;
+package com.birblett.mixin.enchantments.bunny_hop;
 
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.enchantment.EnchantmentHelper;

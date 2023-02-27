@@ -1,12 +1,10 @@
-package com.birblett.mixin.functional;
+package com.birblett.mixin.enchantments.assault_dash;
 
-import com.birblett.Supplementary;
 import com.birblett.lib.helper.EntityHelper;
-import com.birblett.lib.mixinterface.AssaultDashLivingEntityInterface;
+import com.birblett.lib.accessor.LivingEntityInterface;
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -24,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 
 @Mixin(LivingEntity.class)
-public class AssaultDashLivingEntityMixin implements AssaultDashLivingEntityInterface {
+public class AssaultDashLivingEntityMixin implements LivingEntityInterface {
     /*
     Implementation for shield dash+bash for Assault Dash
      */

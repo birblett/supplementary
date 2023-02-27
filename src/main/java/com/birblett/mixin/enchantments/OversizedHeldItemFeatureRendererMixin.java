@@ -1,4 +1,4 @@
-package com.birblett.mixin.functional.render;
+package com.birblett.mixin.enchantments;
 
 import com.birblett.registry.SupplementaryEnchantments;
 import net.fabricmc.api.EnvType;
