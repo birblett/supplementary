@@ -35,7 +35,8 @@ public abstract class LivingEntityEventMixin {
     @ModifyVariable(method = "damage", at = @At("HEAD"), argsOnly = true)
     private float onDamageEvent(float amount) {
         if (!((LivingEntity) (Object) this).getWorld().isClient()) {
-            amount += EntityEvents.MODIFY_DAMAGE_EVENT.invoker().onDamage((LivingEntity) (Object) this, this.supplementary$DamageSource, amount);
+            amount += EntityEvents.ADDITIVE_DAMAGE_EVENT.invoker().onDamage((LivingEntity) (Object) this, this.supplementary$DamageSource, amount);
+            amount *= EntityEvents.MULTIPLICATIVE_DAMAGE_EVENT.invoker().onDamage((LivingEntity) (Object) this, this.supplementary$DamageSource, amount);
         }
         return amount;
     }

@@ -17,6 +17,6 @@ public class ItemUseEventMixin {
 
     @Inject(method = "use", at = @At("HEAD"))
     private void onUseEvent(World world, PlayerEntity user, Hand hand, CallbackInfoReturnable<TypedActionResult<ItemStack>> cir) {
-        ItemEvents.GENERIC_ITEM_USE.invoker().onItemUse(user, hand);
+        ItemEvents.ITEM_USE.invoker().onItemUse(user, user.getStackInHand(hand), hand);
     }
 }

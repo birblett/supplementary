@@ -228,7 +228,7 @@ public class EnchantmentComponent implements BaseComponent {
      * @param entity provided entity
      * @param hand active hand
      *
-     * @see com.birblett.lib.api.ItemEvents#GENERIC_ITEM_USE
+     * @see com.birblett.lib.api.ItemEvents#ITEM_USE
      * @see SupplementaryEvents#ITEM_USE_COMPONENT_PROCESSOR
      */
     @Override

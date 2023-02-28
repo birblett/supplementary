@@ -22,7 +22,7 @@ public class CrossbowFiringEventMixin {
     @Inject(method = "use", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/CrossbowItem;shootAll(Lnet/minecraft/world/World;Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/util/Hand;Lnet/minecraft/item/ItemStack;FF)V"),
             locals = LocalCapture.CAPTURE_FAILSOFT)
     private void crossbowPrefireEvent(World world, PlayerEntity user, Hand hand, CallbackInfoReturnable<TypedActionResult<ItemStack>> cir, ItemStack itemStack) {
-        ItemEvents.CROSSBOW_PREFIRE.invoker().beforeCrossbowFire(user, itemStack, hand);
+        ItemEvents.CROSSBOW_PREFIRE.invoker().onItemUse(user, itemStack, hand);
     }
 
     @Inject(method = "createArrow", at = @At("TAIL"), locals = LocalCapture.CAPTURE_FAILSOFT)
