@@ -17,7 +17,7 @@ public class Supplementary implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		SupplementaryBlocks.register();
-		SupplementaryEnchantments.buildAndRegister();
+		SupplementaryEnchantments.register();
 		SupplementaryEntities.register();
 		SupplementaryItems.register();
 		SupplementaryEvents.register();

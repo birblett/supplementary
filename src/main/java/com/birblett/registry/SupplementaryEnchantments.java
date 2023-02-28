@@ -1,5 +1,6 @@
 package com.birblett.registry;
 
+import com.birblett.Supplementary;
 import com.birblett.items.BoomerangItem;
 import com.birblett.lib.builders.EnchantmentBuilder;
 import net.minecraft.enchantment.Enchantment;
@@ -16,50 +17,25 @@ import net.minecraft.item.*;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
+/**
+ * Enchantment instantiation and registration.
+ */
 public class SupplementaryEnchantments {
-    /*
-    Declarations and registry for enchantments.
 
-    Equipment slot presets
-        MAIN_HAND - mainhand
-        BOTH_HANDS - mainhand and offhand
-        ALL_ARMOR - private, from Enchantments class; all armor slots
-        NONE - no valid slots
-
-    General enchantments
-        EMPOWERED - increases the effective level of existing enchantments by 1
-        SOULBOUND - item remains in inventory on death, at the cost of durability; does not stay if not enough durability
-
-    Boomerang enchantments
-        PICKUP - unlocks the internal inventory of boomerangs, and can pick up items
-
-    Bow enchantments
-        LIGHTNING_BOLT - projectiles summon lightning
-
-    Crossbow enchantments
-        BURST_FIRE - fires a 3 round burst of slightly weakened arrows
-        MARKED - for crossbows; initial hit will "mark" a target; subsequent projectiles will home in on the target
-
-    Sword enchantments
-        FRANTIC - for swords; gain a speed boost on crit, and deal additional damage while speed is boosted
-        FRENZY - for swords; take more damage, deal more melee damage as health gets lower
-
-    Mobility enchants
-        ACROBATIC - for boots; gain a limited number of airjumps and wallclings; regain on touching ground
-        AIR_DASH - for boots; double-tap forward in the air to do a short dash in the facing direction
-        ASSAULT_DASH - for shields; blocking initiates a dash, deal damage while dashing and shield held up
-        BOOSTING - for boots; added step height, allows walking on water
-        BUNNYHOP - for boots; jump height is decreased, but initial horizontal jump velocity is increased and you can
-                scale short vertical gaps while jumping
-        GRAPPLING - for fishing rods and crossbows; projectiles trail lines behind them, and will pull the user in
-        SLIMED - for boots; become bouncy and slippery and take less fall damage
+    /**
+     * Valid equipment slots of enchantments to be checked against by
+     * {@link net.minecraft.enchantment.EnchantmentHelper#getEquipmentLevel(Enchantment, LivingEntity)}
      */
-
     public static final EquipmentSlot[] MAIN_HAND = new EquipmentSlot[]{EquipmentSlot.MAINHAND};
     public static final EquipmentSlot[] BOTH_HANDS = new EquipmentSlot[]{EquipmentSlot.MAINHAND, EquipmentSlot.OFFHAND};
     private static final EquipmentSlot[] ALL_ARMOR = new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
     public static final EquipmentSlot[] NONE = new EquipmentSlot[]{};
 
+    /**
+     * Damage source for the Assault Dash enchantment
+     * @param source the source entity
+     * @return a new EntityDamageSource, with custom death message
+     */
     public static DamageSource shieldBash(LivingEntity source) {
         return new EntityDamageSource("shield_bash", source) {
             @Override
@@ -70,18 +46,28 @@ public class SupplementaryEnchantments {
     }
 
     /**
-     *
+     * General enchantments that are applicable to most enchantable items <br>
+     * Empowered - All other enchantments' effective level is increased by 1. Max lvl: 1 <br>
+     * Soulbound - Stays in inventory on death. Max lvl: 1
      */
     public static final EnchantmentBuilder EMPOWERED = new EnchantmentBuilder("empowered", Enchantment.Rarity.RARE,
             EnchantmentTarget.BREAKABLE, NONE);
     public static final EnchantmentBuilder SOULBOUND = new EnchantmentBuilder("soulbound", Enchantment.Rarity.RARE,
             EnchantmentTarget.BREAKABLE, NONE);
 
-    // boomerang enchants
+    /**
+     * Boomerang enchantments <br>
+     * Pickup - boomerangs can pick up items, with larger inventories based on level. Max lvl: 3
+     */
     public static final EnchantmentBuilder PICKUP = new EnchantmentBuilder("pickup", Enchantment.Rarity.UNCOMMON,
             null, BOTH_HANDS);
 
-    // bow enchants
+    /**
+     * Bow enchantments <br>
+     * Lightning Bolt - Summon lightning on projectile hit, provided it has sky access. Max lvl: 1 <br>
+     * Oversized - Longer draw time. Projectiles are bigger and faster, with higher damage. Max lvl: 2 <br>
+     * Marked - On entity hit: set a marked entity. Subsequent arrows will home in on this entity. Max lvl: 3
+     */
     public static final EnchantmentBuilder LIGHTNING_BOLT = new EnchantmentBuilder("lightning_bolt", Enchantment.Rarity.VERY_RARE,
             EnchantmentTarget.BOW, BOTH_HANDS);
     public static final EnchantmentBuilder OVERSIZED = new EnchantmentBuilder("oversized", Enchantment.Rarity.UNCOMMON,
@@ -89,11 +75,18 @@ public class SupplementaryEnchantments {
     public static final EnchantmentBuilder MARKED = new EnchantmentBuilder("marked", Enchantment.Rarity.RARE,
             EnchantmentTarget.BOW, BOTH_HANDS);
 
-    // crossbow enchants
+    /**
+     * Crossbow enchantments <br>
+     * Burst fire - Arrows are fired in bursts of 3. Damage and velocity are slightly decreased. Max lvl: 1
+     */
     public static final EnchantmentBuilder BURST_FIRE = new EnchantmentBuilder("burst_fire", Enchantment.Rarity.RARE,
             EnchantmentTarget.CROSSBOW, BOTH_HANDS);
 
-    // sword enchants
+    /**
+     * Sword enchantments <br>
+     * Frantic - Critical hits grant a short speed boost. Deal extra damage while speedy. Max lvl: 3 <br>
+     * Frenzy - Take more damage, deal more at lower health. Max lvl: 3
+     */
     public static final EnchantmentBuilder FRANTIC = new EnchantmentBuilder("frantic", Enchantment.Rarity.UNCOMMON,
             EnchantmentTarget.WEAPON, MAIN_HAND) {
         @Override
@@ -124,7 +117,16 @@ public class SupplementaryEnchantments {
         }
     };
 
-    // mobility enchants
+    /**
+     * Mobility enchantments <br>
+     * Acrobatic - Boots: wall cling/jump while sneaking and double jump. Max lvl: 1 <br>
+     * Air Dash - Boots: dash in the air on double-tapping forward. Max lvl: 1 <br>
+     * All Terrain - Boots: increased step height, and ability to walk on fluids. Max lvl: 1 <br>
+     * Assault Dash - Shields: charge forward while holding shield up, knocking entities away. Max lvl: 2 <br>
+     * Bunnyhop - Boots: decrease height, increase speed on jump. Scale small vertical gaps in the air. Max Lvl: 1 <br>
+     * Grappling - Bows, crossbows, fishing rods: projectiles pull the user in. Varies by tool type. Max lvl: 1 <br>
+     * Slimed - Boots: become bouncy, experience much less friction. Max lvl: 1
+     */
     public static final EnchantmentBuilder ACROBATIC = new EnchantmentBuilder("acrobatic", Enchantment.Rarity.VERY_RARE,
             EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
     public static final EnchantmentBuilder AIR_DASH = new EnchantmentBuilder("air_dash", Enchantment.Rarity.VERY_RARE,
@@ -140,58 +142,20 @@ public class SupplementaryEnchantments {
     public static final EnchantmentBuilder SLIMED = new EnchantmentBuilder("slimed", Enchantment.Rarity.VERY_RARE,
             EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
 
-    // sets of enchantments for incompatibility
+    /**
+     * Sets of enchantments incompatible with each other.
+     */
+    public static final EnchantmentBuilder[] GENERAL_COMPATIBILITY_GROUP = {EMPOWERED, SOULBOUND};
     public static final EnchantmentBuilder[] MOBILITY_INCOMPATIBILITY_GROUP = {ACROBATIC, AIR_DASH, ALL_TERRAIN, BUNNYHOP, SLIMED};
 
-    public static void buildAndRegister() {
-        // general enchants
-        EMPOWERED.makeIncompatible(SOULBOUND)
+    /**
+     * Sets enchantment attributes and registers enchantments. Called from {@link Supplementary#onInitialize()}. See
+     * {@link EnchantmentBuilder} for specific builder methods.
+     */
+    public static void register() {
+        ACROBATIC.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
                 .setPower(20, 50)
-                .setTreasure(true)
                 .build();
-        SOULBOUND.makeIncompatible(EMPOWERED)
-                .setPower(20, 50)
-                .setTreasure(true)
-                .build();
-
-        // boomerang enchants
-        PICKUP.setPower(10, 10, 20, 20)
-                .setMaxLevel(3)
-                .addCompatibleClasses(BoomerangItem.class)
-                .build();
-
-        // bow enchants
-        LIGHTNING_BOLT.makeIncompatible(Enchantments.POWER, OVERSIZED)
-                .setPower(20, 50)
-                .addComponent(SupplementaryComponents.LIGHTNING_BOLT)
-                .build();
-        OVERSIZED.makeIncompatible(LIGHTNING_BOLT)
-                .setPower(20, 5, 30, 10)
-                .setMaxLevel(2)
-                .addComponent(SupplementaryComponents.OVERSIZED_PROJECTILE)
-                .build();
-        MARKED.setPower(20, 5, 25, 5)
-                .setMaxLevel(3)
-                .addComponent(SupplementaryComponents.MARKED_LEVEL)
-                .build();
-
-        // crossbow enchants
-        BURST_FIRE.makeIncompatible(Enchantments.MULTISHOT)
-                .setPower(20, 50)
-                .addComponent(SupplementaryComponents.BURST_FIRE_TIMER)
-                .build();
-
-        // sword enchants
-        FRANTIC.makeIncompatible(Enchantments.FIRE_ASPECT, Enchantments.KNOCKBACK)
-                .setPower(15, 5, 25, 5)
-                .setMaxLevel(3)
-                .build();
-        FRENZY.makeIncompatible(FRANTIC)
-                .setPower(20, 10, 30, 10)
-                .setMaxLevel(3)
-                .build();
-
-        // mobility enchants
         AIR_DASH.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
                 .setPower(20, 50)
                 .build();
@@ -205,6 +169,22 @@ public class SupplementaryEnchantments {
         BUNNYHOP.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
                 .setPower(20, 50)
                 .build();
+        BURST_FIRE.makeIncompatible(Enchantments.MULTISHOT)
+                .setPower(20, 50)
+                .addComponent(SupplementaryComponents.BURST_FIRE_TIMER)
+                .build();
+        EMPOWERED.makeIncompatible(GENERAL_COMPATIBILITY_GROUP)
+                .setPower(20, 50)
+                .setTreasure(true)
+                .build();
+        FRANTIC.makeIncompatible(Enchantments.FIRE_ASPECT, Enchantments.KNOCKBACK)
+                .setPower(15, 5, 25, 5)
+                .setMaxLevel(3)
+                .build();
+        FRENZY.makeIncompatible(FRANTIC)
+                .setPower(20, 10, 30, 10)
+                .setMaxLevel(3)
+                .build();
         GRAPPLING.makeIncompatible(Enchantments.QUICK_CHARGE, Enchantments.MULTISHOT)
                 .setPower(20,50)
                 .addComponent(SupplementaryComponents.GRAPPLING)
@@ -212,11 +192,29 @@ public class SupplementaryEnchantments {
                 .addCompatibleClasses(FishingRodItem.class, BowItem.class)
                 .addCompatibleItems(Items.CROSSBOW)
                 .build();
-        ACROBATIC.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
+        LIGHTNING_BOLT.makeIncompatible(Enchantments.POWER, OVERSIZED)
                 .setPower(20, 50)
+                .addComponent(SupplementaryComponents.LIGHTNING_BOLT)
+                .build();
+        MARKED.setPower(20, 5, 25, 5)
+                .setMaxLevel(3)
+                .addComponent(SupplementaryComponents.MARKED_LEVEL)
+                .build();
+        OVERSIZED.makeIncompatible(LIGHTNING_BOLT)
+                .setPower(20, 5, 30, 10)
+                .setMaxLevel(2)
+                .addComponent(SupplementaryComponents.OVERSIZED_PROJECTILE)
+                .build();
+        PICKUP.setPower(10, 10, 20, 20)
+                .setMaxLevel(3)
+                .addCompatibleClasses(BoomerangItem.class)
                 .build();
         SLIMED.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
                 .setPower(20, 50)
+                .build();
+        SOULBOUND.makeIncompatible(GENERAL_COMPATIBILITY_GROUP)
+                .setPower(20, 50)
+                .setTreasure(true)
                 .build();
     }
 }
