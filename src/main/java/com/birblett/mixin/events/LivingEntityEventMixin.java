@@ -22,6 +22,12 @@ public abstract class LivingEntityEventMixin {
         EntityEvents.ENTITY_GENERIC_TICK.invoker().onEntityTick((LivingEntity) (Object) this);
     }
 
+    @Inject(method = "tickMovement", at = @At("HEAD"))
+    private void onEntityTravelTickEvent(CallbackInfo ci) {
+        LivingEntity self = ((LivingEntity) (Object) this);
+        self.setVelocity(EntityEvents.LIVING_ENTITY_TRAVEL_TICK.invoker().onTravelTick(self, self.getVelocity()));
+    }
+
     @Inject(method = "swingHand(Lnet/minecraft/util/Hand;)V", at = @At("HEAD"))
     private void onHandSwingEvent(Hand hand, CallbackInfo ci) {
         EntityEvents.SWING_HAND_EVENT.invoker().onHandSwing((LivingEntity) (Object) this, hand);

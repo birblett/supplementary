@@ -37,6 +37,7 @@
 	},
 	"custom": {
 		"cardinal-components": [
+			"supplementary:assault_dash",
 			"supplementary:burst_fire_timer",
 			"supplementary:grappling",
 			"supplementary:grappling_tracking_component",

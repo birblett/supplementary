@@ -1,6 +1,6 @@
 package com.birblett.mixin.enchantments.assault_dash;
 
-import com.birblett.lib.accessor.LivingEntityInterface;
+import com.birblett.registry.SupplementaryComponents;
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.PlayerEntity;
@@ -17,9 +17,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ShieldItem.class)
 public class AssaultDashShieldItemMixin {
-    /*
-    Initiate an assault dash with initial velocity dependent on level
-     */
 
     @Inject(method = "use", at = @At("HEAD"))
     private void applyAssaultDashTicks(World world, PlayerEntity user, Hand hand, CallbackInfoReturnable<TypedActionResult<ItemStack>> cir) {
@@ -30,7 +27,7 @@ public class AssaultDashShieldItemMixin {
             if (user instanceof ServerPlayerEntity) {
                 stack.damage(1, user.getRandom(), (ServerPlayerEntity) user);
             }
-            ((LivingEntityInterface) user).setAssaultDash(10, user.getRotationVecClient().multiply(1, 0, 1).normalize().multiply(0.6 + level * 0.3));
+            SupplementaryComponents.ASSAULT_DASH.get(user).setValue(level, user);
         }
     }
 }

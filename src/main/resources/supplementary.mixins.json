@@ -17,7 +17,6 @@
     "enchantments.air_dash.AirDashClientPlayerMixin",
     "enchantments.all_terrain.AllTerrainBlockCollisionSpliteratorMixin",
     "enchantments.all_terrain.AllTerrainEntityMixin",
-    "enchantments.assault_dash.AssaultDashLivingEntityMixin",
     "enchantments.assault_dash.AssaultDashShieldItemMixin",
     "enchantments.bunny_hop.BunnyHopEntityMixin",
     "enchantments.bunny_hop.BunnyhopLivingEntityMixin",

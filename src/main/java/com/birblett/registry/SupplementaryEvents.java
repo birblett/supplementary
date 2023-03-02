@@ -7,7 +7,6 @@ import com.birblett.lib.creational.EnchantmentBuilder;
 import com.birblett.lib.components.BaseComponent;
 import com.birblett.lib.helper.EntityHelper;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.LivingEntity;
@@ -195,7 +194,7 @@ public class SupplementaryEvents {
         if (entity instanceof PersistentProjectileEntity self) {
             for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
                 if (componentKey.get(self).getValue() > 0) {
-                    Vec3d newVelocity =  componentKey.get(self).onProjectileTravel(self, componentKey.get(self).getValue(), velocity);
+                    Vec3d newVelocity =  componentKey.get(self).onEntityTravel(self, componentKey.get(self).getValue(), velocity);
                     if (newVelocity != velocity) {
                         self.setVelocity(newVelocity);
                         self.velocityModified = true;
@@ -237,6 +236,15 @@ public class SupplementaryEvents {
         }
     };
 
+    public static final EntityEvents.EntityTravelEvent LIVING_ENTITY_TRAVEL_TICK = (entity, velocity) -> {
+        if (entity instanceof LivingEntity livingEntity) {
+            for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.ENTITY_TICKING_COMPONENTS) {
+                velocity = componentKey.get(livingEntity).onEntityTravel(livingEntity, 0, velocity);
+            }
+        }
+        return velocity;
+    };
+
     public static void register() {
         ItemEvents.ITEM_USE.register(ITEM_USE_COMPONENT_PROCESSOR);
         ItemEvents.CROSSBOW_PREFIRE.register(CROSSBOW_PREFIRE_ENCHANT_EVENTS);
@@ -253,6 +261,7 @@ public class SupplementaryEvents {
         EntityEvents.SWING_HAND_EVENT.register(GRAPPLING_HAND_SWING_EVENT);
 
         EntityEvents.ENTITY_GENERIC_TICK.register(LIVING_ENTITY_COMPONENT_TICK);
+        EntityEvents.LIVING_ENTITY_TRAVEL_TICK.register(LIVING_ENTITY_TRAVEL_TICK);
         EntityEvents.PROJECTILE_GENERIC_TICK.register(FISHING_BOBBER_COMPONENT_TICK);
         EntityEvents.PROJECTILE_IN_BLOCK_TICK.register(ARROW_IN_BLOCK_COMPONENT_TICK);
         EntityEvents.PROJECTILE_IN_BLOCK_TICK.register(FISHING_BOBBER_IN_BLOCK_COMPONENT_TICK);

@@ -35,6 +35,11 @@ public interface BaseComponent extends Component {
     default void setValue(int level) {}
 
     /**
+     * Set stored value, if it exists, and allows for operating via side effects with an entity provider.
+     */
+    default void setValue(int level, Entity provider) {}
+
+    /**
      * Decrements stored value, if it exists.
      */
     default void decrement() {}
@@ -177,7 +182,7 @@ public interface BaseComponent extends Component {
      * @see com.birblett.lib.api.EntityEvents#PROJECTILE_TRAVEL_TICK
      * @see SupplementaryEvents#ARROW_TRAVEL_COMPONENT_TICK
      */
-    default Vec3d onProjectileTravel(ProjectileEntity projectileEntity, int level, Vec3d velocity) {
+    default Vec3d onEntityTravel(Entity projectileEntity, int level, Vec3d velocity) {
         return velocity;
     }
 }

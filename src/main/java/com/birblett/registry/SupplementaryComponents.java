@@ -2,6 +2,7 @@ package com.birblett.registry;
 
 import com.birblett.lib.components.*;
 import com.birblett.lib.creational.ComponentFactory;
+import com.birblett.lib.helper.EntityHelper;
 import com.birblett.lib.helper.RenderHelper;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import dev.onyxstudios.cca.api.v3.component.ComponentRegistry;
@@ -22,10 +23,16 @@ import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.BowItem;
 import net.minecraft.item.CrossbowItem;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.UseAction;
 import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.List;
@@ -34,6 +41,8 @@ import static com.birblett.Supplementary.MODID;
 
 public class SupplementaryComponents implements EntityComponentInitializer {
 
+    public static final ComponentKey<BaseComponent> ASSAULT_DASH =
+            ComponentRegistry.getOrCreate(new Identifier(MODID, "assault_dash"), BaseComponent.class);
     public static final ComponentKey<BaseComponent> BURST_FIRE_TIMER =
             ComponentRegistry.getOrCreate(new Identifier(MODID, "burst_fire_timer"), BaseComponent.class);
     public static final ComponentKey<BaseComponent> GRAPPLING =
@@ -54,6 +63,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             ComponentRegistry.getOrCreate(new Identifier(MODID, "snowball_type"), SimpleEntityComponent.class);
 
     public static final List<ComponentKey<BaseComponent>> ENTITY_TICKING_COMPONENTS = List.of(
+            ASSAULT_DASH,
             BURST_FIRE_TIMER
     );
     public static final List<ComponentKey<BaseComponent>> PROJECTILE_COMPONENTS = List.of(
@@ -66,6 +76,55 @@ public class SupplementaryComponents implements EntityComponentInitializer {
 
     @Override
     public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
+        registry.registerFor(LivingEntity.class, ASSAULT_DASH, e -> new EnchantmentComponent("assault_dash") {
+            public Vec3d initialVelocity;
+
+            @Override
+            public void setValue(int level, Entity user) {
+                this.setValue(10);
+                initialVelocity = user.getRotationVecClient().multiply(1, 0, 1).normalize().multiply(0.6 + level * 0.3);
+            }
+
+            @Override
+            public Vec3d onEntityTravel(Entity entity, int level, Vec3d velocity) {
+                if (this.getValue() > 0 && entity instanceof PlayerEntity user) {
+                    Vec3d userVelocity = initialVelocity;
+                    Item item = user.getActiveItem().getItem();
+                    if (item.getMaxUseTime(user.getActiveItem()) - user.getItemUseTimeLeft() >= 0 && user.isUsingItem() &&
+                            item.getUseAction(user.getActiveItem()) == UseAction.BLOCK) {
+                        List<EntityHitResult> entityHitResults = EntityHelper.getEntityCollisions(user.world, user, user.getPos().subtract(this.initialVelocity),
+                                user.getPos().add(this.initialVelocity), user.getBoundingBox().stretch(this.initialVelocity).expand(1.0),
+                                e -> true, 0.5f);
+                        for (EntityHitResult entityHitResult : entityHitResults) {
+                            Entity target = entityHitResult.getEntity();
+                            if (target.damage(SupplementaryEnchantments.shieldBash(user), (float) this.initialVelocity.length() * 2)) {
+                                target.setVelocity(target.getVelocity().add(this.initialVelocity.multiply(1.2)).add(0, 0.2, 0));
+                                if (target instanceof PlayerEntity) {
+                                    target.velocityModified = true;
+                                }
+                                if (user instanceof ServerPlayerEntity) {
+                                    if (!user.getAbilities().creativeMode) {
+                                        user.getActiveItem().damage(1, user.getRandom(), (ServerPlayerEntity) user);
+                                    }
+                                    user.world.playSoundFromEntity(null, target, SoundEvents.ITEM_SHIELD_BLOCK, SoundCategory.PLAYERS,
+                                            1.0f, user.world.random.nextFloat() * 0.4f);
+                                }
+                            }
+                        }
+                        if (this.getValue() < 8) {
+                            this.initialVelocity = this.initialVelocity.multiply(0.75);
+                        }
+                        this.decrement();
+                    }
+                    else {
+                        this.setValue(0);
+                        userVelocity = userVelocity.multiply(0.3);
+                    }
+                    velocity = userVelocity;
+                }
+                return velocity;
+            }
+        });
         registry.registerFor(PersistentProjectileEntity.class, BURST_FIRE_TIMER, e -> new EnchantmentComponent("burst_fire_timer") {
 
             private ItemStack itemStack = ItemStack.EMPTY;
@@ -191,7 +250,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             }
 
             @Override
-            public Vec3d onProjectileTravel(ProjectileEntity persistentProjectileEntity, int level, Vec3d velocity) {
+            public Vec3d onEntityTravel(Entity persistentProjectileEntity, int level, Vec3d velocity) {
                 if (!persistentProjectileEntity.world.isClient()) {
                     GRAPPLING.sync(persistentProjectileEntity);
                 }
@@ -311,12 +370,12 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             }
 
             @Override
-            public Vec3d onProjectileTravel(ProjectileEntity projectileEntity, int level, Vec3d velocity) {
-                if (projectileEntity instanceof PersistentProjectileEntity persistentProjectileEntity &&
-                        projectileEntity.getOwner() instanceof LivingEntity owner && persistentProjectileEntity.isCritical()) {
+            public Vec3d onEntityTravel(Entity entity, int level, Vec3d velocity) {
+                if (entity instanceof PersistentProjectileEntity projectile &&
+                        projectile.getOwner() instanceof LivingEntity owner && projectile.isCritical()) {
                     Entity target = MARKED_TRACKED_ENTITY.get(owner).getEntity();
-                    if (target != null && target.isAlive() && target.getWorld() == projectileEntity.getWorld()) {
-                        Vec3d projectilePos = projectileEntity.getPos();
+                    if (target != null && target.isAlive() && target.getWorld() == entity.getWorld()) {
+                        Vec3d projectilePos = entity.getPos();
                         Vec3d targetPos = target.getEyePos();
                         Vec3d projectileToTarget = new Vec3d(targetPos.x - projectilePos.x, targetPos.y -
                                 projectilePos.y, targetPos.z - projectilePos.z);

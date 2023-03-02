@@ -115,6 +115,12 @@ public class EntityEvents {
     public static final Event<EntityTravelEvent> PROJECTILE_TRAVEL_TICK = EventFactory.createArrayBacked(EntityTravelEvent.class, ENTITY_TRAVEL_EVENT);
 
     /**
+     * Event hook for when a living entity's movement is calculated. Expected to return some velocity value. This is
+     *  not applied as a modifier, but replaces the current velocity value.
+     */
+    public static final Event<EntityTravelEvent> LIVING_ENTITY_TRAVEL_TICK = EventFactory.createArrayBacked(EntityTravelEvent.class, ENTITY_TRAVEL_EVENT);
+
+    /**
      * <hr><center><h1>Entity hand swing events</h1></center><hr>
      * These events hook into hand swing animations, and operate via side effects. Does not include a standard
      * functional pattern, as this only applies to LivingEntity and its subclasses.
