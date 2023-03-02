@@ -3,10 +3,11 @@ package com.birblett.registry;
 import com.birblett.lib.api.EntityEvents;
 import com.birblett.lib.api.ItemEvents;
 import com.birblett.lib.api.EventReturnable;
-import com.birblett.lib.builders.EnchantmentBuilder;
+import com.birblett.lib.creational.EnchantmentBuilder;
 import com.birblett.lib.components.BaseComponent;
 import com.birblett.lib.helper.EntityHelper;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.LivingEntity;
@@ -26,8 +27,7 @@ import java.util.Map;
 
 public class SupplementaryEvents {
 
-    // non-entity events
-    public static final ItemEvents.ProjectileFiredEvent ARROW_FIRED_COMPONENT_PROCESSOR = (user, projectile, itemStack) -> {
+    public static final ItemEvents.ProjectileFiredEvent ARROW_FIRED_ENCHANT_EVENTS = (user, projectile, itemStack) -> {
         if (projectile instanceof PersistentProjectileEntity) {
             EnchantmentHelper.get(itemStack).forEach((enchantment, level) -> {
                 if (enchantment instanceof EnchantmentBuilder enchantmentBuilder) {
@@ -43,7 +43,7 @@ public class SupplementaryEvents {
         }
     };
 
-    public static final ItemEvents.ItemUseEvent CROSSBOW_PREFIRE_COMPONENT_PROCESSOR = (user, crossbow, hand) ->
+    public static final ItemEvents.ItemUseEvent CROSSBOW_PREFIRE_ENCHANT_EVENTS = (user, crossbow, hand) -> {
         EnchantmentHelper.get(crossbow).forEach((enchantment, lvl) -> {
             if (enchantment instanceof EnchantmentBuilder enchantmentBuilder) {
                 List<ItemStack> projectiles = CrossbowItem.getProjectiles(crossbow);
@@ -57,8 +57,9 @@ public class SupplementaryEvents {
                 }
             }
         });
+    };
 
-    public static final ItemEvents.ProjectileFiredEvent BOBBER_CAST_COMPONENT_PROCESSOR = (user, projectile, itemStack) -> {
+    public static final ItemEvents.ProjectileFiredEvent BOBBER_CAST_ENCHANT_EVENTS = (user, projectile, itemStack) -> {
         if (projectile instanceof FishingBobberEntity) {
             EnchantmentHelper.get(itemStack).forEach((enchantment, level) -> {
                 if (enchantment instanceof EnchantmentBuilder enchantmentBuilder) {
@@ -74,21 +75,21 @@ public class SupplementaryEvents {
         }
     };
 
-    public static final ItemEvents.ItemUseEvent ITEM_USE_COMPONENT_PROCESSOR = (user, stack, hand) ->
+    public static final ItemEvents.ItemUseEvent ITEM_USE_COMPONENT_PROCESSOR = (user, stack, hand) -> {
         EnchantmentHelper.get(stack).forEach((enchantment, level) -> {
             if (enchantment instanceof EnchantmentBuilder enchantmentBuilder) {
                 if (enchantmentBuilder.hasComponent()) {
                     for (ComponentKey<BaseComponent> componentKey : enchantmentBuilder.getComponents()) {
                         componentKey.maybeGet(user).ifPresent(component -> component.onUse(user, hand));
                     }
-                }
-                else {
+                } else {
                     enchantmentBuilder.onUse(user, hand);
                 }
             }
         });
+    };
 
-    public static final EntityEvents.EntityDamageEvent APPLY_ENCHANTMENTS_TO_DAMAGE = (entity, source, amount) -> {
+    public static final EntityEvents.EntityDamageEvent ON_DAMAGE_ENCHANT_EVENTS = (entity, source, amount) -> {
         if (entity instanceof MobEntity mobEntity) {
             float final_amount = amount;
             List<ItemStack> items = new ArrayList<>();
@@ -107,7 +108,7 @@ public class SupplementaryEvents {
         return amount;
     };
 
-    public static final EntityEvents.EntityHitEvent ARROW_BLOCK_HIT_COMPONENT_PROCESSOR = (hitResult, attacker) -> {
+    public static final EntityEvents.EntityHitEvent ARROW_BLOCK_HIT_ENCHANT_EVENTS = (hitResult, attacker) -> {
         if (hitResult instanceof BlockHitResult blockHitResult && attacker instanceof PersistentProjectileEntity self) {
             for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
                 if (componentKey.get(self).getValue() > 0) {
@@ -117,7 +118,7 @@ public class SupplementaryEvents {
         }
     };
 
-    public static final EntityEvents.EntityHitEvent ARROW_ENTITY_PREHIT_COMPONENT_PROCESSOR = (hitResult, attacker) -> {
+    public static final EntityEvents.EntityHitEvent ARROW_ENTITY_PREHIT_ENCHANT_EVENTS = (hitResult, attacker) -> {
         if (hitResult instanceof EntityHitResult entityHitResult && attacker instanceof PersistentProjectileEntity self) {
             for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
                 if (componentKey.get(self).getValue() > 0) {
@@ -127,7 +128,7 @@ public class SupplementaryEvents {
         }
     };
 
-    public static final EntityEvents.EntityHitEvent ARROW_ENTITY_POSTHIT_COMPONENT_PROCESSOR = (hitResult, attacker) -> {
+    public static final EntityEvents.EntityHitEvent ARROW_ENTITY_POSTHIT_ENCHANT_EVENTS = (hitResult, attacker) -> {
         if (hitResult instanceof EntityHitResult entityHitResult && attacker instanceof PersistentProjectileEntity self) {
             for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
                 if (componentKey.get(self).getValue() > 0) {
@@ -137,7 +138,7 @@ public class SupplementaryEvents {
         }
     };
 
-    public static final EntityEvents.FishingBobberReelEvent EMPTY_REEL_COMPONENT_PROCESSOR = (bobber, target) -> {
+    public static final EntityEvents.FishingBobberReelEvent EMPTY_REEL_ENCHANT_EVENTS = (bobber, target) -> {
         boolean shouldReturn = false;
         if (target == null) {
             for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
@@ -149,7 +150,7 @@ public class SupplementaryEvents {
         return shouldReturn ? EventReturnable.RETURN_AFTER_FINISH : EventReturnable.NO_OP;
     };
 
-    public static final EntityEvents.FishingBobberReelEvent ENTITY_REEL_COMPONENT_PROCESSOR = (bobber, target) -> {
+    public static final EntityEvents.FishingBobberReelEvent ENTITY_REEL_ENCHANT_EVENTS = (bobber, target) -> {
         boolean shouldReturn = false;
         if (target != null) {
             for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
@@ -169,7 +170,7 @@ public class SupplementaryEvents {
         }
     };
 
-    public static final EntityEvents.LivingEntityAttackEvent PLAYER_ATTACK_EVENT = (self, target, amount, isCritical) -> {
+    public static final EntityEvents.LivingEntityAttackEvent PLAYER_ATTACK_ENCHANT_EVENTS = (self, target, amount, isCritical) -> {
         if (self instanceof PlayerEntity) {
             for (Map.Entry<Enchantment, Integer> enchantment : EnchantmentHelper.get(self.getMainHandStack()).entrySet()) {
                 if (enchantment.getKey() instanceof EnchantmentBuilder enchantmentBuilder) {
@@ -180,7 +181,7 @@ public class SupplementaryEvents {
         return amount;
     };
 
-    public static final EntityEvents.EntityTickEvent ARROW_IN_BLOCK_TICK = (entity) -> {
+    public static final EntityEvents.EntityTickEvent ARROW_IN_BLOCK_COMPONENT_TICK = (entity) -> {
         if (entity instanceof PersistentProjectileEntity self) {
             for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
                 if (componentKey.get(self).getValue() > 0) {
@@ -190,7 +191,7 @@ public class SupplementaryEvents {
         }
     };
 
-    public static final EntityEvents.EntityTravelEvent ARROW_TRAVEL_COMPONENT_PROCESSOR = (entity, velocity) -> {
+    public static final EntityEvents.EntityTravelEvent ARROW_TRAVEL_COMPONENT_TICK = (entity, velocity) -> {
         if (entity instanceof PersistentProjectileEntity self) {
             for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
                 if (componentKey.get(self).getValue() > 0) {
@@ -206,7 +207,7 @@ public class SupplementaryEvents {
         return velocity;
     };
 
-    public static final EntityEvents.EntityTickEvent FISHING_BOBBER_GENERIC_TICK = (entity) -> {
+    public static final EntityEvents.EntityTickEvent FISHING_BOBBER_COMPONENT_TICK = (entity) -> {
         if (entity instanceof FishingBobberEntity self) {
             for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
                 if (componentKey.isProvidedBy(self) && componentKey.get(self).getValue() > 0) {
@@ -216,7 +217,7 @@ public class SupplementaryEvents {
         }
     };
 
-    public static final EntityEvents.EntityTickEvent FISHING_BOBBER_IN_BLOCK_TICK = (entity) -> {
+    public static final EntityEvents.EntityTickEvent FISHING_BOBBER_IN_BLOCK_COMPONENT_TICK = (entity) -> {
         if (entity instanceof FishingBobberEntity self) {
             if (EntityHelper.isTouchingBlock(self, 0.02)) {
                 for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
@@ -228,7 +229,7 @@ public class SupplementaryEvents {
         }
     };
 
-    public static final EntityEvents.EntityTickEvent LIVING_ENTITY_TICK_COMPONENT_PROCESSOR = (entity) -> {
+    public static final EntityEvents.EntityTickEvent LIVING_ENTITY_COMPONENT_TICK = (entity) -> {
         if (entity instanceof LivingEntity livingEntity) {
             for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.ENTITY_TICKING_COMPONENTS) {
                 componentKey.get(livingEntity).onTick(livingEntity);
@@ -238,23 +239,23 @@ public class SupplementaryEvents {
 
     public static void register() {
         ItemEvents.ITEM_USE.register(ITEM_USE_COMPONENT_PROCESSOR);
-        ItemEvents.CROSSBOW_PREFIRE.register(CROSSBOW_PREFIRE_COMPONENT_PROCESSOR);
-        ItemEvents.ARROW_PROJECTILE_FIRED.register(ARROW_FIRED_COMPONENT_PROCESSOR);
-        ItemEvents.FISHING_ROD_USE.register(BOBBER_CAST_COMPONENT_PROCESSOR);
+        ItemEvents.CROSSBOW_PREFIRE.register(CROSSBOW_PREFIRE_ENCHANT_EVENTS);
+        ItemEvents.ARROW_FIRED_EVENT.register(ARROW_FIRED_ENCHANT_EVENTS);
+        ItemEvents.FISHING_ROD_USE.register(BOBBER_CAST_ENCHANT_EVENTS);
 
-        EntityEvents.ARROW_BLOCK_HIT_EVENT.register(ARROW_BLOCK_HIT_COMPONENT_PROCESSOR);
-        EntityEvents.ARROW_POST_ENTITY_HIT_EVENT.register(ARROW_ENTITY_POSTHIT_COMPONENT_PROCESSOR);
-        EntityEvents.ARROW_PRE_ENTITY_HIT_EVENT.register(ARROW_ENTITY_PREHIT_COMPONENT_PROCESSOR);
-        EntityEvents.FISHING_BOBBER_REEL_EVENT.register(EMPTY_REEL_COMPONENT_PROCESSOR);
-        EntityEvents.FISHING_BOBBER_REEL_EVENT.register(ENTITY_REEL_COMPONENT_PROCESSOR);
-        EntityEvents.ADDITIVE_DAMAGE_EVENT.register(APPLY_ENCHANTMENTS_TO_DAMAGE);
-        EntityEvents.LIVING_ENTITY_ATTACK_EVENT.register(PLAYER_ATTACK_EVENT);
+        EntityEvents.ARROW_BLOCK_HIT_EVENT.register(ARROW_BLOCK_HIT_ENCHANT_EVENTS);
+        EntityEvents.ARROW_POST_ENTITY_HIT_EVENT.register(ARROW_ENTITY_POSTHIT_ENCHANT_EVENTS);
+        EntityEvents.ARROW_PRE_ENTITY_HIT_EVENT.register(ARROW_ENTITY_PREHIT_ENCHANT_EVENTS);
+        EntityEvents.FISHING_BOBBER_REEL_EVENT.register(EMPTY_REEL_ENCHANT_EVENTS);
+        EntityEvents.FISHING_BOBBER_REEL_EVENT.register(ENTITY_REEL_ENCHANT_EVENTS);
+        EntityEvents.ADDITIVE_DAMAGE_EVENT.register(ON_DAMAGE_ENCHANT_EVENTS);
+        EntityEvents.LIVING_ENTITY_ATTACK_EVENT.register(PLAYER_ATTACK_ENCHANT_EVENTS);
         EntityEvents.SWING_HAND_EVENT.register(GRAPPLING_HAND_SWING_EVENT);
 
-        EntityEvents.ENTITY_GENERIC_TICK.register(LIVING_ENTITY_TICK_COMPONENT_PROCESSOR);
-        EntityEvents.PROJECTILE_GENERIC_TICK.register(FISHING_BOBBER_GENERIC_TICK);
-        EntityEvents.PROJECTILE_IN_BLOCK_TICK.register(ARROW_IN_BLOCK_TICK);
-        EntityEvents.PROJECTILE_IN_BLOCK_TICK.register(FISHING_BOBBER_IN_BLOCK_TICK);
-        EntityEvents.PROJECTILE_TRAVEL_TICK.register(ARROW_TRAVEL_COMPONENT_PROCESSOR);
+        EntityEvents.ENTITY_GENERIC_TICK.register(LIVING_ENTITY_COMPONENT_TICK);
+        EntityEvents.PROJECTILE_GENERIC_TICK.register(FISHING_BOBBER_COMPONENT_TICK);
+        EntityEvents.PROJECTILE_IN_BLOCK_TICK.register(ARROW_IN_BLOCK_COMPONENT_TICK);
+        EntityEvents.PROJECTILE_IN_BLOCK_TICK.register(FISHING_BOBBER_IN_BLOCK_COMPONENT_TICK);
+        EntityEvents.PROJECTILE_TRAVEL_TICK.register(ARROW_TRAVEL_COMPONENT_TICK);
     }
 }

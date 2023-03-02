@@ -70,7 +70,7 @@ public class ItemEvents {
      * {@link net.minecraft.item.BowItem#onStoppedUsing(ItemStack, World, LivingEntity, int)} or
      * {@link net.minecraft.item.CrossbowItem#createArrow(World, LivingEntity, ItemStack, ItemStack)}
      */
-    public static final Event<ProjectileFiredEvent> ARROW_PROJECTILE_FIRED = EventFactory.createArrayBacked(ProjectileFiredEvent.class, PROJECTILE_FIRED_EVENT);
+    public static final Event<ProjectileFiredEvent> ARROW_FIRED_EVENT = EventFactory.createArrayBacked(ProjectileFiredEvent.class, PROJECTILE_FIRED_EVENT);
     /**
      * Event hook for when a fishing rod instantiates a fishing bobber entity.
      */

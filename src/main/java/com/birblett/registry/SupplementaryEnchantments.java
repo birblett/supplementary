@@ -2,7 +2,7 @@ package com.birblett.registry;
 
 import com.birblett.Supplementary;
 import com.birblett.items.BoomerangItem;
-import com.birblett.lib.builders.EnchantmentBuilder;
+import com.birblett.lib.creational.EnchantmentBuilder;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentTarget;
 import net.minecraft.enchantment.Enchantments;

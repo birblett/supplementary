@@ -57,7 +57,7 @@ public class SnowballVariantItem extends Item {
         /*
         when used on a snow golem, sets its snowball type to the corresponding type of this item, if the id is valid
          */
-        if (this.id > 0 && entity instanceof SnowGolemEntity && SupplementaryComponents.SNOWBALL_TYPE.get(entity).getValue() != this.id) {
+        if (this.id > 0 && entity instanceof SnowGolemEntity && (int) SupplementaryComponents.SNOWBALL_TYPE.get(entity).getValue() != this.id) {
             SupplementaryComponents.SNOWBALL_TYPE.get(entity).setValue(this.id);
             if (!user.getAbilities().creativeMode) {
                 itemStack.decrement(1);

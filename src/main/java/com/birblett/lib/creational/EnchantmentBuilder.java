@@ -1,4 +1,4 @@
-package com.birblett.lib.builders;
+package com.birblett.lib.creational;
 
 import com.birblett.Supplementary;
 import com.birblett.lib.components.BaseComponent;
@@ -275,7 +275,7 @@ public class EnchantmentBuilder extends Enchantment {
      * Called upon initiating a melee attack on another entity, via event hook. May operate via side effects; return
      * 0.0f for no  direct damage modifier.
      * @return A flat (additive) damage modifier.
-     * @see com.birblett.registry.SupplementaryEvents#PLAYER_ATTACK_EVENT
+     * @see com.birblett.registry.SupplementaryEvents#PLAYER_ATTACK_ENCHANT_EVENTS
      */
     public float onAttack(LivingEntity user, Entity target, int level, boolean isCritical, float damageAmount) {
         return 0.0f;
@@ -287,8 +287,8 @@ public class EnchantmentBuilder extends Enchantment {
      * @param user Entity firing the projectile
      * @param projectileEntity Projectile being created
      * @param level Provided enchantment level
-     * @see com.birblett.registry.SupplementaryEvents#ARROW_FIRED_COMPONENT_PROCESSOR
-     * @see com.birblett.registry.SupplementaryEvents#BOBBER_CAST_COMPONENT_PROCESSOR
+     * @see com.birblett.registry.SupplementaryEvents#ARROW_FIRED_ENCHANT_EVENTS
+     * @see com.birblett.registry.SupplementaryEvents#BOBBER_CAST_ENCHANT_EVENTS
      */
     public void onProjectileFire(LivingEntity user, ProjectileEntity projectileEntity, int level) {}
 
@@ -299,7 +299,7 @@ public class EnchantmentBuilder extends Enchantment {
      * @param crossbow Crossbow being fired
      * @param hand Hand being fired from
      * @param savedProjectile ItemStack loaded in the crossbow
-     * @see com.birblett.registry.SupplementaryEvents#CROSSBOW_PREFIRE_COMPONENT_PROCESSOR
+     * @see com.birblett.registry.SupplementaryEvents#CROSSBOW_PREFIRE_ENCHANT_EVENTS
      */
     public void onCrossbowUse(ItemStack crossbow, Hand hand, ItemStack savedProjectile) {}
 
@@ -316,7 +316,7 @@ public class EnchantmentBuilder extends Enchantment {
      * Called when an entity with this enchant equipped is damaged. May directly modify incoming damage, or operate via
      * side effects.
      * @return A flat (additive) damage modifier.
-     * @see com.birblett.registry.SupplementaryEvents#APPLY_ENCHANTMENTS_TO_DAMAGE
+     * @see com.birblett.registry.SupplementaryEvents#ON_DAMAGE_ENCHANT_EVENTS
      */
     public float onDamage(LivingEntity user, DamageSource source, int level, float damageAmount) {
         return 0.0f;

@@ -1,6 +1,7 @@
 package com.birblett.registry;
 
 import com.birblett.lib.components.*;
+import com.birblett.lib.creational.ComponentFactory;
 import com.birblett.lib.helper.RenderHelper;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import dev.onyxstudios.cca.api.v3.component.ComponentRegistry;
@@ -65,7 +66,12 @@ public class SupplementaryComponents implements EntityComponentInitializer {
 
     @Override
     public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
-        registry.registerFor(PersistentProjectileEntity.class, BURST_FIRE_TIMER, e -> new TimedComponent("burst_fire_timer") {
+        registry.registerFor(PersistentProjectileEntity.class, BURST_FIRE_TIMER, e -> new EnchantmentComponent("burst_fire_timer") {
+
+            private ItemStack itemStack = ItemStack.EMPTY;
+            private Hand hand = null;
+            private ItemStack storedProjectile = ItemStack.EMPTY;
+
             @Override
             public void onCrossbowUse(ItemStack stack, Hand hand, ItemStack savedProjectile) {
                 if (this.getValue() == 0) {
@@ -104,8 +110,13 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                     this.hand = null;
                 }
             }
-        }); // projectile component of burst fire
-        registry.registerFor(LivingEntity.class, BURST_FIRE_TIMER, e -> new TimedComponent("burst_fire_timer") {
+        });
+        registry.registerFor(LivingEntity.class, BURST_FIRE_TIMER, e -> new EnchantmentComponent("burst_fire_timer") {
+
+            private ItemStack itemStack = ItemStack.EMPTY;
+            private Hand hand = null;
+            private ItemStack storedProjectile = ItemStack.EMPTY;
+
             @Override
             public void onCrossbowUse(ItemStack stack, Hand hand, ItemStack savedProjectile) {
                 if (this.getValue() == 0) {
@@ -235,7 +246,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                 return target != null;
             }
         });
-        registry.registerFor(LivingEntity.class, GRAPPLING_TRACKING_COMPONENT, e -> new TrackingComponent() {
+        registry.registerFor(LivingEntity.class, GRAPPLING_TRACKING_COMPONENT, e -> new EntityTrackingComponent() {
             @Override
             public void onHandSwingEvent(LivingEntity entity, Hand hand) {
                 if (!entity.getWorld().isClient() && this.getEntity() instanceof PersistentProjectileEntity persistentProjectileEntity) {
@@ -333,8 +344,8 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                 return false;
             }
         });
-        registry.registerFor(PersistentProjectileEntity.class, MARKED_TRACKED_ENTITY, e -> new TrackingComponent());
-        registry.registerFor(LivingEntity.class, MARKED_TRACKED_ENTITY, e -> new TrackingComponent());
+        registry.registerFor(PersistentProjectileEntity.class, MARKED_TRACKED_ENTITY, e -> new EntityTrackingComponent());
+        registry.registerFor(LivingEntity.class, MARKED_TRACKED_ENTITY, e -> new EntityTrackingComponent());
         registry.registerFor(PersistentProjectileEntity.class, OVERSIZED_PROJECTILE, e -> new SyncedEnchantmentComponent("oversized_projectile") {
             @Override
             public void onProjectileFire(LivingEntity user, ProjectileEntity projectileEntity, int level) {
@@ -361,6 +372,6 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                 return false;
             }
         });
-        registry.registerFor(SnowGolemEntity.class, SNOWBALL_TYPE, e -> new SimpleIntTrackingComponent("snowball_type"));
+        registry.registerFor(SnowGolemEntity.class, SNOWBALL_TYPE, e -> ComponentFactory.simpleEntityComponentFactory(ComponentFactory.simpleComponentType.INTEGER, "snowball_type"));
     }
 }

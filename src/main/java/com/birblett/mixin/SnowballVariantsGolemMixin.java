@@ -24,7 +24,7 @@ public class SnowballVariantsGolemMixin {
         Replace snow golem snowball with custom projectiles if necessary
          */
         SnowGolemEntity self = (SnowGolemEntity) (Object) this;
-        int snowballType = SupplementaryComponents.SNOWBALL_TYPE.get(self).getValue();
+        int snowballType = (int) SupplementaryComponents.SNOWBALL_TYPE.get(self).getValue();
         if (snowballType > 0) {
             SnowballVariantEntity projectile = new SnowballVariantEntity(self.world, self);
             switch (snowballType) {
