@@ -71,7 +71,7 @@ public class AllTerrainEntityMixin {
                 EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.ALL_TERRAIN, livingEntity) > 0 &&
                 !livingEntity.isSneaking()) {
             BlockCollisionSpliterator blockCollisionSpliterator = new BlockCollisionSpliterator(livingEntity.getWorld(), livingEntity, supplementary$BoundingBox.stretch(supplementary$Movement));
-            ((BlockCollisionSpliteratorInterface) blockCollisionSpliterator).setWaterWalking();
+            ((BlockCollisionSpliteratorInterface) blockCollisionSpliterator).extendCollisionConditions();
             elements = () -> blockCollisionSpliterator;
         }
         return elements;

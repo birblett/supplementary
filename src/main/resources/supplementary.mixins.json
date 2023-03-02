@@ -22,12 +22,12 @@
     "enchantments.bunny_hop.BunnyHopEntityMixin",
     "enchantments.bunny_hop.BunnyhopLivingEntityMixin",
     "enchantments.empowered.EmpoweredEnchantmentHelperMixin",
-    "enchantments.OversizedBowItemMixin",
-    "enchantments.SlimedEntityMixin",
-    "enchantments.SlimedLivingEntityMixin",
-    "enchantments.SnowballVariantsGolemMixin",
-    "enchantments.SoulboundPlayerInventoryMixin",
-    "enchantments.SoulboundServerPlayerEntityMixin"
+    "enchantments.oversized.OversizedBowItemMixin",
+    "enchantments.slimed.SlimedEntityMixin",
+    "enchantments.slimed.SlimedLivingEntityMixin",
+    "SnowballVariantsGolemMixin",
+    "enchantments.soulbound.SoulboundPlayerInventoryMixin",
+    "enchantments.soulbound.SoulboundServerPlayerEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1
@@ -35,10 +35,10 @@
   "client": [
     "LoomScreenMixin",
     "enchantments.acrobatic.AcrobaticClientPlayerMixin",
-    "enchantments.OversizedAbstractClientPlayerEntityMixin",
-    "enchantments.OversizedHeldItemFeatureRendererMixin",
-    "enchantments.OversizedHeldItemRendererMixin",
-    "enchantments.OversizedModelProviderRegistryMixin",
+    "enchantments.oversized.OversizedAbstractClientPlayerEntityMixin",
+    "enchantments.oversized.OversizedHeldItemFeatureRendererMixin",
+    "enchantments.oversized.OversizedHeldItemRendererMixin",
+    "enchantments.oversized.OversizedModelProviderRegistryMixin",
     "render.PlayerCapeRenderer",
     "render.ProjectileEntityRendererMixin"
   ]

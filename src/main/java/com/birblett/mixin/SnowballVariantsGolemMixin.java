@@ -1,4 +1,4 @@
-package com.birblett.mixin.enchantments;
+package com.birblett.mixin;
 
 import com.birblett.entities.SnowballVariantEntity;
 import com.birblett.registry.SupplementaryComponents;

@@ -31,7 +31,7 @@ public class AllTerrainBlockCollisionSpliteratorMixin implements BlockCollisionS
     @Unique private boolean supplementary$extendCollision = false;
 
     @Override
-    public void setWaterWalking() {
+    public void extendCollisionConditions() {
         this.supplementary$extendCollision = true;
     }
 

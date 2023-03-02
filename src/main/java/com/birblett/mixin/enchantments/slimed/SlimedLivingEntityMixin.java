@@ -1,4 +1,4 @@
-package com.birblett.mixin.enchantments;
+package com.birblett.mixin.enchantments.slimed;
 
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.block.Blocks;

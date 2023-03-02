@@ -1,4 +1,4 @@
-package com.birblett.mixin.enchantments;
+package com.birblett.mixin.enchantments.oversized;
 
 import com.birblett.lib.helper.SupplementaryEnchantmentHelper;
 import com.birblett.registry.SupplementaryEnchantments;

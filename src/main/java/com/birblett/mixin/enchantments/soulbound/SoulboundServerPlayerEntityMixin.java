@@ -1,4 +1,4 @@
-package com.birblett.mixin.enchantments;
+package com.birblett.mixin.enchantments.soulbound;
 
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.enchantment.EnchantmentHelper;
