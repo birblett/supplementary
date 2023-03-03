@@ -3,6 +3,7 @@ package com.birblett.lib.components;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.nbt.NbtCompound;
+import org.jetbrains.annotations.NotNull;
 
 import static com.birblett.Supplementary.MODID;
 
@@ -19,11 +20,18 @@ public class EnchantmentComponent implements BaseComponent {
     private int enchantmentLevel = 0;
 
     /**
-     * @param id the string id associated with the component being initialized; must be added to the fabric.mod.json as
-     *           "supplementary:{@literal <id>}"
+     * Default constructor for components requiring NBT data storage
+     * @param id the string id associated with the component being initialized; used to store NBT data
      */
     public EnchantmentComponent(String id) {
         this.id = MODID + ":" + id;
+    }
+
+    /**
+     * Constructor used if an id is not necessary
+     */
+    public EnchantmentComponent() {
+        this.id = null;
     }
 
     /**
@@ -82,8 +90,10 @@ public class EnchantmentComponent implements BaseComponent {
      * @param tag provided NBT object to read from
      */
     @Override
-    public void readFromNbt(NbtCompound tag) {
-        this.enchantmentLevel = tag.getInt(this.id);
+    public void readFromNbt(@NotNull NbtCompound tag) {
+        if (this.id != null) {
+            this.enchantmentLevel = tag.getInt(this.id);
+        }
     }
 
     /**
@@ -93,7 +103,9 @@ public class EnchantmentComponent implements BaseComponent {
      * @param tag provided NBT object to write to
      */
     @Override
-    public void writeToNbt(NbtCompound tag) {
-        tag.putInt(this.id, this.enchantmentLevel);
+    public void writeToNbt(@NotNull NbtCompound tag) {
+        if (this.id != null) {
+            tag.putInt(this.id, this.enchantmentLevel);
+        }
     }
 }

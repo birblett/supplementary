@@ -17,9 +17,11 @@ import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.world.World;
 
+/**
+ * Base class for snowball variants.
+ */
 public class SnowballVariantItem extends Item {
     /*
-    Base class for all snowball variants.
 
     Fields
         id - an integer referencing the current snowball type; used to store variant id when used on a snow golem
@@ -53,11 +55,10 @@ public class SnowballVariantItem extends Item {
         return true;
     }
 
+    @SuppressWarnings("unchecked")
     public ActionResult useOnEntity(ItemStack itemStack, PlayerEntity user, LivingEntity entity, Hand hand) {
-        /*
-        when used on a snow golem, sets its snowball type to the corresponding type of this item, if the id is valid
-         */
-        if (this.id > 0 && entity instanceof SnowGolemEntity && (int) SupplementaryComponents.SNOWBALL_TYPE.get(entity).getValue() != this.id) {
+        if (this.id > 0 && entity instanceof SnowGolemEntity && (SupplementaryComponents.SNOWBALL_TYPE.get(entity).getValue() == null ||
+                (int) SupplementaryComponents.SNOWBALL_TYPE.get(entity).getValue() != this.id)) {
             SupplementaryComponents.SNOWBALL_TYPE.get(entity).setValue(this.id);
             if (!user.getAbilities().creativeMode) {
                 itemStack.decrement(1);
@@ -69,16 +70,13 @@ public class SnowballVariantItem extends Item {
     }
 
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
-        /*
-        on-use code for throwing snowball variants, mostly copied from SnowballItem
-         */
         ItemStack itemStack = user.getStackInHand(hand);
         world.playSound(null, user.getX(), user.getY(), user.getZ(), SoundEvents.ENTITY_SNOWBALL_THROW, SoundCategory.NEUTRAL,
-                0.5F, 1F);
+                0.5F, 0.4f / (world.getRandom().nextFloat() * 0.4f + 0.8f));
         if (!world.isClient) {
             SnowballVariantEntity slowballEntity = new SnowballVariantEntity(world, user);
             slowballEntity.setItem(itemStack);
-            slowballEntity.setVelocity(user, user.getPitch(), user.getYaw(), 0.0F, 1.5F, 0F);
+            slowballEntity.setVelocity(user, user.getPitch(), user.getYaw(), 0.0F, 1.5F, 1.5F);
             world.spawnEntity(slowballEntity);
         }
         user.incrementStat(Stats.USED.getOrCreateStat(this));

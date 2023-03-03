@@ -1,7 +1,7 @@
 package com.birblett.registry;
 
 import com.birblett.lib.components.*;
-import com.birblett.lib.creational.ComponentFactory;
+import com.birblett.lib.components.SimpleEntityComponent;
 import com.birblett.lib.helper.EntityHelper;
 import com.birblett.lib.helper.RenderHelper;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
@@ -43,41 +43,38 @@ public class SupplementaryComponents implements EntityComponentInitializer {
 
     public static final ComponentKey<BaseComponent> ASSAULT_DASH =
             ComponentRegistry.getOrCreate(new Identifier(MODID, "assault_dash"), BaseComponent.class);
-    public static final ComponentKey<BaseComponent> BURST_FIRE_TIMER =
-            ComponentRegistry.getOrCreate(new Identifier(MODID, "burst_fire_timer"), BaseComponent.class);
+    public static final ComponentKey<BaseComponent> BURST_FIRE =
+            ComponentRegistry.getOrCreate(new Identifier(MODID, "burst_fire"), BaseComponent.class);
     public static final ComponentKey<BaseComponent> GRAPPLING =
             ComponentRegistry.getOrCreate(new Identifier(MODID, "grappling"), BaseComponent.class);
-    public static final ComponentKey<BaseComponent> GRAPPLING_TRACKING_COMPONENT =
-            ComponentRegistry.getOrCreate(new Identifier(MODID, "grappling_tracking_component"), BaseComponent.class);
     public static final ComponentKey<BaseComponent> IGNORES_IFRAMES =
             ComponentRegistry.getOrCreate(new Identifier(MODID, "ignores_iframes"), BaseComponent.class);
     public static final ComponentKey<BaseComponent> LIGHTNING_BOLT =
             ComponentRegistry.getOrCreate(new Identifier(MODID, "lightning_bolt"), BaseComponent.class);
-    public static final ComponentKey<BaseComponent> MARKED_LEVEL =
+    public static final ComponentKey<BaseComponent> MARKED =
             ComponentRegistry.getOrCreate(new Identifier(MODID, "marked"), BaseComponent.class);
-    public static final ComponentKey<BaseComponent> MARKED_TRACKED_ENTITY =
-            ComponentRegistry.getOrCreate(new Identifier(MODID, "marked_tracked_entity"), BaseComponent.class);
-    public static final ComponentKey<BaseComponent> OVERSIZED_PROJECTILE =
-            ComponentRegistry.getOrCreate(new Identifier(MODID, "oversized_projectile"), BaseComponent.class);
-    public static final ComponentKey<SimpleEntityComponent> SNOWBALL_TYPE =
-            ComponentRegistry.getOrCreate(new Identifier(MODID, "snowball_type"), SimpleEntityComponent.class);
+    public static final ComponentKey<BaseComponent> OVERSIZED =
+            ComponentRegistry.getOrCreate(new Identifier(MODID, "oversized"), BaseComponent.class);
+    @SuppressWarnings("rawtypes")
+    public static final ComponentKey<SimpleComponent> SNOWBALL_TYPE =
+            ComponentRegistry.getOrCreate(new Identifier(MODID, "snowball_type"), SimpleComponent.class);
 
     public static final List<ComponentKey<BaseComponent>> ENTITY_TICKING_COMPONENTS = List.of(
             ASSAULT_DASH,
-            BURST_FIRE_TIMER
+            BURST_FIRE
     );
     public static final List<ComponentKey<BaseComponent>> PROJECTILE_COMPONENTS = List.of(
             IGNORES_IFRAMES,
             LIGHTNING_BOLT,
-            MARKED_LEVEL,
-            OVERSIZED_PROJECTILE,
+            MARKED,
+            OVERSIZED,
             GRAPPLING
     );
 
     @Override
     public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
-        registry.registerFor(LivingEntity.class, ASSAULT_DASH, e -> new EnchantmentComponent("assault_dash") {
-            public Vec3d initialVelocity;
+        registry.registerFor(PlayerEntity.class, ASSAULT_DASH, e -> new EnchantmentComponent("assault_dash") {
+            private Vec3d initialVelocity;
 
             @Override
             public void setValue(int level, Entity user) {
@@ -125,7 +122,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                 return velocity;
             }
         });
-        registry.registerFor(PersistentProjectileEntity.class, BURST_FIRE_TIMER, e -> new EnchantmentComponent("burst_fire_timer") {
+        registry.registerFor(PersistentProjectileEntity.class, BURST_FIRE, e -> new EnchantmentComponent("burst_fire") {
 
             private ItemStack itemStack = ItemStack.EMPTY;
             private Hand hand = null;
@@ -170,7 +167,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                 }
             }
         });
-        registry.registerFor(LivingEntity.class, BURST_FIRE_TIMER, e -> new EnchantmentComponent("burst_fire_timer") {
+        registry.registerFor(LivingEntity.class, BURST_FIRE, e -> new EnchantmentComponent("burst_fire") {
 
             private ItemStack itemStack = ItemStack.EMPTY;
             private Hand hand = null;
@@ -220,7 +217,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                     if (owner instanceof LivingEntity livingEntity && owner.isAlive() && owner.getWorld() == projectileEntity.getWorld() &&
                             projectileEntity.getOwner().getPos().subtract(projectileEntity.getPos()).lengthSquared() < 2500 &&
                             EnchantmentHelper.getLevel(SupplementaryEnchantments.GRAPPLING, livingEntity.getMainHandStack()) > 0 &&
-                            GRAPPLING_TRACKING_COMPONENT.get(owner).getEntity() == projectileEntity) {
+                            GRAPPLING.get(owner).getEntity() == projectileEntity) {
                         double pullSpeed = owner.isTouchingWater() ? 0.1 : 0.4;
                         owner.setVelocity(projectileEntity.getPos().subtract(owner.getPos()).normalize().multiply(pullSpeed).add(owner.getVelocity()));
                         owner.velocityModified = true;
@@ -239,12 +236,12 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             public void onProjectileFire(LivingEntity user, ProjectileEntity persistentProjectileEntity, int level) {
                 if (!persistentProjectileEntity.world.isClient()) {
                     Entity lastProjectile;
-                    if ((lastProjectile = GRAPPLING_TRACKING_COMPONENT.get(user).getEntity()) != null && lastProjectile instanceof PersistentProjectileEntity) {
+                    if ((lastProjectile = GRAPPLING.get(user).getEntity()) != null && lastProjectile instanceof PersistentProjectileEntity) {
                         GRAPPLING.get(lastProjectile).setValue(0);
                         GRAPPLING.sync(lastProjectile);
                     }
                     SupplementaryComponents.GRAPPLING.get(persistentProjectileEntity).setValue(1);
-                    GRAPPLING_TRACKING_COMPONENT.get(user).setEntity(persistentProjectileEntity);
+                    GRAPPLING.get(user).setEntity(persistentProjectileEntity);
                     GRAPPLING.sync(persistentProjectileEntity);
                 }
             }
@@ -305,7 +302,19 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                 return target != null;
             }
         });
-        registry.registerFor(LivingEntity.class, GRAPPLING_TRACKING_COMPONENT, e -> new EntityTrackingComponent() {
+        registry.registerFor(LivingEntity.class, GRAPPLING, e -> new EnchantmentComponent() {
+            private Entity trackedEntity;
+
+            @Override
+            public Entity getEntity() {
+                return trackedEntity;
+            }
+
+            @Override
+            public void setEntity(Entity entity) {
+                trackedEntity = entity;
+            }
+
             @Override
             public void onHandSwingEvent(LivingEntity entity, Hand hand) {
                 if (!entity.getWorld().isClient() && this.getEntity() instanceof PersistentProjectileEntity persistentProjectileEntity) {
@@ -319,19 +328,6 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             public void onUse(LivingEntity entity, Hand hand) {
                 if (!entity.getWorld().isClient() && this.getEntity() instanceof PersistentProjectileEntity) {
                     this.setEntity(null);
-                }
-            }
-        });
-        registry.registerFor(PersistentProjectileEntity.class, IGNORES_IFRAMES, e -> new EnchantmentComponent("ignores_iframes") {
-            @Override
-            public void preEntityHit(Entity target, ProjectileEntity projectileEntity, int lvl) {
-                if (target instanceof LivingEntity livingEntity) {
-                    livingEntity.hurtTime = 0;
-                    livingEntity.timeUntilRegen = 1;
-                }
-                else if (target instanceof EnderDragonPart dragonPart) {
-                    dragonPart.owner.hurtTime = 0;
-                    dragonPart.timeUntilRegen = 1;
                 }
             }
         });
@@ -358,14 +354,26 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                 }
             }
         });
-        registry.registerFor(PersistentProjectileEntity.class, MARKED_LEVEL, e -> new EnchantmentComponent("marked") {
+        registry.registerFor(PersistentProjectileEntity.class, MARKED, e -> new EnchantmentComponent("marked") {
+            private Entity trackedEntity;
+
+            @Override
+            public Entity getEntity() {
+                return trackedEntity;
+            }
+
+            @Override
+            public void setEntity(Entity entity) {
+                trackedEntity = entity;
+            }
+
             @Override
             public void onProjectileFire(LivingEntity user, ProjectileEntity projectileEntity, int level) {
                 // 10 ticks of tracking per level
                 this.setValue(level * 10);
-                Entity target = SupplementaryComponents.MARKED_TRACKED_ENTITY.get(user).getEntity();
+                Entity target = MARKED.get(user).getEntity();
                 if (target instanceof LivingEntity || target instanceof EnderDragonPart) {
-                    SupplementaryComponents.MARKED_TRACKED_ENTITY.get(projectileEntity).setEntity(target);
+                    this.setEntity(target);
                 }
             }
 
@@ -373,7 +381,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             public Vec3d onEntityTravel(Entity entity, int level, Vec3d velocity) {
                 if (entity instanceof PersistentProjectileEntity projectile &&
                         projectile.getOwner() instanceof LivingEntity owner && projectile.isCritical()) {
-                    Entity target = MARKED_TRACKED_ENTITY.get(owner).getEntity();
+                    Entity target = MARKED.get(owner).getEntity();
                     if (target != null && target.isAlive() && target.getWorld() == entity.getWorld()) {
                         Vec3d projectilePos = entity.getPos();
                         Vec3d targetPos = target.getEyePos();
@@ -398,21 +406,32 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             @Override
             public boolean postEntityHit(Entity target, ProjectileEntity projectileEntity, int lvl) {
                 if (projectileEntity.getOwner() instanceof LivingEntity owner && (target instanceof LivingEntity || target instanceof EnderDragonPart)) {
-                    MARKED_TRACKED_ENTITY.get(owner).setEntity(target);
+                    MARKED.get(owner).setEntity(target);
                 }
                 return false;
             }
         });
-        registry.registerFor(PersistentProjectileEntity.class, MARKED_TRACKED_ENTITY, e -> new EntityTrackingComponent());
-        registry.registerFor(LivingEntity.class, MARKED_TRACKED_ENTITY, e -> new EntityTrackingComponent());
-        registry.registerFor(PersistentProjectileEntity.class, OVERSIZED_PROJECTILE, e -> new SyncedEnchantmentComponent("oversized_projectile") {
+        registry.registerFor(LivingEntity.class, MARKED, e -> new EnchantmentComponent() {
+            private Entity trackedEntity;
+
+            @Override
+            public Entity getEntity() {
+                return trackedEntity;
+            }
+
+            @Override
+            public void setEntity(Entity entity) {
+                trackedEntity = entity;
+            }
+        });
+        registry.registerFor(PersistentProjectileEntity.class, OVERSIZED, e -> new SyncedEnchantmentComponent("oversized") {
             @Override
             public void onProjectileFire(LivingEntity user, ProjectileEntity projectileEntity, int level) {
                 if (projectileEntity instanceof PersistentProjectileEntity persistentProjectileEntity) {
                     this.setValue(level);
                     projectileEntity.setVelocity(projectileEntity.getVelocity().multiply(Math.pow(1.3, level)));
                     persistentProjectileEntity.setDamage(persistentProjectileEntity.getDamage() + 0.5 * level);
-                    OVERSIZED_PROJECTILE.sync(projectileEntity);
+                    OVERSIZED.sync(projectileEntity);
                 }
             }
 
@@ -431,6 +450,20 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                 return false;
             }
         });
-        registry.registerFor(SnowGolemEntity.class, SNOWBALL_TYPE, e -> ComponentFactory.simpleEntityComponentFactory(ComponentFactory.simpleComponentType.INTEGER, "snowball_type"));
+
+        registry.registerFor(PersistentProjectileEntity.class, IGNORES_IFRAMES, e -> new EnchantmentComponent("ignores_iframes") {
+            @Override
+            public void preEntityHit(Entity target, ProjectileEntity projectileEntity, int lvl) {
+                if (target instanceof LivingEntity livingEntity) {
+                    livingEntity.hurtTime = 0;
+                    livingEntity.timeUntilRegen = 1;
+                }
+                else if (target instanceof EnderDragonPart dragonPart) {
+                    dragonPart.owner.hurtTime = 0;
+                    dragonPart.timeUntilRegen = 1;
+                }
+            }
+        });
+        registry.registerFor(SnowGolemEntity.class, SNOWBALL_TYPE, e -> new SimpleEntityComponent<Integer>("snowball_type"));
     }
 }

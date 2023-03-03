@@ -38,14 +38,12 @@
 	"custom": {
 		"cardinal-components": [
 			"supplementary:assault_dash",
-			"supplementary:burst_fire_timer",
+			"supplementary:burst_fire",
 			"supplementary:grappling",
-			"supplementary:grappling_tracking_component",
-			"supplementary:ignores_iframes",
 			"supplementary:lightning_bolt",
 			"supplementary:marked",
-			"supplementary:marked_tracked_entity",
-			"supplementary:oversized_projectile",
+			"supplementary:oversized",
+			"supplementary:ignores_iframes",
 			"supplementary:snowball_type"
 		],
 		"lithium:options": {

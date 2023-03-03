@@ -149,36 +149,7 @@ public class SupplementaryEvents {
         return shouldReturn ? EventReturnable.RETURN_AFTER_FINISH : EventReturnable.NO_OP;
     };
 
-    public static final EntityEvents.FishingBobberReelEvent ENTITY_REEL_ENCHANT_EVENTS = (bobber, target) -> {
-        boolean shouldReturn = false;
-        if (target != null) {
-            for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
-                if (componentKey.isProvidedBy(bobber) && componentKey.get(bobber).getValue() > 0) {
-                    shouldReturn = shouldReturn || componentKey.get(bobber).postEntityHit(target, bobber, 1);
-                }
-            }
-        }
-        return shouldReturn ? EventReturnable.RETURN_AFTER_FINISH : EventReturnable.NO_OP;
-    };
 
-    public static final EntityEvents.LivingEntityHandSwingEvent GRAPPLING_HAND_SWING_EVENT = (entity, hand) -> {
-        if (entity instanceof PlayerEntity) {
-            if (SupplementaryComponents.GRAPPLING_TRACKING_COMPONENT.get(entity).getValue() > 0 || SupplementaryComponents.GRAPPLING_TRACKING_COMPONENT.get(entity).getEntity() != null) {
-                SupplementaryComponents.GRAPPLING_TRACKING_COMPONENT.get(entity).onHandSwingEvent(entity, hand);
-            }
-        }
-    };
-
-    public static final EntityEvents.LivingEntityAttackEvent PLAYER_ATTACK_ENCHANT_EVENTS = (self, target, amount, isCritical) -> {
-        if (self instanceof PlayerEntity) {
-            for (Map.Entry<Enchantment, Integer> enchantment : EnchantmentHelper.get(self.getMainHandStack()).entrySet()) {
-                if (enchantment.getKey() instanceof EnchantmentBuilder enchantmentBuilder) {
-                    amount += enchantmentBuilder.onAttack(self, target, enchantment.getValue(), isCritical, amount);
-                }
-            }
-        }
-        return amount;
-    };
 
     public static final EntityEvents.EntityTickEvent ARROW_IN_BLOCK_COMPONENT_TICK = (entity) -> {
         if (entity instanceof PersistentProjectileEntity self) {
@@ -189,7 +160,6 @@ public class SupplementaryEvents {
             }
         }
     };
-
     public static final EntityEvents.EntityTravelEvent ARROW_TRAVEL_COMPONENT_TICK = (entity, velocity) -> {
         if (entity instanceof PersistentProjectileEntity self) {
             for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
@@ -215,7 +185,6 @@ public class SupplementaryEvents {
             }
         }
     };
-
     public static final EntityEvents.EntityTickEvent FISHING_BOBBER_IN_BLOCK_COMPONENT_TICK = (entity) -> {
         if (entity instanceof FishingBobberEntity self) {
             if (EntityHelper.isTouchingBlock(self, 0.02)) {
@@ -227,22 +196,53 @@ public class SupplementaryEvents {
             }
         }
     };
+    public static final EntityEvents.FishingBobberReelEvent ENTITY_REEL_ENCHANT_EVENTS = (bobber, target) -> {
+        boolean shouldReturn = false;
+        if (target != null) {
+            for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
+                if (componentKey.isProvidedBy(bobber) && componentKey.get(bobber).getValue() > 0) {
+                    shouldReturn = shouldReturn || componentKey.get(bobber).postEntityHit(target, bobber, 1);
+                }
+            }
+        }
+        return shouldReturn ? EventReturnable.RETURN_AFTER_FINISH : EventReturnable.NO_OP;
+    };
 
     public static final EntityEvents.EntityTickEvent LIVING_ENTITY_COMPONENT_TICK = (entity) -> {
         if (entity instanceof LivingEntity livingEntity) {
             for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.ENTITY_TICKING_COMPONENTS) {
-                componentKey.get(livingEntity).onTick(livingEntity);
+                if (componentKey.isProvidedBy(livingEntity)) {
+                    componentKey.get(livingEntity).onTick(livingEntity);
+                }
             }
         }
     };
-
     public static final EntityEvents.EntityTravelEvent LIVING_ENTITY_TRAVEL_TICK = (entity, velocity) -> {
         if (entity instanceof LivingEntity livingEntity) {
             for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.ENTITY_TICKING_COMPONENTS) {
-                velocity = componentKey.get(livingEntity).onEntityTravel(livingEntity, 0, velocity);
+                if (componentKey.isProvidedBy(livingEntity)) {
+                    velocity = componentKey.get(entity).onEntityTravel(livingEntity, 0, velocity);
+                }
             }
         }
         return velocity;
+    };
+    public static final EntityEvents.LivingEntityHandSwingEvent GRAPPLING_HAND_SWING_EVENT = (entity, hand) -> {
+        if (entity instanceof PlayerEntity) {
+            if (SupplementaryComponents.GRAPPLING.get(entity).getValue() > 0 || SupplementaryComponents.GRAPPLING.get(entity).getEntity() != null) {
+                SupplementaryComponents.GRAPPLING.get(entity).onHandSwingEvent(entity, hand);
+            }
+        }
+    };
+    public static final EntityEvents.LivingEntityAttackEvent PLAYER_ATTACK_ENCHANT_EVENTS = (self, target, amount, isCritical) -> {
+        if (self instanceof PlayerEntity) {
+            for (Map.Entry<Enchantment, Integer> enchantment : EnchantmentHelper.get(self.getMainHandStack()).entrySet()) {
+                if (enchantment.getKey() instanceof EnchantmentBuilder enchantmentBuilder) {
+                    amount += enchantmentBuilder.onAttack(self, target, enchantment.getValue(), isCritical, amount);
+                }
+            }
+        }
+        return amount;
     };
 
     public static void register() {

@@ -171,7 +171,7 @@ public class SupplementaryEnchantments {
                 .build();
         BURST_FIRE.makeIncompatible(Enchantments.MULTISHOT)
                 .setPower(20, 50)
-                .addComponent(SupplementaryComponents.BURST_FIRE_TIMER)
+                .addComponent(SupplementaryComponents.BURST_FIRE)
                 .build();
         EMPOWERED.makeIncompatible(GENERAL_COMPATIBILITY_GROUP)
                 .setPower(20, 50)
@@ -198,12 +198,12 @@ public class SupplementaryEnchantments {
                 .build();
         MARKED.setPower(20, 5, 25, 5)
                 .setMaxLevel(3)
-                .addComponent(SupplementaryComponents.MARKED_LEVEL)
+                .addComponent(SupplementaryComponents.MARKED)
                 .build();
         OVERSIZED.makeIncompatible(LIGHTNING_BOLT)
                 .setPower(20, 5, 30, 10)
                 .setMaxLevel(2)
-                .addComponent(SupplementaryComponents.OVERSIZED_PROJECTILE)
+                .addComponent(SupplementaryComponents.OVERSIZED)
                 .build();
         PICKUP.setPower(10, 10, 20, 20)
                 .setMaxLevel(3)
