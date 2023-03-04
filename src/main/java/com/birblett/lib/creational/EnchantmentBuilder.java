@@ -20,9 +20,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-/**
- * Extensible builder for enchantments requiring functionality beyond the vanilla class
- */
+
+@SuppressWarnings("unused")
 public class EnchantmentBuilder extends Enchantment {
 
     private final Identifier identifier;
@@ -189,6 +188,10 @@ public class EnchantmentBuilder extends Enchantment {
     }
 
     /**
+     * <hr><center><h1>Getters</h1></center><hr>
+     * Overridden from {@link Enchantment}
+     * <br><br>
+     *
      * @return Max level of this enchantment. Defaults to 1 unless otherwise set.
      */
     @Override
@@ -272,6 +275,10 @@ public class EnchantmentBuilder extends Enchantment {
     }
 
     /**
+     * <hr><center><h1>Event handlers</h1></center><hr>
+     * These methods are called via event callback. See individual method docstrings for callback locations.
+     * <br><br>
+     *
      * Called upon initiating a melee attack on another entity, via event hook. May operate via side effects; return
      * 0.0f for no  direct damage modifier.
      * @return A flat (additive) damage modifier.
@@ -283,7 +290,7 @@ public class EnchantmentBuilder extends Enchantment {
     /**
      * Called on projectile creation, via event hook. This includes bows, crossbows, and fishing rods. Operates via side
      * effects. Only called if there is no attached component; otherwise implement
-     * {@link com.birblett.lib.components.EnchantmentComponent#onProjectileFire(LivingEntity, ProjectileEntity, int)}
+     * {@link BaseComponent#onProjectileFire(LivingEntity, ProjectileEntity, int, ItemStack, ItemStack)}
      * @param user Entity firing the projectile
      * @param projectileEntity Projectile being created
      * @param level Provided enchantment level
@@ -308,7 +315,7 @@ public class EnchantmentBuilder extends Enchantment {
      * implementations may override this.
      * @param user Player attempting to use the item
      * @param hand Current hand containing the item
-     * @see com.birblett.registry.SupplementaryEvents#ITEM_USE_COMPONENT_PROCESSOR
+     * @see com.birblett.registry.SupplementaryEvents#ITEM_USE_ENCHANT_EVENTS
      */
     public void onUse(PlayerEntity user, Hand hand) {}
 
@@ -316,7 +323,7 @@ public class EnchantmentBuilder extends Enchantment {
      * Called when an entity with this enchant equipped is damaged. May directly modify incoming damage, or operate via
      * side effects.
      * @return A flat (additive) damage modifier.
-     * @see com.birblett.registry.SupplementaryEvents#ON_DAMAGE_ENCHANT_EVENTS
+     * @see com.birblett.registry.SupplementaryEvents#LIVING_ENTITY_ADD_ENCHANT_DAMAGE_EVENTS
      */
     public float onDamage(LivingEntity user, DamageSource source, int level, float damageAmount) {
         return 0.0f;

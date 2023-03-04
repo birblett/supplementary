@@ -16,10 +16,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(PlayerEntityRenderer.class)
 public abstract class PlayerCapeRenderer extends LivingEntityRenderer {
 
+    @SuppressWarnings("unchecked")
     public PlayerCapeRenderer(EntityRendererFactory.Context ctx, EntityModel model, float shadowRadius) {
         super(ctx, model, shadowRadius);
     }
 
+    @SuppressWarnings("unchecked")
     @Inject(method = "Lnet/minecraft/client/render/entity/PlayerEntityRenderer;<init>(Lnet/minecraft/client/render/" +
                      "entity/EntityRendererFactory$Context;Z)V", at = @At("RETURN"))
     public void init(EntityRendererFactory.Context ctx, boolean slim, CallbackInfo ci) {

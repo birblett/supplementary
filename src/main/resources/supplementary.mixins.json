@@ -24,7 +24,7 @@
     "enchantments.oversized.OversizedBowItemMixin",
     "enchantments.slimed.SlimedEntityMixin",
     "enchantments.slimed.SlimedLivingEntityMixin",
-    "SnowballVariantsGolemMixin",
+    "snowball_variants.SnowballVariantsGolemMixin",
     "enchantments.soulbound.SoulboundPlayerInventoryMixin",
     "enchantments.soulbound.SoulboundServerPlayerEntityMixin"
   ],

@@ -27,6 +27,6 @@ public class CrossbowFiringEventMixin {
 
     @Inject(method = "createArrow", at = @At("TAIL"), locals = LocalCapture.CAPTURE_FAILSOFT)
     private static void crossbowProjectileFireEvent(World world, LivingEntity user, ItemStack crossbow, ItemStack arrow, CallbackInfoReturnable<PersistentProjectileEntity> cir, ArrowItem arrowItem, PersistentProjectileEntity persistentProjectileEntity) {
-        ItemEvents.ARROW_FIRED_EVENT.invoker().onProjectileFire(user, persistentProjectileEntity, crossbow);
+        ItemEvents.ARROW_FIRED_EVENT.invoker().onProjectileFire(user, persistentProjectileEntity, crossbow, arrow);
     }
 }

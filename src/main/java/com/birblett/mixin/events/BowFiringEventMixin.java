@@ -20,6 +20,6 @@ public class BowFiringEventMixin {
     @Inject(method = "onStoppedUsing", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;spawnEntity(Lnet/minecraft/entity/Entity;)Z"),
             locals = LocalCapture.CAPTURE_FAILSOFT)
     public void bowProjectileFireEvent(ItemStack stack, World world, LivingEntity user, int remainingUseTicks, CallbackInfo ci, PlayerEntity playerEntity, boolean bl, ItemStack itemStack, int i, float f, boolean bl2, ArrowItem arrowItem, PersistentProjectileEntity persistentProjectileEntity) {
-        ItemEvents.ARROW_FIRED_EVENT.invoker().onProjectileFire(user, persistentProjectileEntity, stack);
+        ItemEvents.ARROW_FIRED_EVENT.invoker().onProjectileFire(user, persistentProjectileEntity, stack, null);
     }
 }

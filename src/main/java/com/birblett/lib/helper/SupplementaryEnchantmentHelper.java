@@ -3,6 +3,9 @@ package com.birblett.lib.helper;
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.item.ItemStack;
 
+/**
+ * Used to get certain attributes/values associated with enchantments. Will be used for serverconfig in the future.
+ */
 public class SupplementaryEnchantmentHelper {
 
     public static float getDrawspeedModifier(float base, ItemStack stack) {

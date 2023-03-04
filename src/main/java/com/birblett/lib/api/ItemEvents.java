@@ -52,15 +52,15 @@ public class ItemEvents {
      */
     @FunctionalInterface
     public interface ProjectileFiredEvent {
-        void onProjectileFire(LivingEntity user, ProjectileEntity persistentProjectileEntity, ItemStack itemStack);
+        void onProjectileFire(LivingEntity user, ProjectileEntity persistentProjectileEntity, ItemStack item, ItemStack arrow);
     }
 
     /**
      * Standard functional pattern for ProjectileFiredEvent hooks.
      */
-    private static final Function<ProjectileFiredEvent[], ProjectileFiredEvent> PROJECTILE_FIRED_EVENT = callbacks -> (user, projectileEntity, itemStack) -> {
+    private static final Function<ProjectileFiredEvent[], ProjectileFiredEvent> PROJECTILE_FIRED_EVENT = callbacks -> (user, projectileEntity, item, arrow) -> {
         for (ProjectileFiredEvent callback : callbacks) {
-            callback.onProjectileFire(user, projectileEntity, itemStack);
+            callback.onProjectileFire(user, projectileEntity, item, arrow);
         }
     };
 

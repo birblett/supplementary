@@ -16,9 +16,6 @@
 		"main": [
           "com.birblett.Supplementary"
 		],
-		"fabric-datagen": [
-			"com.birblett.SupplementaryDataGenerator"
-		],
 		"cardinal-components": [
 			"com.birblett.registry.SupplementaryComponents"
 		]

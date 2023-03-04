@@ -2,6 +2,7 @@ package com.birblett.lib.components;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import org.jetbrains.annotations.NotNull;
 
@@ -71,15 +72,16 @@ public class EnchantmentComponent implements BaseComponent {
     }
 
     /**
-     * Implementation of {@link BaseComponent#onProjectileFire(LivingEntity, ProjectileEntity, int)}. Sets the provided
+     * Implementation of {@link BaseComponent#onProjectileFire(LivingEntity, ProjectileEntity, int, ItemStack, ItemStack)}. Sets the provided
      * projectile's stored enchantment level to the provided level.
-     *
      * @param user entity from which projectile is being fired
      * @param projectileEntity  fired projectile entity
      * @param level provided enchantment level
+     * @param item item projectile is being fired from
+     * @param projectileItem item corresponding to the projectile
      */
     @Override
-    public void onProjectileFire(LivingEntity user, ProjectileEntity projectileEntity, int level) {
+    public void onProjectileFire(LivingEntity user, ProjectileEntity projectileEntity, int level, ItemStack item, ItemStack projectileItem) {
         this.setValue(level);
     }
 

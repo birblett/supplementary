@@ -31,7 +31,7 @@ public class FishingRodCastEventMixin {
     @ModifyArg(method = "use", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;spawnEntity(Lnet/minecraft/entity/Entity;)Z"))
     private Entity onCastEvent(Entity entity) {
         FishingBobberEntity fishingBobberEntity = (FishingBobberEntity) entity;
-        ItemEvents.FISHING_ROD_USE.invoker().onProjectileFire(supplementary$FishingRodUser, fishingBobberEntity, supplementary$FishingRodItemStack);
+        ItemEvents.FISHING_ROD_USE.invoker().onProjectileFire(supplementary$FishingRodUser, fishingBobberEntity, supplementary$FishingRodItemStack, null);
         return entity;
     }
 }

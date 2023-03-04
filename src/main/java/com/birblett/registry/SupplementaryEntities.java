@@ -30,6 +30,7 @@ public class SupplementaryEntities {
             .trackRangeBlocks(128).trackedUpdateRate(20)
             .build();
 
+    @SuppressWarnings({"Convert2MethodRef", "rawtypes", "unchecked"})
     public static void register() {
         Registry.register(Registry.ENTITY_TYPE, new Identifier(MODID, "snowball_variant"), SNOWBALL_VARIANT);
         Registry.register(Registry.ENTITY_TYPE, new Identifier(MODID, "boomerang"), BOOMERANG);

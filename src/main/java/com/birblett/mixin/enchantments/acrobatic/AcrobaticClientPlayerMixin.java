@@ -1,6 +1,5 @@
 package com.birblett.mixin.enchantments.acrobatic;
 
-import com.birblett.Supplementary;
 import com.birblett.lib.helper.EntityHelper;
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.client.network.ClientPlayerEntity;

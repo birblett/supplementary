@@ -19,6 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * events called via event  hook.
  * @see Component
  */
+@SuppressWarnings("unused")
 public interface BaseComponent extends Component {
 
     /**
@@ -95,7 +96,7 @@ public interface BaseComponent extends Component {
      * @see com.birblett.lib.api.EntityEvents#FISHING_BOBBER_REEL_EVENT
      * @see SupplementaryEvents#ARROW_ENTITY_PREHIT_ENCHANT_EVENTS
      * @see SupplementaryEvents#EMPTY_REEL_ENCHANT_EVENTS
-     * @see SupplementaryEvents#ENTITY_REEL_ENCHANT_EVENTS
+     * @see SupplementaryEvents#FISHING_REEL_ENCHANT_EVENTS
      */
     default boolean postEntityHit(Entity target, ProjectileEntity projectileEntity, int lvl) {
         return false;
@@ -126,11 +127,13 @@ public interface BaseComponent extends Component {
      * @param user entity from which projectile is being fired
      * @param projectileEntity  fired projectile entity
      * @param level provided enchantment level
+     * @param item item projectile is being fired from
+     * @param projectileItem item corresponding to the projectile
      * @see com.birblett.lib.api.ItemEvents#ARROW_FIRED_EVENT
      * @see com.birblett.lib.api.ItemEvents#FISHING_ROD_USE
      * @see SupplementaryEvents#ARROW_FIRED_ENCHANT_EVENTS
      */
-    default void onProjectileFire(LivingEntity user, ProjectileEntity projectileEntity, int level) {}
+    default void onProjectileFire(LivingEntity user, ProjectileEntity projectileEntity, int level, ItemStack item, ItemStack projectileItem) {}
 
     /**
      * Called before rendering begins. Operates via side-effects, typically on the provided matrix stack.
@@ -149,7 +152,7 @@ public interface BaseComponent extends Component {
      * @param entity provided entity
      * @param hand active (swinging) hand
      * @see com.birblett.lib.api.EntityEvents#SWING_HAND_EVENT
-     * @see SupplementaryEvents#GRAPPLING_HAND_SWING_EVENT
+     * @see SupplementaryEvents#LIVING_ENTITY_GRAPPLING_HAND_SWING_EVENT
      */
     default void onHandSwingEvent(LivingEntity entity, Hand hand) {}
 
@@ -159,7 +162,7 @@ public interface BaseComponent extends Component {
      * @param entity provided entity
      * @param hand active hand
      * @see com.birblett.lib.api.ItemEvents#ITEM_USE
-     * @see SupplementaryEvents#ITEM_USE_COMPONENT_PROCESSOR
+     * @see SupplementaryEvents#ITEM_USE_ENCHANT_EVENTS
      */
     default void onUse(LivingEntity entity, Hand hand) {}
 

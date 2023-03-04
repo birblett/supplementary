@@ -1,6 +1,5 @@
 package com.birblett.mixin.enchantments.air_dash;
 
-import com.birblett.Supplementary;
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -35,7 +34,7 @@ public class AirDashClientPlayerMixin {
                     }
                     case 3 -> {
                         if (self.input.hasForwardMovement() && self.ticksLeftToDoubleTapSprint > 0) {
-                            self.setVelocity(self.getRotationVector().multiply(0.9));
+                            self.setVelocity(self.getRotationVector().multiply(1.05));
                             self.ticksLeftToDoubleTapSprint = 0;
                         }
                     }

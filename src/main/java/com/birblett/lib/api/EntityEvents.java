@@ -48,15 +48,15 @@ public class EntityEvents {
     };
 
     /**
-     * Event hook for when damage is dealt; provides a float value appended to the damage amount, with an initial value
-     * of 0.0f.
+     * Event hook for when damage is dealt to a LivingEntity; provides a float value appended to the damage amount, with
+     * an initial value of 0.0f.
      */
-    public static final Event<EntityDamageEvent> ADDITIVE_DAMAGE_EVENT = EventFactory.createArrayBacked(EntityDamageEvent.class, ENTITY_DAMAGE_EVENT_ADDITIVE);
+    public static final Event<EntityDamageEvent> LIVING_ENTITY_ADDITIVE_DAMAGE_EVENT = EventFactory.createArrayBacked(EntityDamageEvent.class, ENTITY_DAMAGE_EVENT_ADDITIVE);
     /**
-     * Event hook for when damage is dealt; provides a multiplier applied to the damage amount, with an initial value of
-     * 1.
+     * Event hook for when damage is dealt to a LivingEntity; provides a multiplier applied to the damage amount, with
+     * an initial value of 1.
      */
-    public static final Event<EntityDamageEvent> MULTIPLICATIVE_DAMAGE_EVENT = EventFactory.createArrayBacked(EntityDamageEvent.class, ENTITY_DAMAGE_EVENT_MULTIPLICATIVE);
+    public static final Event<EntityDamageEvent> LIVING_ENTITY_MULTIPLICATIVE_DAMAGE_EVENT = EventFactory.createArrayBacked(EntityDamageEvent.class, ENTITY_DAMAGE_EVENT_MULTIPLICATIVE);
 
     /**
      * <hr><center><h1>Entity tick events</h1></center><hr>
@@ -182,9 +182,9 @@ public class EntityEvents {
     }
 
     /**
-     * Event hook for when an entity damages another entity. Expected to return some damage value.
+     * Event hook for when a player attacks another entity. Expected to return some damage value.
      */
-    public static final Event<LivingEntityAttackEvent> LIVING_ENTITY_ATTACK_EVENT = EventFactory.createArrayBacked(LivingEntityAttackEvent.class,
+    public static final Event<LivingEntityAttackEvent> PLAYER_ENTITY_ATTACK_EVENT = EventFactory.createArrayBacked(LivingEntityAttackEvent.class,
             callbacks -> (self, target, amount, isCritical) -> {
                 for (LivingEntityAttackEvent callback : callbacks) {
                     amount = callback.onAttack(self, target, amount, isCritical);

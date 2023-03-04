@@ -4,19 +4,30 @@ import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.entity.LeashKnotEntityRenderer;
+import net.minecraft.client.render.entity.MobEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LightType;
 
+/**
+ * Helper functions for rendering certain components.
+ */
 public class RenderHelper {
 
-    public static void ropeRender(Entity entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider provider, Entity rootEntity) {
+    /**
+     * Used to render a grappling line between the user and the fired arrow. Mostly copied from {@link MobEntityRenderer#renderLeash(
+     * net.minecraft.entity.mob.MobEntity, float, net.minecraft.client.util.math.MatrixStack,
+     * net.minecraft.client.render.VertexConsumerProvider, net.minecraft.entity.Entity)}
+     */
+    public static void ropeRender(Entity entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider provider, Entity rootEntity, Hand hand) {
         matrices.push();
-        Vec3d vec3d = rootEntity.getLeashPos(tickDelta);
+        Vec3d vec3d = rootEntity.getLerpedPos(tickDelta).add(0.0, rootEntity.getStandingEyeHeight() * 0.7, 0.0);
         double g = MathHelper.lerp(tickDelta, entity.prevX, entity.getX());
         double h = MathHelper.lerp(tickDelta, entity.prevY, entity.getY());
         double i = MathHelper.lerp(tickDelta, entity.prevZ, entity.getZ());
@@ -47,6 +58,11 @@ public class RenderHelper {
         matrices.pop();
     }
 
+    /**
+     * Renders a single segment of grappling rope. Mostly copied from {@link MobEntityRenderer#renderLeashPiece(
+     * net.minecraft.client.render.VertexConsumer, net.minecraft.util.math.Matrix4f, float, float, float, int, int, int,
+     * int, float, float, float, float, int, boolean)}
+     */
     private static void renderRopePiece(VertexConsumer vertexConsumer, Matrix4f positionMatrix, float f, float g, float h, int projectileBlockLight, int ownerBlockLight, int projectileSkyLight, int ownerSkyLight, float j, float k, float l, int pieceIndex) {
         float index = (float)pieceIndex / 24.0F;
         int blockLight = (int)MathHelper.lerp(index, (float)projectileBlockLight, (float)ownerBlockLight);
