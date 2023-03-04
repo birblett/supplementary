@@ -10,11 +10,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
+/**
+ * Applies 2.8x horizontal jump velocity, 0.75x jump vertical velocity, and 0.85x overall movement speed penalty with
+ * Bunny Hop equipped
+ */
 @Mixin(LivingEntity.class)
-public class BunnyhopLivingEntityMixin {
-    /*
-    Applies various movement buffs/debuffs associated with the bunnyhop enchnat
-     */
+public class BunnyHopLivingEntityMixin {
 
     @ModifyArgs(method = "jump", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;setVelocity(DDD)V"))
     private void boostJumpSpeed(Args args) {

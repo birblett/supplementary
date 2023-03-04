@@ -8,13 +8,13 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
+/**
+ * Scale FOV based on current draw speed modifier
+ */
 @Environment(EnvType.CLIENT)
 @Mixin(AbstractClientPlayerEntity.class)
 public class OversizedAbstractClientPlayerEntityMixin {
 
-    /**
-     * @whyhere FOV scaled based on current draw speed modifier
-     */
     @ModifyVariable(method = "getFovMultiplier", at = @At(value = "STORE"), index = 4)
     private float scaledDrawSpeedFOV(float fovScale) {
         return SupplementaryEnchantmentHelper.getDrawspeedModifier(fovScale, ((AbstractClientPlayerEntity) (Object) this).getActiveItem());

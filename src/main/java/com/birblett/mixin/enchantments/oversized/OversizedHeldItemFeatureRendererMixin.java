@@ -18,6 +18,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * Scales 3rd person bow size up by 50% if enchanted with Oversized
+ */
 @Environment(EnvType.CLIENT)
 @Mixin(HeldItemFeatureRenderer.class)
 public class OversizedHeldItemFeatureRendererMixin {

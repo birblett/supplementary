@@ -95,7 +95,6 @@ public interface BaseComponent extends Component {
      * @see com.birblett.lib.api.EntityEvents#ARROW_POST_ENTITY_HIT_EVENT
      * @see com.birblett.lib.api.EntityEvents#FISHING_BOBBER_REEL_EVENT
      * @see SupplementaryEvents#ARROW_ENTITY_PREHIT_ENCHANT_EVENTS
-     * @see SupplementaryEvents#EMPTY_REEL_ENCHANT_EVENTS
      * @see SupplementaryEvents#FISHING_REEL_ENCHANT_EVENTS
      */
     default boolean postEntityHit(Entity target, ProjectileEntity projectileEntity, int lvl) {
@@ -143,7 +142,7 @@ public interface BaseComponent extends Component {
      * @param matrixStack provided matrix stack
      * @param vertexConsumerProvider provided vertex consumer
      * @param level provided enchantment level
-     * @see com.birblett.mixin.render.ProjectileEntityRendererMixin#onRenderEvent(PersistentProjectileEntity, float, float, MatrixStack, VertexConsumerProvider, int, CallbackInfo)
+     * @see com.birblett.mixin.render.ProjectileEntityRendererMixin#onRender(PersistentProjectileEntity, float, float, MatrixStack, VertexConsumerProvider, int, CallbackInfo)
      */
     default void onProjectileRender(ProjectileEntity projectileEntity, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int level) {}
 

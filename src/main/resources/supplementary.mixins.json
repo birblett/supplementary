@@ -19,7 +19,7 @@
     "enchantments.all_terrain.AllTerrainEntityMixin",
     "enchantments.assault_dash.AssaultDashShieldItemMixin",
     "enchantments.bunny_hop.BunnyHopEntityMixin",
-    "enchantments.bunny_hop.BunnyhopLivingEntityMixin",
+    "enchantments.bunny_hop.BunnyHopLivingEntityMixin",
     "enchantments.empowered.EmpoweredEnchantmentHelperMixin",
     "enchantments.oversized.OversizedBowItemMixin",
     "enchantments.slimed.SlimedEntityMixin",

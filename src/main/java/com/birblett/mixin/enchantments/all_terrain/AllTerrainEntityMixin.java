@@ -20,11 +20,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 
+/**
+ * Adjusts step height for All Terrain enchant
+ */
 @Mixin(Entity.class)
 public class AllTerrainEntityMixin {
-    /*
-    Adjusts step height for entities during internal calculations if Boosting enchant present
-     */
 
     @Unique private double stepHeightboost;
     @Unique private static Entity supplementary$CollidingEntity;

@@ -12,17 +12,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * Replace snow golem snowballs with snowball variants if applicable
+ */
 @Mixin(SnowGolemEntity.class)
 public class SnowballVariantsGolemMixin {
-    /*
-    Replaces snow golem snowballs with variant snowballs
-     */
 
     @Inject(method = "attack", at = @At("HEAD"), cancellable = true)
     private void replaceSnowballs(LivingEntity target, float pullProgress, CallbackInfo ci) {
-        /*
-        Replace snow golem snowball with custom projectiles if necessary
-         */
         SnowGolemEntity self = (SnowGolemEntity) (Object) this;
         int snowballType = (int) SupplementaryComponents.SNOWBALL_TYPE.get(self).getValue();
         if (snowballType > 0) {

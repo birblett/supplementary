@@ -12,6 +12,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * Scale pull progress based on current draw speed modifier
+ */
 @Mixin(BowItem.class)
 public class OversizedBowItemMixin {
 

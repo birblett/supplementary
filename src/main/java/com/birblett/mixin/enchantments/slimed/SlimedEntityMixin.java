@@ -16,11 +16,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
+/**
+ * Tricks game into thinking all solid blocks are slime blocks with Slimed enchantment equipped
+ */
 @Mixin(Entity.class)
 public class SlimedEntityMixin {
-    /*
-    Applies slimed bounciness to entities with the slimed enchant
-     */
 
     @Unique private Block oldBlock;
 

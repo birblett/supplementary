@@ -15,17 +15,17 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.List;
 
+/**
+ * Overwrites default enchantment helper behavior to use {@link Enchantment#isAcceptableItem(ItemStack)} instead of
+ * {@link net.minecraft.enchantment.EnchantmentTarget#isAcceptableItem(Item)}; should not introduce any
+ * incompatibilities except with highly custom enchantment implementations
+ */
 @Mixin(EnchantmentHelper.class)
 public class EnchantmentHelperCompatMixin {
 
     @Inject(method = "getPossibleEntries", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isOf(Lnet/minecraft/item/Item;)Z"),
             locals = LocalCapture.CAPTURE_FAILSOFT, cancellable = true)
     private static void modifiedListBuilder(int power, ItemStack stack, boolean treasureAllowed, CallbackInfoReturnable<List<EnchantmentLevelEntry>> cir, List<EnchantmentLevelEntry> list, Item item) {
-        /*
-        essentially overwrites default enchantment helper behavior to use Enchantment$isAcceptableItem instead of
-        EnchantmentTarget$isAcceptableItem; should not introduce any incompatibilities except with highly custom enchant
-        implementations
-         */
         boolean bl = stack.isOf(Items.BOOK);
         block0: for (Enchantment enchantment : Registry.ENCHANTMENT) {
             if (enchantment.isTreasure() && !treasureAllowed || !enchantment.isAvailableForRandomSelection() ||

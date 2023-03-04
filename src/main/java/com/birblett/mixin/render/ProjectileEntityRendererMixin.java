@@ -14,13 +14,16 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * Apply rendering effects from ProjectileEntity components to their renderer
+ */
 @Environment(EnvType.CLIENT)
 @Mixin(ProjectileEntityRenderer.class)
 public class ProjectileEntityRendererMixin {
 
     @Inject(method = "render(Lnet/minecraft/entity/projectile/PersistentProjectileEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
             at = @At("HEAD"))
-    private void onRenderEvent(PersistentProjectileEntity persistentProjectileEntity, float f, float tickDelta, MatrixStack matrixStack,
+    private void onRender(PersistentProjectileEntity persistentProjectileEntity, float f, float tickDelta, MatrixStack matrixStack,
                                VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
         for (ComponentKey<BaseComponent> componentKey : SupplementaryComponents.PROJECTILE_COMPONENTS) {
             int level = componentKey.get(persistentProjectileEntity).getValue();

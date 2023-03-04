@@ -19,11 +19,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
+/**
+ * Allows for custom collision behavior with All Terrain
+ */
 @Mixin(BlockCollisionSpliterator.class)
 public class AllTerrainBlockCollisionSpliteratorMixin implements BlockCollisionSpliteratorInterface {
-    /*
-    Allows for Water Walking's custom collision behavior
-     */
 
     @Unique private BlockPos supplementary$blockPos;
     @Unique private CollisionView supplementary$collisionView;

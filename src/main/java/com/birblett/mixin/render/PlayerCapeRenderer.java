@@ -12,6 +12,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * Adds the custom cape renderer to the player model
+ */
 @Environment(value= EnvType.CLIENT)
 @Mixin(PlayerEntityRenderer.class)
 public abstract class PlayerCapeRenderer extends LivingEntityRenderer {

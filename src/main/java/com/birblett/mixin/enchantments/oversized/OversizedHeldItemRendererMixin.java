@@ -19,6 +19,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * Increase size of bows with Oversized in the first-person view
+ */
 @Environment(EnvType.CLIENT)
 @Mixin(HeldItemRenderer.class)
 public class OversizedHeldItemRendererMixin {

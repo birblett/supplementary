@@ -9,11 +9,12 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
+/**
+ * Preserves items enchanted with Soulbound instead of removing them on death, which are copied to the respawned player
+ * in {@link SoulboundServerPlayerEntityMixin}
+ */
 @Mixin(PlayerInventory.class)
 public class SoulboundPlayerInventoryMixin {
-    /*
-    Preserves items enchanted with Soulbound instead of removing them, which are copied to the respawned player in SouldboundServerPlayerEntityImpl
-     */
 
     @Unique ItemStack savedStack;
 

@@ -17,11 +17,11 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.function.Consumer;
 
+/**
+ * Modifies the effective level of other enchantments to be +1
+ */
 @Mixin(EnchantmentHelper.class)
 public abstract class EmpoweredEnchantmentHelperMixin {
-    /*
-    Modifies the effective level of enchantments to be +1
-     */
 
     @Unique private static NbtCompound supplementary$NbtCompound;
     @Unique private static EnchantmentHelper.Consumer supplementary$Consumer;

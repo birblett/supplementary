@@ -15,11 +15,11 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+/**
+ * Applies increased slipperiness and jump height with Slimed enchantment equipped
+ */
 @Mixin(LivingEntity.class)
 public abstract class SlimedLivingEntityMixin {
-    /*
-    Applies slimed slipperiness and jump boost
-     */
 
     @Inject(method = "getJumpVelocity", at = @At("RETURN"), cancellable = true)
     private void applyJumpBoost(CallbackInfoReturnable<Float> cir) {

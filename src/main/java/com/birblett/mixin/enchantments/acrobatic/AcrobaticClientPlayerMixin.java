@@ -11,11 +11,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * Allows for double jumps and wall clings with the Acrobatics enchantment. Can probably be moved to an event callback?
+ */
 @Mixin(ClientPlayerEntity.class)
 public class AcrobaticClientPlayerMixin {
-    /*
-    Various ability implementations for Acrobatics enchant
-     */
 
     @Unique private int airJumps;
     @Unique private int wallClingTicks;

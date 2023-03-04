@@ -9,11 +9,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * When respawning a player after death, copies items over to the new player object, preserving armor slots
+ */
 @Mixin(ServerPlayerEntity.class)
 public class SoulboundServerPlayerEntityMixin {
-    /*
-    When respawning a player after death, copies items over to the new player object, preserving armor slots
-     */
 
     @Inject(method = "copyFrom", at = @At("HEAD"))
     private void saveSoulboundItems(ServerPlayerEntity oldPlayer, boolean alive, CallbackInfo ci) {

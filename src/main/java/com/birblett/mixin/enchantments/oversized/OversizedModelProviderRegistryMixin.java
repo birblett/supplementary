@@ -12,6 +12,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+/**
+ * Injects into the anonymous texture provider method for bows; applies draw speed multipliers to pull progress
+ */
 @Environment(EnvType.CLIENT)
 @Mixin(ModelPredicateProviderRegistry.class)
 public class OversizedModelProviderRegistryMixin {

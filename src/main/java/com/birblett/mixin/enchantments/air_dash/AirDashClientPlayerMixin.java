@@ -9,11 +9,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * Allows double tap forward in the air for an air dash
+ */
 @Mixin(ClientPlayerEntity.class)
 public class AirDashClientPlayerMixin {
-    /*
-    Air Dash input handling
-     */
 
     @Unique private int airDashState = 0;
 
