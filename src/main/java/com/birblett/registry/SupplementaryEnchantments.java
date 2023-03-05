@@ -3,6 +3,8 @@ package com.birblett.registry;
 import com.birblett.Supplementary;
 import com.birblett.items.BoomerangItem;
 import com.birblett.lib.creational.EnchantmentBuilder;
+import com.birblett.lib.helper.SupplementaryEnchantmentHelper;
+import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentTarget;
 import net.minecraft.enchantment.Enchantments;
@@ -13,9 +15,16 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.EntityDamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.ArrowEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.entity.projectile.TridentEntity;
 import net.minecraft.item.*;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import org.apache.commons.lang3.mutable.MutableFloat;
 
 /**
  * Enchantment instantiation and registration.
@@ -36,8 +45,8 @@ public class SupplementaryEnchantments {
      * @param source the source entity
      * @return a new EntityDamageSource, with custom death message
      */
-    public static DamageSource shieldBash(LivingEntity source) {
-        return new EntityDamageSource("shield_bash", source) {
+    public static DamageSource assaultDash(LivingEntity source) {
+        return new EntityDamageSource("assault_dash", source) {
             @Override
             public Text getDeathMessage(LivingEntity entity) {
                 return new TranslatableText("death.attack." + this.name + ".player", entity.getDisplayName(), this.source.getDisplayName());
@@ -45,52 +54,114 @@ public class SupplementaryEnchantments {
         };
     }
 
+    // TODO: implement enhanced
     /**
-     * General enchantments that are applicable to most enchantable items <br>
+     * <hr><center><h1>General enchantments</h1></center><hr>
+     * These are applicable to most enchantable items. <br><br>
      * Empowered - All other enchantments' effective level is increased by 1. Max lvl: 1 <br>
+     * Enhanced - All other "unique" enchantments have their effect improved. Max lvl: 1 <br>
+     * Growth - Tool continually gains small amounts of base stats while being used. Max lvl: 1 <br>
      * Soulbound - Stays in inventory on death. Max lvl: 1
      */
-    public static final EnchantmentBuilder EMPOWERED = new EnchantmentBuilder("empowered", Enchantment.Rarity.RARE,
-            EnchantmentTarget.BREAKABLE, NONE);
-    public static final EnchantmentBuilder SOULBOUND = new EnchantmentBuilder("soulbound", Enchantment.Rarity.RARE,
-            EnchantmentTarget.BREAKABLE, NONE);
+    public static final EnchantmentBuilder EMPOWERED = new EnchantmentBuilder("empowered", Enchantment.Rarity.RARE, EnchantmentTarget.BREAKABLE, NONE);
+    public static final EnchantmentBuilder ENHANCED = new EnchantmentBuilder("enhanced", Enchantment.Rarity.RARE, EnchantmentTarget.BREAKABLE, NONE);
+    public static final EnchantmentBuilder GROWTH = new EnchantmentBuilder("growth", Enchantment.Rarity.RARE, EnchantmentTarget.BREAKABLE, NONE){
+        @Override
+        public void onProjectileFire(LivingEntity user, ProjectileEntity projectileEntity, int level, ItemStack item) {
+            // Gives 1 draw speed growth on arrow fire, and an extra if fully charged
+            if (projectileEntity instanceof ArrowEntity arrow) {
+                int growthAmount = arrow.isCritical() && item.getItem() instanceof BowItem ? 2 : 1;
+                SupplementaryEnchantmentHelper.addGrowthPoints(item, SupplementaryEnchantmentHelper.GrowthKey.DRAW_SPEED, growthAmount);
+            }
+            // Gives 2 flat draw speed growth on trident throw
+            else if (projectileEntity instanceof TridentEntity trident) {
+                SupplementaryEnchantmentHelper.addGrowthPoints(item, SupplementaryEnchantmentHelper.GrowthKey.DRAW_SPEED, 2);
+                trident.tridentStack = item;
+            }
+        }
+
+        @Override
+        public float onAttack(LivingEntity user, Entity target, int level, boolean isCritical, boolean isMaxCharge, float damageAmount) {
+            // Gives 1 point of growth to either attack damage or speed if the damage is critical or not respectively,
+            // or 2 points if the attack is fully charged, and modifies final attack damage with the boosted amount
+            if (!user.getWorld().isClient()) {
+                int growthAmount = isMaxCharge ? 2 : 1;
+                SupplementaryEnchantmentHelper.addGrowthPoints(user.getMainHandStack(), isCritical ? SupplementaryEnchantmentHelper.GrowthKey.ATTACK_DAMAGE :
+                        SupplementaryEnchantmentHelper.GrowthKey.ATTACK_SPEED, growthAmount);
+            }
+            return SupplementaryEnchantmentHelper.getGrowthStat(user.getMainHandStack(), SupplementaryEnchantmentHelper.GrowthKey.ATTACK_DAMAGE);
+        }
+
+        @Override
+        public void onBlockBreak(World world, BlockState state, BlockPos pos, PlayerEntity miner, ItemStack item) {
+            // Add base mining speed growth stat if appropriate blockstate for the tool, or adaptable if not
+            if (item.getMiningSpeedMultiplier(state) > 1) {
+                SupplementaryEnchantmentHelper.addGrowthPoints(item, SupplementaryEnchantmentHelper.GrowthKey.MINING_SPEED, 1);
+            }
+            else {
+                SupplementaryEnchantmentHelper.addGrowthPoints(item, SupplementaryEnchantmentHelper.GrowthKey.ALT_MINING_SPEED, 1);
+            }
+        }
+
+        @Override
+        public void onDamage(LivingEntity user, ItemStack itemStack, DamageSource source, int level, MutableFloat damageAmount) {
+            // Add some growth scaling with incoming damage
+            if (itemStack.getItem() instanceof ArmorItem) {
+                if (source.getAttacker() != null) {
+                    SupplementaryEnchantmentHelper.addGrowthPoints(itemStack, SupplementaryEnchantmentHelper.GrowthKey.ENTITY_DAMAGE_REDUCTION, damageAmount.getValue() / 5);
+                }
+                else if (!source.isOutOfWorld()) {
+                    SupplementaryEnchantmentHelper.addGrowthPoints(itemStack, SupplementaryEnchantmentHelper.GrowthKey.ENVIRONMENTAL_DAMAGE_REDUCTION, damageAmount.getValue() / 4);
+                }
+            }
+        }
+
+        @Override
+        public float onDamageMultiplier(LivingEntity user, ItemStack itemStack, DamageSource source, int level, MutableFloat damageAmount) {
+            // Apply damage reduction from Growth
+            if (itemStack.getItem() instanceof ArmorItem) {
+                if (source.getAttacker() != null) {
+                    return 1 - SupplementaryEnchantmentHelper.getGrowthStat(itemStack, SupplementaryEnchantmentHelper.GrowthKey.ENTITY_DAMAGE_REDUCTION);
+                }
+                else if (!source.isOutOfWorld()) {
+                    return 1 - SupplementaryEnchantmentHelper.getGrowthStat(itemStack, SupplementaryEnchantmentHelper.GrowthKey.ENVIRONMENTAL_DAMAGE_REDUCTION);
+                }
+            }
+            return 1.0f;
+        }
+    };
+    public static final EnchantmentBuilder SOULBOUND = new EnchantmentBuilder("soulbound", Enchantment.Rarity.RARE, EnchantmentTarget.BREAKABLE, NONE);
 
     /**
-     * Boomerang enchantments <br>
+     * <hr><center><h1>Boomerang enchantments</h1></center><hr>
      * Pickup - boomerangs can pick up items, with larger inventories based on level. Max lvl: 3
      */
-    public static final EnchantmentBuilder PICKUP = new EnchantmentBuilder("pickup", Enchantment.Rarity.UNCOMMON,
-            null, BOTH_HANDS);
+    public static final EnchantmentBuilder PICKUP = new EnchantmentBuilder("pickup", Enchantment.Rarity.UNCOMMON, null, BOTH_HANDS);
 
     /**
-     * Bow enchantments <br>
+     * <hr><center><h1>Bow enchantments</h1></center><hr>
      * Lightning Bolt - Summon lightning on projectile hit, provided it has sky access. Max lvl: 1 <br>
      * Oversized - Longer draw time. Projectiles are bigger and faster, with higher damage. Max lvl: 2 <br>
      * Marked - On entity hit: set a marked entity. Subsequent arrows will home in on this entity. Max lvl: 3
      */
-    public static final EnchantmentBuilder LIGHTNING_BOLT = new EnchantmentBuilder("lightning_bolt", Enchantment.Rarity.VERY_RARE,
-            EnchantmentTarget.BOW, BOTH_HANDS);
-    public static final EnchantmentBuilder OVERSIZED = new EnchantmentBuilder("oversized", Enchantment.Rarity.UNCOMMON,
-            EnchantmentTarget.BOW, BOTH_HANDS);
-    public static final EnchantmentBuilder MARKED = new EnchantmentBuilder("marked", Enchantment.Rarity.RARE,
-            EnchantmentTarget.BOW, BOTH_HANDS);
+    public static final EnchantmentBuilder LIGHTNING_BOLT = new EnchantmentBuilder("lightning_bolt", Enchantment.Rarity.VERY_RARE, EnchantmentTarget.BOW, BOTH_HANDS);
+    public static final EnchantmentBuilder OVERSIZED = new EnchantmentBuilder("oversized", Enchantment.Rarity.UNCOMMON, EnchantmentTarget.BOW, BOTH_HANDS);
+    public static final EnchantmentBuilder MARKED = new EnchantmentBuilder("marked", Enchantment.Rarity.RARE, EnchantmentTarget.BOW, BOTH_HANDS);
 
     /**
-     * Crossbow enchantments <br>
+     * <hr><center><h1>Crossbow enchantments</h1></center><hr>
      * Burst fire - Arrows are fired in bursts of 3. Damage and velocity are slightly decreased. Max lvl: 1
      */
-    public static final EnchantmentBuilder BURST_FIRE = new EnchantmentBuilder("burst_fire", Enchantment.Rarity.RARE,
-            EnchantmentTarget.CROSSBOW, BOTH_HANDS);
+    public static final EnchantmentBuilder BURST_FIRE = new EnchantmentBuilder("burst_fire", Enchantment.Rarity.RARE, EnchantmentTarget.CROSSBOW, BOTH_HANDS);
 
     /**
-     * Sword enchantments <br>
+     * <hr><center><h1>Sword enchantments</h1></center><hr>
      * Frantic - Critical hits grant a short speed boost. Deal extra damage while speedy. Max lvl: 3 <br>
      * Frenzy - Take more damage, deal more at lower health. Max lvl: 3
      */
-    public static final EnchantmentBuilder FRANTIC = new EnchantmentBuilder("frantic", Enchantment.Rarity.UNCOMMON,
-            EnchantmentTarget.WEAPON, MAIN_HAND) {
+    public static final EnchantmentBuilder FRANTIC = new EnchantmentBuilder("frantic", Enchantment.Rarity.UNCOMMON, EnchantmentTarget.WEAPON, MAIN_HAND) {
         @Override
-        public float onAttack(LivingEntity user, Entity target, int level, boolean isCritical, float damageAmount) {
+        public float onAttack(LivingEntity user, Entity target, int level, boolean isCritical, boolean isMaxCharge, float damageAmount) {
             float modifier = 0.0f;
             if (!user.world.isClient()) {
                 if (user.hasStatusEffect(StatusEffects.SPEED)) {
@@ -103,22 +174,22 @@ public class SupplementaryEnchantments {
             return modifier;
         }
     };
-    public static final EnchantmentBuilder FRENZY = new EnchantmentBuilder("frenzy", Enchantment.Rarity.RARE,
-            EnchantmentTarget.WEAPON, MAIN_HAND) {
+    public static final EnchantmentBuilder FRENZY = new EnchantmentBuilder("frenzy", Enchantment.Rarity.RARE, EnchantmentTarget.WEAPON, MAIN_HAND) {
         @Override
-        public float onAttack(LivingEntity user, Entity target, int level, boolean isCritical, float damageAmount) {
+        public float onAttack(LivingEntity user, Entity target, int level, boolean isCritical, boolean isMaxCharge, float damageAmount) {
             float lostHealthPercent = 2 * Math.max(0.5f, 1 - user.getHealth() / user.getMaxHealth());
             return lostHealthPercent * 0.2f * level * damageAmount;
         }
 
         @Override
-        public float onDamage(LivingEntity user, DamageSource source, int level, float damageAmount) {
-            return source.getAttacker() != null ? damageAmount * 0.2f : 0.0f;
+        public float onDamageMultiplier(LivingEntity user, ItemStack itemStack, DamageSource source, int level, MutableFloat damageAmount) {
+            return source.getAttacker() != null ? 1.2f : 1.0f;
         }
     };
 
     /**
-     * Mobility enchantments <br>
+     * <hr><center><h1>Mobility enchantments</h1></center><hr>
+     * These are various enchantments that all increase user mobility in some way. <br><br>
      * Acrobatic - Boots: wall cling/jump while sneaking and double jump. Max lvl: 1 <br>
      * Air Dash - Boots: dash in the air on double-tapping forward. Max lvl: 1 <br>
      * All Terrain - Boots: increased step height, and ability to walk on fluids. Max lvl: 1 <br>
@@ -127,25 +198,18 @@ public class SupplementaryEnchantments {
      * Grappling - Bows, crossbows, fishing rods: projectiles pull the user in. Varies by tool type. Max lvl: 1 <br>
      * Slimed - Boots: become bouncy, experience much less friction. Max lvl: 1
      */
-    public static final EnchantmentBuilder ACROBATIC = new EnchantmentBuilder("acrobatic", Enchantment.Rarity.VERY_RARE,
-            EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
-    public static final EnchantmentBuilder AIR_DASH = new EnchantmentBuilder("air_dash", Enchantment.Rarity.VERY_RARE,
-            EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
-    public static final EnchantmentBuilder ALL_TERRAIN = new EnchantmentBuilder("all_terrain", Enchantment.Rarity.VERY_RARE,
-            EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
-    public static final EnchantmentBuilder ASSAULT_DASH = new EnchantmentBuilder("assault_dash", Enchantment.Rarity.VERY_RARE,
-            null, BOTH_HANDS);
-    public static final EnchantmentBuilder BUNNYHOP = new EnchantmentBuilder("bunnyhop", Enchantment.Rarity.VERY_RARE,
-            EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
-    public static final EnchantmentBuilder GRAPPLING = new EnchantmentBuilder("grappling", Enchantment.Rarity.UNCOMMON,
-            EnchantmentTarget.CROSSBOW, MAIN_HAND);
-    public static final EnchantmentBuilder SLIMED = new EnchantmentBuilder("slimed", Enchantment.Rarity.VERY_RARE,
-            EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
+    public static final EnchantmentBuilder ACROBATIC = new EnchantmentBuilder("acrobatic", Enchantment.Rarity.VERY_RARE, EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
+    public static final EnchantmentBuilder AIR_DASH = new EnchantmentBuilder("air_dash", Enchantment.Rarity.VERY_RARE, EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
+    public static final EnchantmentBuilder ALL_TERRAIN = new EnchantmentBuilder("all_terrain", Enchantment.Rarity.VERY_RARE, EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
+    public static final EnchantmentBuilder ASSAULT_DASH = new EnchantmentBuilder("assault_dash", Enchantment.Rarity.VERY_RARE, null, BOTH_HANDS);
+    public static final EnchantmentBuilder BUNNYHOP = new EnchantmentBuilder("bunnyhop", Enchantment.Rarity.VERY_RARE, EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
+    public static final EnchantmentBuilder GRAPPLING = new EnchantmentBuilder("grappling", Enchantment.Rarity.UNCOMMON, EnchantmentTarget.CROSSBOW, MAIN_HAND);
+    public static final EnchantmentBuilder SLIMED = new EnchantmentBuilder("slimed", Enchantment.Rarity.VERY_RARE, EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
 
     /**
      * Sets of enchantments incompatible with each other.
      */
-    public static final EnchantmentBuilder[] GENERAL_COMPATIBILITY_GROUP = {EMPOWERED, SOULBOUND};
+    public static final EnchantmentBuilder[] GENERAL_COMPATIBILITY_GROUP = {EMPOWERED, SOULBOUND, GROWTH};
     public static final EnchantmentBuilder[] MOBILITY_INCOMPATIBILITY_GROUP = {ACROBATIC, AIR_DASH, ALL_TERRAIN, BUNNYHOP, SLIMED};
 
     /**
@@ -191,6 +255,10 @@ public class SupplementaryEnchantments {
                 .setTreasure(true)
                 .addCompatibleClasses(FishingRodItem.class, BowItem.class)
                 .addCompatibleItems(Items.CROSSBOW)
+                .build();
+        GROWTH.makeIncompatible(GENERAL_COMPATIBILITY_GROUP)
+                .setPower(20, 50)
+                .setTreasure(true)
                 .build();
         LIGHTNING_BOLT.makeIncompatible(Enchantments.POWER, OVERSIZED)
                 .setPower(20, 50)

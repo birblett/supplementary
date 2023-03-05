@@ -15,8 +15,9 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 @Mixin(AbstractClientPlayerEntity.class)
 public class OversizedAbstractClientPlayerEntityMixin {
 
-    @ModifyVariable(method = "getFovMultiplier", at = @At(value = "STORE"), index = 4)
+    @SuppressWarnings("InvalidInjectorMethodSignature")
+    @ModifyVariable(method = "getFovMultiplier", at = @At(value = "STORE", ordinal = 0), index = 4)
     private float scaledDrawSpeedFOV(float fovScale) {
-        return SupplementaryEnchantmentHelper.getDrawspeedModifier(fovScale, ((AbstractClientPlayerEntity) (Object) this).getActiveItem());
+        return Math.min(1.0f, SupplementaryEnchantmentHelper.getDrawspeedModifier(fovScale, ((AbstractClientPlayerEntity) (Object) this).getActiveItem()));
     }
 }

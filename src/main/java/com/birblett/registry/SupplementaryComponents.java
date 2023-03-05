@@ -127,7 +127,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                         for (EntityHitResult entityHitResult : entityHitResults) {
                             Entity target = entityHitResult.getEntity();
                             // damage target based on current velocity
-                            if (target.damage(SupplementaryEnchantments.shieldBash(user), (float) this.dashVelocity.length() * 2)) {
+                            if (target.damage(SupplementaryEnchantments.assaultDash(user), (float) this.dashVelocity.length() * 2)) {
                                 // if damaged successfully, apply knockback and damage the shield
                                 target.setVelocity(target.getVelocity().add(this.dashVelocity.multiply(1.2)).add(0, 0.2, 0));
                                 if (target instanceof PlayerEntity) {
@@ -165,10 +165,8 @@ public class SupplementaryComponents implements EntityComponentInitializer {
 
             @Override
             public void onProjectileFire(LivingEntity user, ProjectileEntity projectileEntity, int level, ItemStack item, ItemStack projectileItem) {
-                /*
-                 store hand, crossbow, and projectile item data, set a burst timer, and add a cooldown, only if
-                 initiating a burst; decrease projectile damage/velocity
-                 */
+                // store hand, crossbow, and projectile item data, set a burst timer, and add a cooldown, only if
+                // initiating a burst; decrease projectile damage/velocity
                 if (projectileEntity instanceof PersistentProjectileEntity persistentProjectileEntity && user.isAlive()) {
                     if (this.getValue() == 0) {
                         this.itemStack = item;
@@ -188,10 +186,8 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             public void onTick(LivingEntity livingEntity) {
                 // only do burst fire logic if there is a burst fire timer active
                 if (this.getValue() > 0) {
-                    /*
-                     if the active item matches the item used to initiate the burst fire, tick the burst timer down
-                     and fire an arrow every fourth tick
-                     */
+                    // if the active item matches the item used to initiate the burst fire, tick the burst timer down
+                    // and fire an arrow every fourth tick
                     if (this.hand != null && livingEntity.getStackInHand(this.hand) == this.itemStack) {
                         if (this.getValue() % 4 == 0) {
                             float pitch = CrossbowItem.getSoundPitch(true, livingEntity.getRandom());
@@ -414,10 +410,8 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                         Vec3d projectileToTarget = new Vec3d(targetPos.x - projectilePos.x, targetPos.y -
                                 projectilePos.y, targetPos.z - projectilePos.z);
                         Vec3d normVelocity = velocity.normalize();
-                        /*
-                         calculate angle between arrow and tracked mob, adjust course up to pi/8 radians per tick;
-                         correct projectile course by this amount
-                         */
+                        // calculate angle between arrow and tracked mob, adjust course up to pi/8 radians per tick;
+                        // correct projectile course by this amount
                         Vec3d normal = normVelocity.crossProduct(projectileToTarget).crossProduct(normVelocity).normalize();
                         double angle = Math.asin(Math.sqrt(normVelocity.crossProduct(projectileToTarget).lengthSquared() /
                                         (normVelocity.lengthSquared() * projectileToTarget.lengthSquared())));

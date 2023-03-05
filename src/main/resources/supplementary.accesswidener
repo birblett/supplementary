@@ -1,6 +1,10 @@
 accessWidener  v1	   named
 accessible     class   net/minecraft/enchantment/EnchantmentHelper$Consumer
 accessible     field   net/minecraft/client/network/ClientPlayerEntity       ticksLeftToDoubleTapSprint  I
+accessible     field   net/minecraft/client/network/ClientPlayerEntity       ticksLeftToDoubleTapSprint  I
+accessible     field   net/minecraft/item/Item                               ATTACK_DAMAGE_MODIFIER_ID   Ljava/util/UUID;
+accessible     field   net/minecraft/item/Item                               ATTACK_SPEED_MODIFIER_ID    Ljava/util/UUID;
+accessible     field   net/minecraft/entity/projectile/TridentEntity         tridentStack                Lnet/minecraft/item/ItemStack;
 accessible     method  net/minecraft/item/CrossbowItem                       getProjectiles              (Lnet/minecraft/item/ItemStack;)Ljava/util/List;
 accessible     method  net/minecraft/item/CrossbowItem                       getSoundPitch               (ZLjava/util/Random;)F
 accessible     method  net/minecraft/item/CrossbowItem                       getSpeed                    (Lnet/minecraft/item/ItemStack;)F

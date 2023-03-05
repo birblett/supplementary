@@ -24,7 +24,7 @@ public class PlayerEntityEventMixin {
                              int knockbackAmount, boolean isCritical, boolean unused, double speedDelta,
                              float healthBeforeAttack, boolean setOnFire, int fireAspectLevel, Vec3d targetVelocity) {
         float currentDamage = EntityEvents.PLAYER_ENTITY_ATTACK_EVENT.invoker().onAttack((PlayerEntity) (Object) this, target,
-                damageAmount, isCritical);
+                damageAmount, isCritical, isMaxCharge);
         this.damageModifier = currentDamage - damageAmount;
     }
 

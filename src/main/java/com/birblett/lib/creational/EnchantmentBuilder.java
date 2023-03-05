@@ -3,6 +3,7 @@ package com.birblett.lib.creational;
 import com.birblett.Supplementary;
 import com.birblett.lib.components.BaseComponent;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
+import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentTarget;
 import net.minecraft.entity.Entity;
@@ -15,7 +16,10 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.World;
+import org.apache.commons.lang3.mutable.MutableFloat;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -284,7 +288,7 @@ public class EnchantmentBuilder extends Enchantment {
      * @return A flat (additive) damage modifier.
      * @see com.birblett.registry.SupplementaryEvents#PLAYER_ATTACK_ENCHANT_EVENTS
      */
-    public float onAttack(LivingEntity user, Entity target, int level, boolean isCritical, float damageAmount) {
+    public float onAttack(LivingEntity user, Entity target, int level, boolean isCritical, boolean isMaxCharge, float damageAmount) {
         return 0.0f;
     }
     /**
@@ -294,10 +298,11 @@ public class EnchantmentBuilder extends Enchantment {
      * @param user Entity firing the projectile
      * @param projectileEntity Projectile being created
      * @param level Provided enchantment level
+     * @param item Item firing the projectile
      * @see com.birblett.registry.SupplementaryEvents#ARROW_FIRED_ENCHANT_EVENTS
      * @see com.birblett.registry.SupplementaryEvents#BOBBER_CAST_ENCHANT_EVENTS
      */
-    public void onProjectileFire(LivingEntity user, ProjectileEntity projectileEntity, int level) {}
+    public void onProjectileFire(LivingEntity user, ProjectileEntity projectileEntity, int level, ItemStack item) {}
 
     /**
      * The effect of this enchantment on crossbow fire. Called before projectile is instantiated via event hook.
@@ -321,11 +326,29 @@ public class EnchantmentBuilder extends Enchantment {
 
     /**
      * Called when an entity with this enchant equipped is damaged. May directly modify incoming damage, or operate via
-     * side effects.
-     * @return A flat (additive) damage modifier.
+     * side effects. Intended for applying flat damage modifiers.
      * @see com.birblett.registry.SupplementaryEvents#LIVING_ENTITY_ADD_ENCHANT_DAMAGE_EVENTS
      */
-    public float onDamage(LivingEntity user, DamageSource source, int level, float damageAmount) {
-        return 0.0f;
+    public void onDamage(LivingEntity user, ItemStack itemStack, DamageSource source, int level, MutableFloat damageAmount) {}
+
+    /**
+     * Called when an entity with this enchant equipped is damaged. May directly modify incoming damage, or operate via
+     * side effects. Intended for applying damage multipliers.
+     * @return A float multiplier
+     * @see com.birblett.registry.SupplementaryEvents#LIVING_ENTITY_ADD_ENCHANT_DAMAGE_EVENTS
+     */
+    public float onDamageMultiplier(LivingEntity user, ItemStack itemStack, DamageSource source, int level, MutableFloat damageAmount) {
+        return 1.0f;
     }
+
+    /**
+     * Called when a block is mined by an item with this enchant.
+     * @param world World of block broken
+     * @param state Block broken
+     * @param pos Position of block broken
+     * @param miner Provided player
+     * @param item Tool used
+     * @see com.birblett.registry.SupplementaryEvents#POSTMINE_ENCHANT_EVENTS
+     */
+    public void onBlockBreak(World world, BlockState state, BlockPos pos, PlayerEntity miner, ItemStack item) {}
 }

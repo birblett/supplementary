@@ -1,5 +1,6 @@
 package com.birblett.registry;
 
+import com.birblett.Supplementary;
 import com.birblett.lib.api.EntityEvents;
 import com.birblett.lib.api.ItemEvents;
 import com.birblett.lib.api.EventReturnable;
@@ -12,8 +13,10 @@ import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.entity.projectile.FishingBobberEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
+import net.minecraft.entity.projectile.TridentEntity;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
@@ -21,6 +24,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import org.apache.commons.lang3.mutable.MutableFloat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,7 +82,7 @@ public class SupplementaryEvents {
      * @see ItemEvents#ARROW_FIRED_EVENT
      */
     public static final ItemEvents.ProjectileFiredEvent ARROW_FIRED_ENCHANT_EVENTS = (user, projectile, item, arrow) -> {
-        if (projectile instanceof PersistentProjectileEntity) {
+        if (projectile instanceof ArrowEntity) {
             EnchantmentHelper.get(item).forEach((enchantment, level) -> {
                 if (enchantment instanceof EnchantmentBuilder enchantmentBuilder) {
                     if (enchantmentBuilder.hasComponent()) {
@@ -87,7 +91,7 @@ public class SupplementaryEvents {
                             componentKey.maybeGet(projectile).ifPresent(component -> component.onProjectileFire(user, projectile, level, item, arrow));
                         }
                     } else {
-                        enchantmentBuilder.onProjectileFire(user, projectile, level);
+                        enchantmentBuilder.onProjectileFire(user, projectile, level, item);
                     }
                 }
             });
@@ -106,7 +110,26 @@ public class SupplementaryEvents {
                             componentKey.maybeGet(projectile).ifPresent(component -> component.onProjectileFire(user, projectile, level, item, arrow));
                         }
                     } else {
-                        enchantmentBuilder.onProjectileFire(user, projectile, level);
+                        enchantmentBuilder.onProjectileFire(user, projectile, level, item);
+                    }
+                }
+            });
+        }
+    };
+    /**
+     * Called when a trident is thrown. Applies enchantment effects to tridents.
+     * @see ItemEvents#TRIDENT_THROW
+     */
+    public static final ItemEvents.ProjectileFiredEvent TRIDENT_THROW_ENCHANT_EVENTS = (user, projectile, item, trident) -> {
+        if (projectile instanceof TridentEntity) {
+            EnchantmentHelper.get(item).forEach((enchantment, level) -> {
+                if (enchantment instanceof EnchantmentBuilder enchantmentBuilder) {
+                    if (enchantmentBuilder.hasComponent()) {
+                        for (ComponentKey<BaseComponent> componentKey : enchantmentBuilder.getComponents()) {
+                            componentKey.maybeGet(projectile).ifPresent(component -> component.onProjectileFire(user, projectile, level, item, trident));
+                        }
+                    } else {
+                        enchantmentBuilder.onProjectileFire(user, projectile, level, item);
                     }
                 }
             });
@@ -121,20 +144,29 @@ public class SupplementaryEvents {
      * @see EntityEvents#LIVING_ENTITY_ADDITIVE_DAMAGE_EVENT
      */
     public static final EntityEvents.EntityDamageEvent LIVING_ENTITY_ADD_ENCHANT_DAMAGE_EVENTS = (entity, source, amount) -> {
-        if (entity instanceof MobEntity mobEntity) {
-            float final_amount = amount;
+        if (entity instanceof LivingEntity livingEntity) {
+            MutableFloat final_amount = new MutableFloat(amount);
             List<ItemStack> items = new ArrayList<>();
-            items.add(mobEntity.getMainHandStack());
-            items.add(mobEntity.getOffHandStack());
-            mobEntity.getArmorItems().forEach(items::add);
+            items.add(livingEntity.getMainHandStack());
+            items.add(livingEntity.getOffHandStack());
+            livingEntity.getArmorItems().forEach(items::add);
             for (ItemStack itemStack : items) {
                 for (Map.Entry<Enchantment, Integer> enchantmentEntry : EnchantmentHelper.get(itemStack).entrySet()) {
                     if (enchantmentEntry.getKey() instanceof EnchantmentBuilder enchantmentBuilder) {
-                        final_amount += enchantmentBuilder.onDamage(mobEntity, source, enchantmentEntry.getValue(), final_amount);
+                        enchantmentBuilder.onDamage(livingEntity, itemStack, source, enchantmentEntry.getValue(), final_amount);
                     }
                 }
             }
-            amount = final_amount;
+            float multiplier = 1.0f;
+            for (ItemStack itemStack : items) {
+                for (Map.Entry<Enchantment, Integer> enchantmentEntry : EnchantmentHelper.get(itemStack).entrySet()) {
+                    if (enchantmentEntry.getKey() instanceof EnchantmentBuilder enchantmentBuilder) {
+                        multiplier *= enchantmentBuilder.onDamageMultiplier(livingEntity, itemStack, source, enchantmentEntry.getValue(), final_amount);
+                    }
+                }
+            }
+            final_amount.setValue(final_amount.getValue() * multiplier);
+            amount = final_amount.getValue();
         }
         return amount;
     };
@@ -182,11 +214,11 @@ public class SupplementaryEvents {
      * damage.
      * @see EntityEvents.LivingEntityAttackEvent
      */
-    public static final EntityEvents.LivingEntityAttackEvent PLAYER_ATTACK_ENCHANT_EVENTS = (self, target, amount, isCritical) -> {
+    public static final EntityEvents.LivingEntityAttackEvent PLAYER_ATTACK_ENCHANT_EVENTS = (self, target, amount, isCritical, isMaxCharge) -> {
         if (self instanceof PlayerEntity) {
             for (Map.Entry<Enchantment, Integer> enchantment : EnchantmentHelper.get(self.getMainHandStack()).entrySet()) {
                 if (enchantment.getKey() instanceof EnchantmentBuilder enchantmentBuilder) {
-                    amount += enchantmentBuilder.onAttack(self, target, enchantment.getValue(), isCritical, amount);
+                    amount += enchantmentBuilder.onAttack(self, target, enchantment.getValue(), isCritical, isMaxCharge, amount);
                 }
             }
         }
@@ -310,12 +342,25 @@ public class SupplementaryEvents {
         }
     };
 
+    /**
+     * Called when a block is successfully mined by a player. Applies enchantment effects.
+     * @see EntityEvents#POSTMINE_EVENT
+     */
+    public static final EntityEvents.BlockBreakEvent POSTMINE_ENCHANT_EVENTS = (world, state, pos, miner, item) -> {
+        for (Map.Entry<Enchantment, Integer> enchantmentEntry : EnchantmentHelper.get(item).entrySet()) {
+            if (enchantmentEntry.getKey() instanceof EnchantmentBuilder enchantmentBuilder) {
+                enchantmentBuilder.onBlockBreak(world, state, pos, miner, item);
+            }
+        }
+    };
+
     public static void register() {
         ItemEvents.ITEM_USE.register(ITEM_USE_ENCHANT_EVENTS);
         ItemEvents.CROSSBOW_PREFIRE.register(CROSSBOW_PREFIRE_ENCHANT_EVENTS);
 
         ItemEvents.ARROW_FIRED_EVENT.register(ARROW_FIRED_ENCHANT_EVENTS);
         ItemEvents.FISHING_ROD_USE.register(BOBBER_CAST_ENCHANT_EVENTS);
+        ItemEvents.TRIDENT_THROW.register(TRIDENT_THROW_ENCHANT_EVENTS);
 
         EntityEvents.LIVING_ENTITY_ADDITIVE_DAMAGE_EVENT.register(LIVING_ENTITY_ADD_ENCHANT_DAMAGE_EVENTS);
         EntityEvents.ARROW_BLOCK_HIT_EVENT.register(ARROW_BLOCK_HIT_ENCHANT_EVENTS);
@@ -333,5 +378,6 @@ public class SupplementaryEvents {
         EntityEvents.PROJECTILE_TRAVEL_TICK.register(ARROW_TRAVEL_COMPONENT_TICK);
 
         EntityEvents.FISHING_BOBBER_REEL_EVENT.register(FISHING_REEL_ENCHANT_EVENTS);
+        EntityEvents.POSTMINE_EVENT.register(POSTMINE_ENCHANT_EVENTS);
     }
 }

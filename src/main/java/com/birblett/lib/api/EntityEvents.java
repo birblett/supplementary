@@ -2,15 +2,20 @@ package com.birblett.lib.api;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.FishingBobberEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 
 import java.util.function.Function;
 
@@ -178,16 +183,16 @@ public class EntityEvents {
      */
     @FunctionalInterface
     public interface LivingEntityAttackEvent {
-        float onAttack(LivingEntity self, Entity target, float amount, boolean isCritical);
+        float onAttack(LivingEntity self, Entity target, float amount, boolean isCritical, boolean isMaxCharge);
     }
 
     /**
      * Event hook for when a player attacks another entity. Expected to return some damage value.
      */
     public static final Event<LivingEntityAttackEvent> PLAYER_ENTITY_ATTACK_EVENT = EventFactory.createArrayBacked(LivingEntityAttackEvent.class,
-            callbacks -> (self, target, amount, isCritical) -> {
+            callbacks -> (self, target, amount, isCritical, isMaxCharge) -> {
                 for (LivingEntityAttackEvent callback : callbacks) {
-                    amount = callback.onAttack(self, target, amount, isCritical);
+                    amount = callback.onAttack(self, target, amount, isCritical, isMaxCharge);
                 }
                 return amount;
             });
@@ -232,4 +237,27 @@ public class EntityEvents {
      * Event hook when an arrow hits an entity, after damage calculation.
      */
     public static final Event<EntityHitEvent> ARROW_POST_ENTITY_HIT_EVENT = EventFactory.createArrayBacked(EntityHitEvent.class, ON_ENTITY_HIT_EVENT);
+
+    /**
+     * <hr><center><h1>Block break events</h1></center><hr>
+     * These events hook into instances where a block is broken.
+     */
+    @FunctionalInterface
+    public interface BlockBreakEvent {
+        void onBlockBreakEvent(World world, BlockState state, BlockPos pos, PlayerEntity miner, ItemStack item);
+    }
+
+    /**
+     * Standard functional pattern for BlockBreakEvent hooks.
+     */
+    private static final Function<BlockBreakEvent[], BlockBreakEvent> ON_BLOCK_BREAK_EVENT = callbacks -> (world, state, pos, miner, item) -> {
+        for (BlockBreakEvent callback : callbacks) {
+            callback.onBlockBreakEvent(world, state, pos, miner, item);
+        }
+    };
+
+    /**
+     * Event hook after a player successfully mines a block.
+     */
+    public static final Event<BlockBreakEvent> POSTMINE_EVENT = EventFactory.createArrayBacked(BlockBreakEvent.class, ON_BLOCK_BREAK_EVENT);
 }

@@ -52,7 +52,7 @@ public class ItemEvents {
      */
     @FunctionalInterface
     public interface ProjectileFiredEvent {
-        void onProjectileFire(LivingEntity user, ProjectileEntity persistentProjectileEntity, ItemStack item, ItemStack arrow);
+        void onProjectileFire(LivingEntity user, ProjectileEntity projectileEntity, ItemStack item, ItemStack arrow);
     }
 
     /**
@@ -75,4 +75,8 @@ public class ItemEvents {
      * Event hook for when a fishing rod instantiates a fishing bobber entity.
      */
     public static final Event<ProjectileFiredEvent> FISHING_ROD_USE = EventFactory.createArrayBacked(ProjectileFiredEvent.class, PROJECTILE_FIRED_EVENT);
+    /**
+     * Event hook for when a trident is thrown.
+     */
+    public static final Event<ProjectileFiredEvent> TRIDENT_THROW = EventFactory.createArrayBacked(ProjectileFiredEvent.class, PROJECTILE_FIRED_EVENT);
 }
