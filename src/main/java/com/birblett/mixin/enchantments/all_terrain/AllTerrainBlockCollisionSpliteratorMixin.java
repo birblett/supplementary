@@ -28,11 +28,11 @@ public class AllTerrainBlockCollisionSpliteratorMixin implements BlockCollisionS
     @Unique private BlockPos supplementary$blockPos;
     @Unique private CollisionView supplementary$collisionView;
     @Unique private BlockState supplementary$blockState;
-    @Unique private boolean supplementary$extendCollision = false;
+    @Unique private int supplementary$extendCollision = 0;
 
     @Override
-    public void extendCollisionConditions() {
-        this.supplementary$extendCollision = true;
+    public void extendCollisionConditions(int type) {
+        this.supplementary$extendCollision = type;
     }
 
     @Inject(method = "<init>(Lnet/minecraft/world/CollisionView;Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Box;Z)V",
@@ -52,7 +52,12 @@ public class AllTerrainBlockCollisionSpliteratorMixin implements BlockCollisionS
     @ModifyVariable(method = "computeNext()Lnet/minecraft/util/shape/VoxelShape;", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/util/shape/VoxelShapes;fullCube()Lnet/minecraft/util/shape/VoxelShape;"))
     private VoxelShape replaceWithFluidVoxelShape(VoxelShape voxelShape) {
-        if (this.supplementary$extendCollision) {
+        if (this.supplementary$extendCollision == 1) {
+            if (this.supplementary$blockState.getFluidState().isOf(Fluids.WATER) || this.supplementary$blockState.getFluidState().isOf(Fluids.FLOWING_WATER)) {
+                return this.supplementary$blockState.getFluidState().getShape(this.supplementary$collisionView, this.supplementary$blockPos);
+            }
+        }
+        else if (this.supplementary$extendCollision == 2) {
             if (!this.supplementary$blockState.getFluidState().isOf(Fluids.EMPTY)) {
                 return this.supplementary$blockState.getFluidState().getShape(this.supplementary$collisionView, this.supplementary$blockPos);
             }

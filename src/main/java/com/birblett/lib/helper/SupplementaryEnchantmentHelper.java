@@ -1,9 +1,17 @@
 package com.birblett.lib.helper;
 
 import com.birblett.registry.SupplementaryEnchantments;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.EntityDamageSource;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -13,19 +21,46 @@ import java.util.Map;
 public class SupplementaryEnchantmentHelper {
 
     /**
-     * Apply draw speed modifiers for Growth and Oversized
+     * <hr><center><h1>General helpers</h1></center><hr><br><br>
+     *
+     * Apply draw speed modifiers for enchantments
      * @param base Base amount
      * @param stack Bow/crossbow itemstack
      * @return Draw speed after applying modifiers
      */
     public static float getDrawspeedModifier(float base, ItemStack stack) {
+        stack = stack == null ? ItemStack.EMPTY : stack;
         float oversizedModifier = (float) Math.pow(0.75, net.minecraft.enchantment.EnchantmentHelper.getLevel(SupplementaryEnchantments.OVERSIZED, stack));
         float growthModifier = 1 + getGrowthStat(stack, GrowthKey.DRAW_SPEED);
         return base * oversizedModifier * growthModifier;
     }
 
+    /**
+     * <hr><center><h1>Assault Dash enchantment helpers</h1></center><hr>
+     * Helper functions for operations involving the Enhanced enchantment<br><br>
+     *
+     * Damage source for the Assault Dash enchantment
+     * @param source the source entity
+     * @return a new EntityDamageSource, with custom death message
+     */
+    public static DamageSource assaultDash(LivingEntity source) {
+        return new EntityDamageSource("assault_dash", source) {
+            @Override
+            public Text getDeathMessage(LivingEntity entity) {
+                return new TranslatableText("death.attack." + this.name + ".player", entity.getDisplayName(), this.source.getDisplayName());
+            }
+        };
+    }
+
+    /**
+     * <hr><center><h1>Growth enchantment helpers</h1></center><hr>
+     * Enum and helper functions for operations involving the Growth enchantment
+     */
     public static final String GROWTH_NBT_KEY = "SupplementaryGrowthStats";
 
+    /**
+     * Keys, names, stat scaling, and display values for Growth attributes.
+     */
     public enum GrowthKey {
         ATTACK_DAMAGE("attack_damage", "Attack Damage", 0.004f, "+", false),
         ATTACK_SPEED("attack_speed", "Attack Speed", 0.0004f, "+", false),
@@ -50,6 +85,12 @@ public class SupplementaryEnchantmentHelper {
         }
     }
 
+    /**
+     * Adds growth points of a specific stat to an item
+     * @param itemStack Provided item
+     * @param key Growth stat to increment
+     * @param value Amount of growth points to add
+     */
     public static void addGrowthPoints(ItemStack itemStack, GrowthKey key, float value) {
         NbtCompound nbt = itemStack.getOrCreateNbt();
         NbtCompound growthPoints = nbt.getCompound(GROWTH_NBT_KEY);
@@ -63,6 +104,12 @@ public class SupplementaryEnchantmentHelper {
         nbt.put(GROWTH_NBT_KEY, growthPoints);
     }
 
+    /**
+     * Get the amount of growth points of a certain stat on an item
+     * @param itemStack Provided item
+     * @param key Stat to be checked
+     * @return Amount of growth points; 0 if item does not have the growth stat
+     */
     public static float getGrowthPoints(ItemStack itemStack, GrowthKey key) {
         NbtCompound nbt = itemStack.getNbt();
         if (nbt != null && nbt.contains(GROWTH_NBT_KEY)) {
@@ -71,10 +118,21 @@ public class SupplementaryEnchantmentHelper {
         return 0;
     }
 
+    /**
+     * Get the modifier associated with the provided growth key on the item
+     * @param itemStack Provided item
+     * @param key Stat to be checked
+     * @return Growth modifier
+     */
     public static float getGrowthStat(ItemStack itemStack, GrowthKey key) {
         return getGrowthPoints(itemStack, key) * key.scale;
     }
 
+    /**
+     * Get the total number of growth points on an item
+     * @param itemStack Provided item
+     * @return Amount of growth points
+     */
     public static float getTotalGrowthPoints(ItemStack itemStack) {
         NbtCompound nbt = itemStack.getNbt();
         float total = 0.0f;
@@ -86,6 +144,11 @@ public class SupplementaryEnchantmentHelper {
         return total;
     }
 
+    /**
+     * Return a map of all growth stat points on an item
+     * @param itemStack Provided item
+     * @return A map of all growth points on the provided item, following the GrowthKey enum ordering
+     */
     public static Map<GrowthKey, Float> getAllGrowthPoints(ItemStack itemStack) {
         NbtCompound nbt = itemStack.getNbt();
         Map<GrowthKey, Float> map = new LinkedHashMap<>();
@@ -98,5 +161,38 @@ public class SupplementaryEnchantmentHelper {
             }
         }
         return map;
+    }
+
+
+    /**
+     * <hr><center><h1>Enhanced enchantment helpers</h1></center><hr>
+     * Helper functions for operations involving the Enhanced enchantment<br><br>
+     *
+     * Return a knockback reduction multiplier based on protection levels and the incoming damage type
+     * @param entity The entity to be checked against
+     * @param source Provided damage source
+     * @return Knockback reduction multiplier
+     */
+    public static float enhancedProtKnockbackAmount(LivingEntity entity, DamageSource source) {
+        float mult = 1.0f;
+        for (ItemStack stack : entity.getArmorItems()) {
+            if (EnchantmentHelper.getLevel(SupplementaryEnchantments.ENHANCED, stack) > 0) {
+                for (Map.Entry<Enchantment, Integer> enchantment : EnchantmentHelper.get(stack).entrySet()) {
+                    mult -= 0.025f * enchantment.getKey().getProtectionAmount(enchantment.getValue(), source);
+                }
+            }
+        }
+        return Math.max(mult, 0.0f);
+    }
+
+    public static int getEnhancedEquipLevel(Enchantment enchantment, LivingEntity entity) {
+        Collection<ItemStack> iterable = enchantment.getEquipment(entity).values();
+        int i = 0;
+        for (ItemStack itemStack : iterable) {
+            int j = EnchantmentHelper.getLevel(enchantment, itemStack);
+            if (j <= i || EnchantmentHelper.getLevel(SupplementaryEnchantments.ENHANCED, itemStack) == 0) continue;
+            i = j;
+        }
+        return i;
     }
 }

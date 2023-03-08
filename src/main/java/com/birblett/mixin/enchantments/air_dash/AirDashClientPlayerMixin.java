@@ -1,5 +1,6 @@
 package com.birblett.mixin.enchantments.air_dash;
 
+import com.birblett.lib.helper.SupplementaryEnchantmentHelper;
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -15,33 +16,39 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ClientPlayerEntity.class)
 public class AirDashClientPlayerMixin {
 
-    @Unique private int airDashState = 0;
+    @Unique private int supplementary$AirDashState = 0;
+    @Unique private int supplementary$AirDashes;
 
     @Inject(method = "tickMovement", at = @At("HEAD"))
     private void allowAirDash(CallbackInfo ci) {
         ClientPlayerEntity self = (ClientPlayerEntity) (Object) this;
         if (EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.AIR_DASH, self) > 0) {
             if (!self.isOnGround() && !self.isTouchingWater()) {
-                if (!self.input.hasForwardMovement() && this.airDashState % 2 == 0) {
-                    this.airDashState += 1;
-                }
-                switch (this.airDashState) {
-                    case 1 -> {
-                        if (self.input.hasForwardMovement()) {
-                            this.airDashState = 2;
-                            self.ticksLeftToDoubleTapSprint = 7;
-                        }
+                if (this.supplementary$AirDashes > 0) {
+                    if (!self.input.hasForwardMovement() && this.supplementary$AirDashState % 2 == 0) {
+                        this.supplementary$AirDashState += 1;
                     }
-                    case 3 -> {
-                        if (self.input.hasForwardMovement() && self.ticksLeftToDoubleTapSprint > 0) {
-                            self.setVelocity(self.getRotationVector().multiply(1.05));
-                            self.ticksLeftToDoubleTapSprint = 0;
+                    switch (this.supplementary$AirDashState) {
+                        case 1 -> {
+                            if (self.input.hasForwardMovement()) {
+                                this.supplementary$AirDashState = 2;
+                                self.ticksLeftToDoubleTapSprint = 7;
+                            }
+                        }
+                        case 3 -> {
+                            if (self.input.hasForwardMovement() && self.ticksLeftToDoubleTapSprint > 0) {
+                                self.setVelocity(self.getRotationVector().multiply(1.05));
+                                self.ticksLeftToDoubleTapSprint = 0;
+                                this.supplementary$AirDashes--;
+                                this.supplementary$AirDashState = 0;
+                            }
                         }
                     }
                 }
             }
             else {
-                this.airDashState = 0;
+                this.supplementary$AirDashes = SupplementaryEnchantmentHelper.getEnhancedEquipLevel(SupplementaryEnchantments.AIR_DASH, self) > 0 ? 2 : 1;
+                this.supplementary$AirDashState = 0;
             }
         }
     }

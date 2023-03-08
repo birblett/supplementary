@@ -1,6 +1,7 @@
 package com.birblett.mixin.enchantments.all_terrain;
 
 import com.birblett.lib.accessor.BlockCollisionSpliteratorInterface;
+import com.birblett.lib.helper.SupplementaryEnchantmentHelper;
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
@@ -34,9 +35,12 @@ public class AllTerrainEntityMixin {
     @Inject(method = "adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;", at = @At("HEAD"))
     private void adjustStepHeight(Vec3d movement, CallbackInfoReturnable<Vec3d> cir) {
         if ((Entity) (Object) this instanceof LivingEntity self) {
-            this.stepHeightboost = EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.ALL_TERRAIN, self);
+            this.stepHeightboost = EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.ALL_TERRAIN, self) * 0.5;
+            if (SupplementaryEnchantmentHelper.getEnhancedEquipLevel(SupplementaryEnchantments.ALL_TERRAIN, self) > 0) {
+                this.stepHeightboost += 0.1;
+            }
             if (this.stepHeightboost > 0) {
-                ((Entity) (Object) this).stepHeight += 0.5 * this.stepHeightboost;
+                ((Entity) (Object) this).stepHeight += this.stepHeightboost;
             }
         }
     }
@@ -44,7 +48,7 @@ public class AllTerrainEntityMixin {
     @Inject(method = "adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;", at = @At("RETURN"))
     private void returnCalcStepHeightAdjustment(Vec3d movement, CallbackInfoReturnable<Vec3d> cir) {
         if (this.stepHeightboost > 0) {
-            ((Entity) (Object) this).stepHeight -= 0.5 * this.stepHeightboost;
+            ((Entity) (Object) this).stepHeight -= this.stepHeightboost;
             this.stepHeightboost = 0;
         }
     }
@@ -71,7 +75,8 @@ public class AllTerrainEntityMixin {
                 EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.ALL_TERRAIN, livingEntity) > 0 &&
                 !livingEntity.isSneaking()) {
             BlockCollisionSpliterator blockCollisionSpliterator = new BlockCollisionSpliterator(livingEntity.getWorld(), livingEntity, supplementary$BoundingBox.stretch(supplementary$Movement));
-            ((BlockCollisionSpliteratorInterface) blockCollisionSpliterator).extendCollisionConditions();
+            int collisionType = SupplementaryEnchantmentHelper.getEnhancedEquipLevel(SupplementaryEnchantments.ALL_TERRAIN, livingEntity) > 0 ? 2 : 1;
+            ((BlockCollisionSpliteratorInterface) blockCollisionSpliterator).extendCollisionConditions(collisionType);
             elements = () -> blockCollisionSpliterator;
         }
         return elements;

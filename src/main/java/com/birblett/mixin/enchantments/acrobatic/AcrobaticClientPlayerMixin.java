@@ -1,6 +1,7 @@
 package com.birblett.mixin.enchantments.acrobatic;
 
 import com.birblett.lib.helper.EntityHelper;
+import com.birblett.lib.helper.SupplementaryEnchantmentHelper;
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -41,7 +42,7 @@ public class AcrobaticClientPlayerMixin {
                 }
             }
             else if (self.isOnGround()){
-                this.airJumps = 4;
+                this.airJumps = SupplementaryEnchantmentHelper.getEnhancedEquipLevel(SupplementaryEnchantments.ACROBATIC, self) > 0 ? 6 : 4;
                 this.wallClingTicks = 30;
                 this.storedJump = false;
                 this.canAirJump = false;
@@ -63,7 +64,8 @@ public class AcrobaticClientPlayerMixin {
                 }
                 else if (this.storedJump){
                     this.wallClingTicks = 30;
-                    Vec3d horizontalComponent = self.getRotationVector().multiply(1, 0, 1).normalize().multiply(0.4);
+                    double velocityMult = SupplementaryEnchantmentHelper.getEnhancedEquipLevel(SupplementaryEnchantments.ACROBATIC, self) > 0 ? 0.6 : 0.4;
+                    Vec3d horizontalComponent = self.getRotationVector().multiply(1, 0, 1).normalize().multiply(velocityMult);
                     self.setVelocity(horizontalComponent.x, 0.6, horizontalComponent.z);
                     this.storedJump = false;
                     this.airJumps--;

@@ -12,7 +12,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.damage.EntityDamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
@@ -20,8 +19,6 @@ import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.TridentEntity;
 import net.minecraft.item.*;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.mutable.MutableFloat;
@@ -40,31 +37,17 @@ public class SupplementaryEnchantments {
     private static final EquipmentSlot[] ALL_ARMOR = new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
     public static final EquipmentSlot[] NONE = new EquipmentSlot[]{};
 
-    /**
-     * Damage source for the Assault Dash enchantment
-     * @param source the source entity
-     * @return a new EntityDamageSource, with custom death message
-     */
-    public static DamageSource assaultDash(LivingEntity source) {
-        return new EntityDamageSource("assault_dash", source) {
-            @Override
-            public Text getDeathMessage(LivingEntity entity) {
-                return new TranslatableText("death.attack." + this.name + ".player", entity.getDisplayName(), this.source.getDisplayName());
-            }
-        };
-    }
-
     // TODO: implement enhanced
     /**
      * <hr><center><h1>General enchantments</h1></center><hr>
      * These are applicable to most enchantable items. <br><br>
      * Empowered - All other enchantments' effective level is increased by 1. Max lvl: 1 <br>
-     * Enhanced - All other "unique" enchantments have their effect improved. Max lvl: 1 <br>
-     * Growth - Tool continually gains small amounts of base stats while being used. Max lvl: 1 <br>
+     * Enhanced - Slightly modifies the effects of other enchantments. Max lvl: 1 <br>
+     * Growth - Continually gains small amounts of base stats while being used. Max lvl: 1 <br>
      * Soulbound - Stays in inventory on death. Max lvl: 1
      */
     public static final EnchantmentBuilder EMPOWERED = new EnchantmentBuilder("empowered", Enchantment.Rarity.RARE, EnchantmentTarget.BREAKABLE, NONE);
-    public static final EnchantmentBuilder ENHANCED = new EnchantmentBuilder("enhanced", Enchantment.Rarity.RARE, EnchantmentTarget.BREAKABLE, NONE);
+    public static final EnchantmentBuilder ENHANCED = new EnchantmentBuilder("enhanced", Enchantment.Rarity.RARE, EnchantmentTarget.BREAKABLE, ALL_ARMOR);
     public static final EnchantmentBuilder GROWTH = new EnchantmentBuilder("growth", Enchantment.Rarity.RARE, EnchantmentTarget.BREAKABLE, NONE){
         @Override
         public void onProjectileFire(LivingEntity user, ProjectileEntity projectileEntity, int level, ItemStack item) {
@@ -192,7 +175,7 @@ public class SupplementaryEnchantments {
      * These are various enchantments that all increase user mobility in some way. <br><br>
      * Acrobatic - Boots: wall cling/jump while sneaking and double jump. Max lvl: 1 <br>
      * Air Dash - Boots: dash in the air on double-tapping forward. Max lvl: 1 <br>
-     * All Terrain - Boots: increased step height, and ability to walk on fluids. Max lvl: 1 <br>
+     * All Terrain - Boots: increased step height, and ability to walk on water. Max lvl: 1 <br>
      * Assault Dash - Shields: charge forward while holding shield up, knocking entities away. Max lvl: 2 <br>
      * Bunnyhop - Boots: decrease height, increase speed on jump. Scale small vertical gaps in the air. Max Lvl: 1 <br>
      * Grappling - Bows, crossbows, fishing rods: projectiles pull the user in. Varies by tool type. Max lvl: 1 <br>
@@ -209,7 +192,7 @@ public class SupplementaryEnchantments {
     /**
      * Sets of enchantments incompatible with each other.
      */
-    public static final EnchantmentBuilder[] GENERAL_COMPATIBILITY_GROUP = {EMPOWERED, SOULBOUND, GROWTH};
+    public static final EnchantmentBuilder[] GENERAL_COMPATIBILITY_GROUP = {EMPOWERED, ENHANCED, GROWTH, SOULBOUND};
     public static final EnchantmentBuilder[] MOBILITY_INCOMPATIBILITY_GROUP = {ACROBATIC, AIR_DASH, ALL_TERRAIN, BUNNYHOP, SLIMED};
 
     /**
@@ -239,6 +222,11 @@ public class SupplementaryEnchantments {
                 .build();
         EMPOWERED.makeIncompatible(GENERAL_COMPATIBILITY_GROUP)
                 .setPower(20, 50)
+                .setTreasure(true)
+                .build();
+        ENHANCED.makeIncompatible(GENERAL_COMPATIBILITY_GROUP)
+                .setPower(20, 50)
+                .addComponent(SupplementaryComponents.ENHANCED)
                 .setTreasure(true)
                 .build();
         FRANTIC.makeIncompatible(Enchantments.FIRE_ASPECT, Enchantments.KNOCKBACK)

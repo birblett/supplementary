@@ -1,5 +1,6 @@
 package com.birblett.mixin.enchantments.bunny_hop;
 
+import com.birblett.lib.helper.SupplementaryEnchantmentHelper;
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.LivingEntity;
@@ -21,8 +22,9 @@ public class BunnyHopLivingEntityMixin {
     private void boostJumpSpeed(Args args) {
         LivingEntity self = (LivingEntity) (Object) this;
         if (EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.BUNNYHOP, self) > 0) {
-            args.set(0, (double) args.get(0) * 2.8);
-            args.set(2, (double) args.get(2) * 2.8);
+            double boost = SupplementaryEnchantmentHelper.getEnhancedEquipLevel(SupplementaryEnchantments.ALL_TERRAIN, self) > 0 ? 3.1 : 2.8;
+            args.set(0, (double) args.get(0) * boost);
+            args.set(2, (double) args.get(2) * boost);
         }
     }
 
@@ -38,7 +40,8 @@ public class BunnyHopLivingEntityMixin {
     private void decreaseMovementSpeed(Vec3d movementInput, CallbackInfo ci) {
         LivingEntity self = (LivingEntity) (Object) this;
         if (EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.BUNNYHOP, self) > 0 && self.isOnGround()) {
-            self.setVelocity(self.getVelocity().multiply(0.85, 1, 0.85));
+            double movementPenalty = SupplementaryEnchantmentHelper.getEnhancedEquipLevel(SupplementaryEnchantments.ALL_TERRAIN, self) > 0 ? 0.9 : 0.85;
+            self.setVelocity(self.getVelocity().multiply(movementPenalty, 1, movementPenalty));
         }
     }
 }

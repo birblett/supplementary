@@ -3,6 +3,7 @@ package com.birblett.registry;
 import com.birblett.lib.components.*;
 import com.birblett.lib.helper.EntityHelper;
 import com.birblett.lib.helper.RenderHelper;
+import com.birblett.lib.helper.SupplementaryEnchantmentHelper;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import dev.onyxstudios.cca.api.v3.component.ComponentRegistry;
 import dev.onyxstudios.cca.api.v3.entity.EntityComponentFactoryRegistry;
@@ -13,6 +14,7 @@ import net.minecraft.entity.*;
 import net.minecraft.entity.boss.dragon.EnderDragonPart;
 import net.minecraft.entity.passive.SnowGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.entity.projectile.FishingBobberEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
@@ -49,6 +51,12 @@ public class SupplementaryComponents implements EntityComponentInitializer {
      */
     public static final ComponentKey<BaseComponent> BURST_FIRE =
             ComponentRegistry.getOrCreate(new Identifier(MODID, "burst_fire"), BaseComponent.class);
+    /**
+     * Handles Enhanced functionality for PersistentProjectileEntities.
+     */
+    public static final ComponentKey<BaseComponent> ENHANCED =
+            ComponentRegistry.getOrCreate(new Identifier(MODID, "enhanced"), BaseComponent.class);
+
     /**
      * Handles Grappling functionality; individual functionalities registered for PersistentProjectileEntity,
      * FishingBobberEntity, and LivingEntity.
@@ -127,7 +135,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                         for (EntityHitResult entityHitResult : entityHitResults) {
                             Entity target = entityHitResult.getEntity();
                             // damage target based on current velocity
-                            if (target.damage(SupplementaryEnchantments.assaultDash(user), (float) this.dashVelocity.length() * 2)) {
+                            if (target.damage(SupplementaryEnchantmentHelper.assaultDash(user), (float) this.dashVelocity.length() * 2)) {
                                 // if damaged successfully, apply knockback and damage the shield
                                 target.setVelocity(target.getVelocity().add(this.dashVelocity.multiply(1.2)).add(0, 0.2, 0));
                                 if (target instanceof PlayerEntity) {
@@ -210,6 +218,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                 }
             }
         });
+        registry.registerFor(ArrowEntity.class, ENHANCED, e -> new EnchantmentComponent("enhanced"));
         registry.registerFor(PersistentProjectileEntity.class, GRAPPLING, e -> new SyncedEnchantmentComponent("grappling") {
             // unused, for separating bow/crossbow impl later
             @SuppressWarnings("FieldCanBeLocal")
