@@ -3,6 +3,7 @@ package com.birblett.mixin.enchantments.assault_dash;
 import com.birblett.registry.SupplementaryComponents;
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ShieldItem;
@@ -27,8 +28,9 @@ public class AssaultDashShieldItemMixin {
         int level;
         if ((level = EnchantmentHelper.getLevel(SupplementaryEnchantments.ASSAULT_DASH, (stack = user.getStackInHand(hand)))) > 0) {
             user.getItemCooldownManager().set(stack.getItem(), 40 + level * 5);
-            if (user instanceof ServerPlayerEntity) {
-                stack.damage(1, user.getRandom(), (ServerPlayerEntity) user);
+            if (user instanceof ServerPlayerEntity && stack.getMaxDamage() - stack.getDamage() > 1) {
+                EquipmentSlot slot = user.getMainHandStack() == stack ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND;
+                stack.damage(1, user, e -> e.sendEquipmentBreakStatus(slot));
             }
             SupplementaryComponents.ASSAULT_DASH.get(user).setValue(level, user);
         }

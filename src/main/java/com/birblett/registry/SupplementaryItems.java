@@ -1,8 +1,7 @@
 package com.birblett.registry;
 
-
-
 import com.birblett.entities.SnowballVariantEntity;
+import com.birblett.items.BaguetteItem;
 import com.birblett.items.BoomerangItem;
 import com.birblett.items.SnowballVariantItem;
 import com.birblett.trinkets.CapeItem;
@@ -31,11 +30,11 @@ import net.minecraft.world.World;
 
 import static com.birblett.Supplementary.MODID;
 
+/**
+ * This class contains item and material declarations.
+ */
 public class SupplementaryItems {
     /*
-    This class contains all item and material declarations with associated data, and provides helper methods to register
-    specific types of items.
-
     Trinkets
         CAPE - CapeItem, registered under id supplementary:cape
             Implementation - com.birblett.trinkets.CapeItem
@@ -166,6 +165,10 @@ public class SupplementaryItems {
         registerItem(id, item);
     }
 
+    public static final Item BREAD_BAR = new Item(new Item.Settings().group(ItemGroup.MISC).food(new FoodComponent.Builder()
+            .hunger(6).saturationModifier(2.5f).build()));
+    public static final Item BAGUETTE = new BaguetteItem(250, 0.0f, 1.3f, 0.5f);
+
     public static void register() {
         registerItem("wooden_boomerang", WOODEN_BOOMERANG);
         registerItem("stone_boomerang", STONE_BOOMERANG);
@@ -174,12 +177,15 @@ public class SupplementaryItems {
         registerItem("diamond_boomerang", DIAMOND_BOOMERANG);
         registerItem("netherite_boomerang", NETHERITE_BOOMERANG);
 
-        registerItem("cape", CAPE);
+        registerItem("bread_bar", BREAD_BAR);
+        registerItem("baguette", BAGUETTE);
 
         registerSnowballVariant("blowball", BLOWBALL);
         registerSnowballVariant("glowball", GLOWBALL);
         registerSnowballVariant("iceball", ICEBALL);
         registerSnowballVariant("slowball", SLOWBALL);
         registerSnowballVariant("snowgolemball", SNOWGOLEMBALL);
+
+        registerItem("cape", CAPE);
     }
 }

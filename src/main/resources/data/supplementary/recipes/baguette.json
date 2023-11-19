@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "o  ",
+    "o  ",
+    "#  "
+  ],
+  "key": {
+    "o": {
+      "item": "supplementary:bread_bar"
+    },
+    "#": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "item": "supplementary:baguette",
+    "count": 1
+  }
+}

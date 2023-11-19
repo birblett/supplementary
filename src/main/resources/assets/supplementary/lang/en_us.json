@@ -31,6 +31,11 @@
   "item.supplementary.slowball": "Slowball",
   "item.supplementary.snowgolemball": "Snowgolemball",
 
+  "item.supplementary.bread_bar": "Bread Bar",
+  "item.supplementary.baguette": "Baguette",
+  "item.supplementary.baaaguette": "Baaaguette",
+  "item.supplementary.baaaaaguette": "Baaaaaguette",
+
   "item.supplementary.wooden_boomerang": "Wooden Boomerang",
   "item.supplementary.stone_boomerang": "Stone Boomerang",
   "item.supplementary.iron_boomerang": "Iron Boomerang",
@@ -39,7 +44,6 @@
   "item.supplementary.netherite_boomerang": "Netherite Boomerang",
 
   "item.supplementary.cape": "Cape",
-
 
   "item.supplementary.growth_total_tooltip": "Growth: %1$s/%2$s",
   "item.supplementary.growth_stat_tooltip": " %1$s: %2$s (%3$s%4$s%5$s)"

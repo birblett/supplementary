@@ -2,6 +2,7 @@ package com.birblett.mixin.enchantments.enhanced;
 
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MovementType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -57,7 +58,8 @@ public class EnhancedTridentItemMixin {
             }
             SoundEvent soundEvent = j >= 3 ? SoundEvents.ITEM_TRIDENT_RIPTIDE_3 : (j == 2 ? SoundEvents.ITEM_TRIDENT_RIPTIDE_2 : SoundEvents.ITEM_TRIDENT_RIPTIDE_1);
             world.playSoundFromEntity(null, playerEntity, soundEvent, SoundCategory.PLAYERS, 1.0f, 1.0f);
-            stack.damage(3, user.getRandom(), user instanceof ServerPlayerEntity ? (ServerPlayerEntity) user : null);
+            EquipmentSlot slot = user.getMainHandStack() == stack ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND;
+            stack.damage(3, user, e -> e.sendEquipmentBreakStatus(slot));
         }
     }
 }

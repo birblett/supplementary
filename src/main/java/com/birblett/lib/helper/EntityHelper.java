@@ -13,12 +13,16 @@ import net.minecraft.world.World;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Predicate;
 
 /**
- * Helper functions related to entities.
+ * Helper functions and constants related to entities.
  */
 public class EntityHelper {
+
+    public static final UUID ITEM_ATTACK_RANGE_MODIFIER_ID = UUID.fromString("4fe42e97-9447-41f2-8f83-b7e6a8ab9d5b");
+    public static final UUID ITEM_REACH_MODIFIER_ID = UUID.fromString("7a443b73-b375-4499-b0d9-ea79179c16bf");
 
     /**
      * Checks if the given entity's hitbox intersects the hitbox of a block, with a certain degree of tolerance.
