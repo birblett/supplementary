@@ -6,8 +6,9 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BannerItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
@@ -36,7 +37,7 @@ public class CapeItem extends TrinketItem {
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         String color = getBaseColor(stack).getName();
-        tooltip.add(new TranslatableText("color.minecraft." + color).formatted(Formatting.byName(color)));
+        tooltip.add(MutableText.of(new TranslatableTextContent("color.minecraft." + color)).formatted(Formatting.byName(color)));
         BannerItem.appendBannerTooltip(stack, tooltip);
     }
 

@@ -8,8 +8,9 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.EntityDamageSource;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.TranslatableTextContent;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -47,7 +48,7 @@ public class SupplementaryEnchantmentHelper {
         return new EntityDamageSource("assault_dash", source) {
             @Override
             public Text getDeathMessage(LivingEntity entity) {
-                return new TranslatableText("death.attack." + this.name + ".player", entity.getDisplayName(), this.source.getDisplayName());
+                return MutableText.of(new TranslatableTextContent("death.attack." + this.name + ".player", entity.getDisplayName(), this.source.getDisplayName()));
             }
         };
     }

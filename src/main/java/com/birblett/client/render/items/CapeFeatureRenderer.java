@@ -27,6 +27,7 @@ import net.minecraft.util.DyeColor;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3f;
+import net.minecraft.util.registry.RegistryEntry;
 
 import java.util.List;
 import java.util.Optional;
@@ -88,7 +89,7 @@ public class CapeFeatureRenderer extends FeatureRenderer<AbstractClientPlayerEnt
             // render blank banner model with pattern overlay
             VertexConsumer vertexConsumer = ModelLoader.BANNER_BASE.getVertexConsumer(vertexConsumers, RenderLayer::getEntitySolid);
             BASE_CAPE.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV);
-            List<com.mojang.datafixers.util.Pair<BannerPattern, DyeColor>> list =
+            List<com.mojang.datafixers.util.Pair<RegistryEntry<BannerPattern>, DyeColor>> list =
                     BannerBlockEntity.getPatternsFromNbt(CapeItem.getBaseColor(stack), BannerBlockEntity.getPatternListNbt(stack));
             BannerBlockEntityRenderer.renderCanvas(matrices, vertexConsumers, light, OverlayTexture.DEFAULT_UV, BASE_CAPE,
                                                    ModelLoader.BANNER_BASE, true, list, false);

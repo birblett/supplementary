@@ -14,7 +14,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.TranslatableTextContent;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -69,8 +69,7 @@ public class GrowthItemStackMixin {
     private void addBasicTooltip(@Nullable PlayerEntity player, TooltipContext context, CallbackInfoReturnable<List<Text>> cir, List<Text> list) {
         // Adds a short tooltip if advanced tooltips not enabled
         if (!context.isAdvanced() && EnchantmentHelper.getLevel(SupplementaryEnchantments.GROWTH, (ItemStack) (Object) this) > 0) {
-            list.add(new TranslatableText("item.supplementary.growth_total_tooltip", (int) SupplementaryEnchantmentHelper.getTotalGrowthPoints((ItemStack) (Object) this),
-                    1000));
+            list.add(MutableText.of(new TranslatableTextContent("item.supplementary.growth_total_tooltip", (int) SupplementaryEnchantmentHelper.getTotalGrowthPoints((ItemStack) (Object) this), 1000)));
         }
     }
 
@@ -80,14 +79,14 @@ public class GrowthItemStackMixin {
         // Adds an in-depth tooltip if advanced tooltips are enabled
         ItemStack self = (ItemStack) (Object) this;
         if (EnchantmentHelper.getLevel(SupplementaryEnchantments.GROWTH, self) > 0) {
-            list.add(new TranslatableText("item.supplementary.growth_total_tooltip", (int) SupplementaryEnchantmentHelper.getTotalGrowthPoints(self),
-                    1000));
+            list.add(MutableText.of(new TranslatableTextContent("item.supplementary.growth_total_tooltip", (int) SupplementaryEnchantmentHelper.getTotalGrowthPoints(self),
+                    1000)));
             for (Map.Entry<SupplementaryEnchantmentHelper.GrowthKey, Float> entry: SupplementaryEnchantmentHelper.getAllGrowthPoints(self).entrySet()) {
                 float value = entry.getValue() * entry.getKey().scale * (entry.getKey().isPercentage ? 100 : 1);
                 BigDecimal format = new BigDecimal(value).setScale(2, RoundingMode.HALF_EVEN);
                 if (value > 0) {
-                    list.add(new TranslatableText("item.supplementary.growth_stat_tooltip", entry.getKey().name, entry.getValue().intValue(),
-                            entry.getKey().prefix, format, entry.getKey().isPercentage ? "%" : ""));
+                    list.add(MutableText.of(new TranslatableTextContent("item.supplementary.growth_stat_tooltip", entry.getKey().name,
+                            entry.getValue().intValue(), entry.getKey().prefix, format, entry.getKey().isPercentage ? "%" : "")));
                 }
             }
         }

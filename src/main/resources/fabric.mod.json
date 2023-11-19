@@ -24,11 +24,11 @@
 		"supplementary.mixins.json"
 	],
 	"depends": {
-		"fabricloader": ">=0.14.13",
-		"minecraft": "~1.18.2",
+		"fabricloader": ">=0.14.24",
+		"minecraft": ">=1.19",
 		"java": ">=17",
 		"fabric": "*",
-		"trinkets": "3.3.1"
+		"trinkets": "3.4.0"
 	},
 	"suggests": {
 	},

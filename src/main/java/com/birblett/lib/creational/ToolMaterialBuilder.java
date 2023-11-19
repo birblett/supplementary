@@ -15,7 +15,7 @@ public class ToolMaterialBuilder {
             private final float miningSpeed = mineSpeed;
             private final float attackDamage = attackDmg;
             private final int enchantability = enchantable;
-            private final Lazy<Ingredient> repairIngredients = new Lazy<>(ingredient);
+            private final Supplier<Ingredient> repairIngredients = ingredient;
 
             @Override
             public int getDurability() {

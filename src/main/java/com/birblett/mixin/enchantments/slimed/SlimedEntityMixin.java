@@ -36,7 +36,7 @@ public class SlimedEntityMixin {
         return block;
     }
 
-    @ModifyVariable(method = "move", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;bypassesSteppingEffects()Z"),
+    @ModifyVariable(method = "move", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;onSteppedOn(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/entity/Entity;)V"),
             index = 10)
     private Block replaceOldBlock(Block block) {
         return this.oldBlock;
