@@ -30,7 +30,6 @@ public class FishingBobberEventMixin {
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/projectile/FishingBobberEntity;refreshPosition()V"))
     private void inBlockTick(CallbackInfo ci) {
         EntityEvents.PROJECTILE_IN_BLOCK_TICK.invoker().onEntityTick((FishingBobberEntity) (Object) this);
-
     }
 
     @Inject(method = "pullHookedEntity", at = @At("HEAD"), cancellable = true)

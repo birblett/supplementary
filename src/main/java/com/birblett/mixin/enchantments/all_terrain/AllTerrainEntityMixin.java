@@ -27,7 +27,7 @@ import java.util.List;
 @Mixin(Entity.class)
 public class AllTerrainEntityMixin {
 
-    @Unique private double stepHeightboost;
+    @Unique private float stepHeightboost;
     @Unique private static Entity supplementary$CollidingEntity;
     @Unique private static Vec3d supplementary$Movement;
     @Unique private static Box supplementary$BoundingBox;
@@ -35,28 +35,28 @@ public class AllTerrainEntityMixin {
     @Inject(method = "adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;", at = @At("HEAD"))
     private void adjustStepHeight(Vec3d movement, CallbackInfoReturnable<Vec3d> cir) {
         if ((Entity) (Object) this instanceof LivingEntity self) {
-            this.stepHeightboost = EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.ALL_TERRAIN, self) * 0.5;
+            this.stepHeightboost = EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.ALL_TERRAIN, self) * 0.5f;
             if (SupplementaryEnchantmentHelper.getEnhancedEquipLevel(SupplementaryEnchantments.ALL_TERRAIN, self) > 0) {
                 this.stepHeightboost += 0.1;
             }
             if (this.stepHeightboost > 0) {
-                ((Entity) (Object) this).stepHeight += this.stepHeightboost;
+                self.setStepHeight(self.getStepHeight() + this.stepHeightboost);
             }
         }
     }
 
     @Inject(method = "adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;", at = @At("RETURN"))
     private void returnCalcStepHeightAdjustment(Vec3d movement, CallbackInfoReturnable<Vec3d> cir) {
-        if (this.stepHeightboost > 0) {
-            ((Entity) (Object) this).stepHeight -= this.stepHeightboost;
+        if (this.stepHeightboost > 0 && (Entity) (Object) this instanceof LivingEntity self) {
+            self.setStepHeight(self.getStepHeight() - this.stepHeightboost);
             this.stepHeightboost = 0;
         }
     }
 
     @Inject(method = "adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;", at = @At("TAIL"))
     private void tailCalcStepHeightAdjustment(Vec3d movement, CallbackInfoReturnable<Vec3d> cir) {
-        if (this.stepHeightboost > 0) {
-            ((Entity) (Object) this).stepHeight -= 0.5 * this.stepHeightboost;
+        if (this.stepHeightboost > 0 && (Entity) (Object) this instanceof LivingEntity self) {
+            self.setStepHeight(self.getStepHeight() - 0.5f * this.stepHeightboost);
         }
     }
 
@@ -74,7 +74,7 @@ public class AllTerrainEntityMixin {
         if (supplementary$CollidingEntity instanceof LivingEntity livingEntity && !livingEntity.isTouchingWater() &&
                 EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.ALL_TERRAIN, livingEntity) > 0 &&
                 !livingEntity.isSneaking()) {
-            BlockCollisionSpliterator blockCollisionSpliterator = new BlockCollisionSpliterator(livingEntity.getWorld(), livingEntity, supplementary$BoundingBox.stretch(supplementary$Movement));
+            BlockCollisionSpliterator blockCollisionSpliterator = new BlockCollisionSpliterator(livingEntity.getWorld(), livingEntity, supplementary$BoundingBox.stretch(supplementary$Movement), false, (pos, voxelShape) -> voxelShape);
             int collisionType = SupplementaryEnchantmentHelper.getEnhancedEquipLevel(SupplementaryEnchantments.ALL_TERRAIN, livingEntity) > 0 ? 2 : 1;
             ((BlockCollisionSpliteratorInterface) blockCollisionSpliterator).extendCollisionConditions(collisionType);
             elements = () -> blockCollisionSpliterator;

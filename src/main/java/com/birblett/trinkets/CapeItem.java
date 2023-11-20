@@ -37,7 +37,7 @@ public class CapeItem extends TrinketItem {
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         String color = getBaseColor(stack).getName();
-        tooltip.add(MutableText.of(new TranslatableTextContent("color.minecraft." + color)).formatted(Formatting.byName(color)));
+        tooltip.add(MutableText.of(new TranslatableTextContent("color.minecraft." + color, null, null)).formatted(Formatting.byName(color)));
         BannerItem.appendBannerTooltip(stack, tooltip);
     }
 

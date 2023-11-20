@@ -31,14 +31,14 @@ public class EnhancedTridentEntityMixin {
         TridentEntity self = (TridentEntity) (Object) this;
         BlockPos blockPos = entity.getBlockPos();
         // Summon a lightning bolt if Enhanced and Channeling condition is otherwise false
-        if (self.world instanceof ServerWorld && (!self.world.isThundering() || !self.world.isSkyVisible(blockPos)) &&
+        if (self.getWorld() instanceof ServerWorld && (!self.getWorld().isThundering() || !self.getWorld().isSkyVisible(blockPos)) &&
                 self.hasChanneling() && EnchantmentHelper.getLevel(SupplementaryEnchantments.ENHANCED, self.tridentStack) > 0) {
-            LightningEntity lightningEntity = EntityType.LIGHTNING_BOLT.create(self.world);
+            LightningEntity lightningEntity = EntityType.LIGHTNING_BOLT.create(self.getWorld());
             if (lightningEntity != null) {
                 lightningEntity.refreshPositionAfterTeleport(Vec3d.ofBottomCenter(blockPos));
                 lightningEntity.setChanneler(entity2 instanceof ServerPlayerEntity ? (ServerPlayerEntity) entity2 : null);
             }
-            self.world.spawnEntity(lightningEntity);
+            self.getWorld().spawnEntity(lightningEntity);
             soundEvent = SoundEvents.ITEM_TRIDENT_THUNDER;
             g = 5.0F;
             self.playSound(soundEvent, g, 1.0F);

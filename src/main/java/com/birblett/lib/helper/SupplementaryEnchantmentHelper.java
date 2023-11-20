@@ -4,13 +4,17 @@ import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageScaling;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.damage.EntityDamageSource;
+import net.minecraft.entity.damage.DamageType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableTextContent;
+import net.minecraft.util.Identifier;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -45,10 +49,15 @@ public class SupplementaryEnchantmentHelper {
      * @return a new EntityDamageSource, with custom death message
      */
     public static DamageSource assaultDash(LivingEntity source) {
-        return new EntityDamageSource("assault_dash", source) {
+        return new DamageSource(source.getWorld().getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier("supplementary", "assault_dash")))) {
             @Override
             public Text getDeathMessage(LivingEntity entity) {
-                return MutableText.of(new TranslatableTextContent("death.attack." + this.name + ".player", entity.getDisplayName(), this.source.getDisplayName()));
+                if (this.getAttacker() != null)
+                    return MutableText.of(new TranslatableTextContent("death.attack." + this.getName() + ".player", null,
+                            new Object[]{entity.getDisplayName().getString(), this.getAttacker().getDisplayName().getString()}));
+                else
+                    return MutableText.of(new TranslatableTextContent("death.attack." + this.getName() + ".fallback",
+                            null, new Object[]{entity.getDisplayName().getString()}));
             }
         };
     }

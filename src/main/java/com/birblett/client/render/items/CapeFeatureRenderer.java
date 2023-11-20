@@ -23,11 +23,11 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3f;
-import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.util.math.RotationAxis;
 
 import java.util.List;
 import java.util.Optional;
@@ -81,9 +81,9 @@ public class CapeFeatureRenderer extends FeatureRenderer<AbstractClientPlayerEnt
                 // hacky magic numbers to fix cape orientation while crouching
                 matrices.translate(0.0, hasBodyGear ? 0.101 : 0.118, hasBodyGear ? -0.065 : -0.02);
             }
-            matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(6.0f + r / 2.0f + q));
-            matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(s / 2.0f));
-            matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(180.0f - s / 2.0f));
+            matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(6.0f + r / 2.0f + q));
+            matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(s / 2.0f));
+            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180.0f - s / 2.0f));
             matrices.scale(0.5f, 0.5f, 1.0f);
 
             // render blank banner model with pattern overlay

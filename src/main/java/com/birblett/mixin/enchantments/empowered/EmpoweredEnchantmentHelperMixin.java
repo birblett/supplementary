@@ -36,7 +36,7 @@ public abstract class EmpoweredEnchantmentHelperMixin {
     }
 
     @Inject(method = "forEachEnchantment(Lnet/minecraft/enchantment/EnchantmentHelper$Consumer;Lnet/minecraft/item/ItemStack;)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/util/registry/Registry;getOrEmpty(Lnet/minecraft/util/Identifier;)Ljava/util/Optional;"),
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/registry/Registry;getOrEmpty(Lnet/minecraft/util/Identifier;)Ljava/util/Optional;"),
             locals = LocalCapture.CAPTURE_FAILSOFT)
     private static void getConsumer(EnchantmentHelper.Consumer consumer, ItemStack stack, CallbackInfo ci, NbtList nbtList, int i, NbtCompound nbtCompound) {
         supplementary$Consumer = consumer;

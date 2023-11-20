@@ -1,5 +1,6 @@
 package com.birblett.mixin.enchantments.slimed;
 
+import com.birblett.Supplementary;
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -10,6 +11,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.sound.BlockSoundGroup;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -42,23 +44,34 @@ public class SlimedEntityMixin {
         return this.oldBlock;
     }
 
-    @ModifyVariable(method = "playStepSound", at = @At(value = "INVOKE_ASSIGN",
-            target = "Lnet/minecraft/world/World;getBlockState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/BlockState;"), index = 2, argsOnly = true)
-    private BlockState replaceSlimedStepSound(BlockState blockState) {
+    @SuppressWarnings("InvalidInjectorMethodSignature")
+    @ModifyVariable(method = "playCombinationStepSounds", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/block/BlockState;getSoundGroup()Lnet/minecraft/sound/BlockSoundGroup;"),
+            index = 3)
+    private BlockSoundGroup replaceSlimedCombinationSounds(BlockSoundGroup soundGroup) {
         if ((Entity) (Object) this instanceof LivingEntity self && EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.SLIMED, self) > 0) {
-            blockState = Blocks.SLIME_BLOCK.getDefaultState();
+            soundGroup = Blocks.SLIME_BLOCK.getSoundGroup(Blocks.SLIME_BLOCK.getDefaultState());
         }
-        return blockState;
+        return soundGroup;
     }
 
     @SuppressWarnings("InvalidInjectorMethodSignature")
-    @ModifyVariable(method = "playStepSound", at = @At(value = "INVOKE_ASSIGN",
-            target = "Lnet/minecraft/world/World;getBlockState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/BlockState;"), index = 3)
-    private BlockState replaceSlimedInBlockStepSound(BlockState blockState) {
+    @ModifyVariable(method = "playStepSound", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/block/BlockState;getSoundGroup()Lnet/minecraft/sound/BlockSoundGroup;"),
+            index = 3)
+    private BlockSoundGroup replaceSlimedStepSound(BlockSoundGroup soundGroup) {
         if ((Entity) (Object) this instanceof LivingEntity self && EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.SLIMED, self) > 0) {
-            blockState = Blocks.SLIME_BLOCK.getDefaultState();
+            soundGroup = Blocks.SLIME_BLOCK.getSoundGroup(Blocks.SLIME_BLOCK.getDefaultState());
         }
-        return blockState;
+        return soundGroup;
+    }
+
+    @SuppressWarnings("InvalidInjectorMethodSignature")
+    @ModifyVariable(method = "playSecondaryStepSound", at = @At(value = "INVOKE_ASSIGN",
+            target = "Lnet/minecraft/block/BlockState;getSoundGroup()Lnet/minecraft/sound/BlockSoundGroup;"), index = 2)
+    private BlockSoundGroup replaceSlimedSecondaryStepSound(BlockSoundGroup soundGroup) {
+        if ((Entity) (Object) this instanceof LivingEntity self && EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.SLIMED, self) > 0) {
+            soundGroup = Blocks.SLIME_BLOCK.getSoundGroup(Blocks.SLIME_BLOCK.getDefaultState());
+        }
+        return soundGroup;
     }
 
     @ModifyArg(method = "spawnSprintingParticles", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;addParticle(Lnet/minecraft/particle/ParticleEffect;DDDDDD)V"))

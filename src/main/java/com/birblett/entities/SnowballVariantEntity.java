@@ -65,8 +65,8 @@ public class SnowballVariantEntity extends ThrownItemEntity {
         discard this entity post-collision unless removeAfterCollision is set to false in the parent item
          */
         super.onCollision(hitResult);
-        if (!this.world.isClient && this.getItem().getItem() instanceof SnowballVariantItem item && item.removeAfterCollision()) {
-            this.world.sendEntityStatus(this, (byte)3);
+        if (!this.getWorld().isClient && this.getItem().getItem() instanceof SnowballVariantItem item && item.removeAfterCollision()) {
+            this.getWorld().sendEntityStatus(this, (byte)3);
             this.kill();
         }
     }

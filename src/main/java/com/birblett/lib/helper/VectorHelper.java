@@ -1,6 +1,7 @@
 package com.birblett.lib.helper;
 
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
 
 import static com.birblett.Supplementary.SUPPLEMENTARY_RANDOM;
 
@@ -11,6 +12,14 @@ public class VectorHelper {
 
     private static final Vec3d X_AXIS = new Vec3d(1, 0, 0);
     private static final Vec3d Y_AXIS = new Vec3d(0, 1, 0);
+
+    public static Vec3i fromVec3d(Vec3d v) {
+        return new Vec3i((int) v.x, (int) v.y, (int) v.z);
+    }
+
+    public static Vec3i fromCoords(double x, double y, double z) {
+        return new Vec3i((int) Math.round(x), (int) Math.round(y), (int) Math.round(z));
+    }
 
     /**
      * Applies a random degree of divergence to an input vector. First rotates a random amount up to the input angle

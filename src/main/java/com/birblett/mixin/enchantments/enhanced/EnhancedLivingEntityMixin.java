@@ -8,7 +8,6 @@ import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.damage.ProjectileDamageSource;
 import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -57,8 +56,7 @@ public class EnhancedLivingEntityMixin {
             ordinal = 0, argsOnly = true)
     private DamageSource getArmorPierce(DamageSource source) {
         this.supplementary$ArmorPierceAmount = 1;
-        if (source instanceof ProjectileDamageSource projectileDamageSource && projectileDamageSource.getSource() instanceof ArrowEntity arrow &&
-                SupplementaryComponents.ENHANCED.get(arrow).getValue() > 0) {
+        if (source.getSource() instanceof ArrowEntity arrow && SupplementaryComponents.ENHANCED.get(arrow).getValue() > 0) {
             this.supplementary$ArmorPierceAmount -= arrow.getPierceLevel() * 0.05f;
         }
         return source;

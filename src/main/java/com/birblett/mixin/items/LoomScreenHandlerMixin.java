@@ -24,13 +24,13 @@ public class LoomScreenHandlerMixin {
     @Unique private ItemStack supplementary$CapeStack;
     @Unique private boolean supplementary$UseCustomLogic;
 
-    @Inject(method = "transferSlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/screen/slot/Slot;getStack()Lnet/minecraft/item/ItemStack;"),
+    @Inject(method = "quickMove", at = @At(value = "INVOKE", target = "Lnet/minecraft/screen/slot/Slot;getStack()Lnet/minecraft/item/ItemStack;"),
             locals = LocalCapture.CAPTURE_FAILSOFT)
     private void isInput(PlayerEntity player, int index, CallbackInfoReturnable<ItemStack> cir, ItemStack itemStack, Slot slot) {
         supplementary$UseCustomLogic = index <= 40 && index >= 4;
     }
 
-    @ModifyVariable(method = "transferSlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;copy()Lnet/minecraft/item/ItemStack;",
+    @ModifyVariable(method = "quickMove", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;copy()Lnet/minecraft/item/ItemStack;",
             shift = At.Shift.AFTER, by = 1), index = 5)
     private ItemStack setStackTemp(ItemStack stack){
         this.supplementary$CapeStack = ItemStack.EMPTY;
@@ -41,7 +41,7 @@ public class LoomScreenHandlerMixin {
         return stack;
     }
 
-    @ModifyArg(method = "transferSlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/screen/LoomScreenHandler;insertItem(Lnet/minecraft/item/ItemStack;IIZ)Z",
+    @ModifyArg(method = "quickMove", at = @At(value = "INVOKE", target = "Lnet/minecraft/screen/LoomScreenHandler;insertItem(Lnet/minecraft/item/ItemStack;IIZ)Z",
             ordinal = 2))
     private ItemStack setBannerSlotStack(ItemStack stack) {
         if (!this.supplementary$CapeStack.isEmpty()) {
@@ -50,7 +50,7 @@ public class LoomScreenHandlerMixin {
         return stack;
     }
 
-    @ModifyVariable(method = "transferSlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/screen/slot/Slot;onTakeItem(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/item/ItemStack;)V"),
+    @ModifyVariable(method = "quickMove", at = @At(value = "INVOKE", target = "Lnet/minecraft/screen/slot/Slot;onTakeItem(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/item/ItemStack;)V"),
             index = 5)
     private ItemStack replaceOldStack(ItemStack stack){
         if (!this.supplementary$CapeStack.isEmpty()) {

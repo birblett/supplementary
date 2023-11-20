@@ -12,6 +12,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
@@ -22,6 +23,8 @@ import net.minecraft.item.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.mutable.MutableFloat;
+
+import java.util.Objects;
 
 /**
  * Enchantment instantiation and registration.
@@ -93,7 +96,7 @@ public class SupplementaryEnchantments {
                 if (source.getAttacker() != null) {
                     SupplementaryEnchantmentHelper.addGrowthPoints(itemStack, SupplementaryEnchantmentHelper.GrowthKey.ENTITY_DAMAGE_REDUCTION, damageAmount.getValue() / 5);
                 }
-                else if (!source.isOutOfWorld()) {
+                else if (!(Objects.equals(source.getTypeRegistryEntry().getKey().orElse(DamageTypes.OUT_OF_WORLD), DamageTypes.OUT_OF_WORLD))) {
                     SupplementaryEnchantmentHelper.addGrowthPoints(itemStack, SupplementaryEnchantmentHelper.GrowthKey.ENVIRONMENTAL_DAMAGE_REDUCTION, damageAmount.getValue() / 4);
                 }
             }
@@ -106,7 +109,7 @@ public class SupplementaryEnchantments {
                 if (source.getAttacker() != null) {
                     return 1 - SupplementaryEnchantmentHelper.getGrowthStat(itemStack, SupplementaryEnchantmentHelper.GrowthKey.ENTITY_DAMAGE_REDUCTION);
                 }
-                else if (!source.isOutOfWorld()) {
+                else if (!(Objects.equals(source.getTypeRegistryEntry().getKey().orElse(DamageTypes.OUT_OF_WORLD), DamageTypes.OUT_OF_WORLD))) {
                     return 1 - SupplementaryEnchantmentHelper.getGrowthStat(itemStack, SupplementaryEnchantmentHelper.GrowthKey.ENVIRONMENTAL_DAMAGE_REDUCTION);
                 }
             }
@@ -146,7 +149,7 @@ public class SupplementaryEnchantments {
         @Override
         public float onAttack(LivingEntity user, Entity target, int level, boolean isCritical, boolean isMaxCharge, float damageAmount) {
             float modifier = 0.0f;
-            if (!user.world.isClient()) {
+            if (!user.getWorld().isClient()) {
                 if (user.hasStatusEffect(StatusEffects.SPEED)) {
                     modifier = 0.1f * level * damageAmount;
                 }

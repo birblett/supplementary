@@ -1,5 +1,6 @@
 package com.birblett.registry;
 
+import com.birblett.Supplementary;
 import com.birblett.lib.components.*;
 import com.birblett.lib.helper.EntityHelper;
 import com.birblett.lib.helper.RenderHelper;
@@ -124,12 +125,16 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             public Vec3d onEntityTravel(Entity entity, int level, Vec3d velocity) {
                 if (this.getValue() > 0 && entity instanceof PlayerEntity user) {
                     Vec3d userVelocity = dashVelocity;
+                    if (userVelocity == null) {
+                        this.setValue(0);
+                        return new Vec3d(0, 0, 0);
+                    }
                     Item item = user.getActiveItem().getItem();
                     // enter/continue assault dash state if entity is holding up a shield
                     if (item.getMaxUseTime(user.getActiveItem()) - user.getItemUseTimeLeft() >= 0 && user.isUsingItem() &&
                             item.getUseAction(user.getActiveItem()) == UseAction.BLOCK) {
                         // get a list of entity collisions in the current dash range
-                        List<EntityHitResult> entityHitResults = EntityHelper.getEntityCollisions(user.world, user, user.getPos().subtract(this.dashVelocity),
+                        List<EntityHitResult> entityHitResults = EntityHelper.getEntityCollisions(user.getWorld(), user, user.getPos().subtract(this.dashVelocity),
                                 user.getPos().add(this.dashVelocity), user.getBoundingBox().stretch(this.dashVelocity).expand(1.0),
                                 e -> true, 0.5f);
                         for (EntityHitResult entityHitResult : entityHitResults) {
@@ -145,8 +150,8 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                                     if (!user.getAbilities().creativeMode) {
                                         user.getActiveItem().damage(1, user.getRandom(), (ServerPlayerEntity) user);
                                     }
-                                    user.world.playSoundFromEntity(null, target, SoundEvents.ITEM_SHIELD_BLOCK, SoundCategory.PLAYERS,
-                                            1.0f, user.world.random.nextFloat() * 0.4f);
+                                    user.getWorld().playSoundFromEntity(null, target, SoundEvents.ITEM_SHIELD_BLOCK, SoundCategory.PLAYERS,
+                                            1.0f, user.getWorld().random.nextFloat() * 0.4f);
                                 }
                             }
                         }
@@ -239,7 +244,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
 
             @Override
             public void inBlockTick(ProjectileEntity projectileEntity, int level) {
-                if (!projectileEntity.world.isClient()) {
+                if (!projectileEntity.getWorld().isClient()) {
                     Entity owner = projectileEntity.getOwner();
                     // proceed if owner exists, is holding the correct grappling item, and is within 50 blocks
                     if (owner instanceof LivingEntity livingEntity && owner.isAlive() && owner.getWorld() == projectileEntity.getWorld() &&
@@ -247,7 +252,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                             projectileEntity.getOwner().getPos().subtract(projectileEntity.getPos()).lengthSquared() < 2500 &&
                                 GRAPPLING.get(owner).getEntity() == projectileEntity) {
                         // pull user in, discard when player gets too close
-                        double pullSpeed = owner.isTouchingWater() ? 0.1 : 0.4;
+                        double pullSpeed = Math.min(1, 1 / owner.getVelocity().lengthSquared()) * (owner.isTouchingWater() ? 0.05 : 0.2);
                         owner.setVelocity(projectileEntity.getPos().subtract(owner.getPos()).normalize().multiply(pullSpeed).add(owner.getVelocity()));
                         owner.velocityModified = true;
                         if (projectileEntity.getOwner().getPos().subtract(projectileEntity.getPos()).lengthSquared() < 2) {
@@ -266,7 +271,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             @Override
             public Vec3d onEntityTravel(Entity persistentProjectileEntity, int level, Vec3d velocity) {
                 // allow arrow to ignore culling so line is always displayed
-                if (!persistentProjectileEntity.world.isClient() && !persistentProjectileEntity.ignoreCameraFrustum) {
+                if (!persistentProjectileEntity.getWorld().isClient() && !persistentProjectileEntity.ignoreCameraFrustum) {
                     GRAPPLING.sync(persistentProjectileEntity);
                 }
                 persistentProjectileEntity.ignoreCameraFrustum = true;
@@ -343,7 +348,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             public void onProjectileFire(LivingEntity user, ProjectileEntity projectileEntity, int level, ItemStack item, ItemStack projectileItem) {
                 // lots of server-client sync stuff so grappling line can properly render on arrows
                 // also resets prev. grappling arrow if it exists
-                if (projectileEntity instanceof PersistentProjectileEntity && !projectileEntity.world.isClient()) {
+                if (projectileEntity instanceof PersistentProjectileEntity && !projectileEntity.getWorld().isClient()) {
                     SupplementaryComponents.GRAPPLING.get(projectileEntity).setValue(1, user);
                     Entity lastProjectile;
                     if ((lastProjectile = GRAPPLING.get(user).getEntity()) != null && lastProjectile instanceof PersistentProjectileEntity) {
@@ -413,7 +418,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                 if (entity instanceof PersistentProjectileEntity projectile &&
                         projectile.getOwner() instanceof LivingEntity owner && projectile.isCritical()) {
                     Entity target = MARKED.get(owner).getEntity();
-                    if (target != null && target.isAlive() && target.getWorld() == entity.getWorld()) {
+                    if (target != null && target.getWorld() == entity.getWorld() && target.isAlive() && target.getPos().squaredDistanceTo(entity.getPos()) <= 4900) {
                         Vec3d projectilePos = entity.getPos();
                         Vec3d targetPos = target.getEyePos();
                         Vec3d projectileToTarget = new Vec3d(targetPos.x - projectilePos.x, targetPos.y -
@@ -436,7 +441,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             @Override
             public boolean postEntityHit(Entity target, ProjectileEntity projectileEntity, int lvl) {
                 // if owner exists and target is trackable, set owner target to entity hit
-                if (projectileEntity.getOwner() instanceof LivingEntity owner && (target instanceof LivingEntity || target instanceof EnderDragonPart)) {
+                if (projectileEntity.getOwner() instanceof LivingEntity owner && target != owner && (target instanceof LivingEntity || target instanceof EnderDragonPart)) {
                     MARKED.get(owner).setEntity(target);
                 }
                 return false;

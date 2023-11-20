@@ -1,5 +1,6 @@
 package com.birblett.client.render.entities;
 
+import com.birblett.Supplementary;
 import com.birblett.entities.BoomerangEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -9,12 +10,12 @@ import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.client.render.model.json.ModelTransformation;
+import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3f;
+import net.minecraft.util.math.RotationAxis;
 
 @Environment(EnvType.CLIENT)
 public class BoomerangEntityRenderer extends EntityRenderer<BoomerangEntity> {
@@ -45,25 +46,26 @@ public class BoomerangEntityRenderer extends EntityRenderer<BoomerangEntity> {
             if (boomerangEntity.getYaw() == 0) {
                 // handle facing straight up or down
                 int mult = boomerangEntity.getPitch() >= 0 ? 1 : -1;
-                matrixStack.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(boomerangEntity.getPitch()));
-                matrixStack.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(mult * (boomerangEntity.getStoredAngle() - 90)));
+                matrixStack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(boomerangEntity.getPitch()));
+                matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(mult * (boomerangEntity.getStoredAngle() - 90)));
             }
             else {
-                matrixStack.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(boomerangEntity.getYaw() - 90.0f));
-                matrixStack.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(boomerangEntity.getPitch()));
+                matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(boomerangEntity.getYaw() - 90.0f));
+                matrixStack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(boomerangEntity.getPitch()));
             }
             // get item model from boomerang, scaled to fit hitbox
             ItemStack itemStack = boomerangEntity.getStack();
-            BakedModel bakedModel = this.itemRenderer.getModel(itemStack, boomerangEntity.world, null, boomerangEntity.getId());
+            BakedModel bakedModel = this.itemRenderer.getModel(itemStack, boomerangEntity.getWorld(), null, boomerangEntity.getId());
             matrixStack.scale(1.2f, 1.2f, 1.2f);
             // handle spin animation
-            matrixStack.multiply(Vec3f.POSITIVE_Y.getRadialQuaternion(MathHelper.lerp(tickDelta, boomerangEntity.getAge(), boomerangEntity.getAge() + 1)));
+            int age = boomerangEntity.getAge();
+            matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(MathHelper.lerp(tickDelta, 50 * age, 50 * (age + 1))));
             // center model on hitbox
             matrixStack.translate(0.03f, 0.05f, -0.15f);
             // rotate to be flat instead of upright
-            matrixStack.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(90));
+            matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(90));
             matrixStack.push();
-            this.itemRenderer.renderItem(itemStack, ModelTransformation.Mode.GROUND, false, matrixStack, vertexConsumerProvider, light, OverlayTexture.DEFAULT_UV, bakedModel);
+            this.itemRenderer.renderItem(itemStack, ModelTransformationMode.GROUND, false, matrixStack, vertexConsumerProvider, light, OverlayTexture.DEFAULT_UV, bakedModel);
             matrixStack.pop();
             matrixStack.pop();
             super.render(boomerangEntity, yaw, tickDelta, matrixStack, vertexConsumerProvider, light);

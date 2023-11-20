@@ -19,6 +19,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
+import java.util.function.BiFunction;
+
 /**
  * Allows for custom collision behavior with All Terrain
  */
@@ -35,13 +37,13 @@ public class AllTerrainBlockCollisionSpliteratorMixin implements BlockCollisionS
         this.supplementary$extendCollision = type;
     }
 
-    @Inject(method = "<init>(Lnet/minecraft/world/CollisionView;Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Box;Z)V",
+    @Inject(method = "<init>(Lnet/minecraft/world/CollisionView;Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Box;ZLjava/util/function/BiFunction;)V",
             at = @At("TAIL"))
-    private void getWorld(CollisionView world, Entity entity, Box box, boolean forEntity, CallbackInfo ci) {
+    private void getWorld(CollisionView world, Entity entity, Box box, boolean forEntity, BiFunction resultFunction, CallbackInfo ci) {
         this.supplementary$collisionView = world;
     }
 
-    @Inject(method = "computeNext()Lnet/minecraft/util/shape/VoxelShape;", at = @At(value = "INVOKE",
+    @Inject(method = "computeNext", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/block/BlockState;getCollisionShape(Lnet/minecraft/world/BlockView;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/ShapeContext;)Lnet/minecraft/util/shape/VoxelShape;"),
             locals = LocalCapture.CAPTURE_FAILSOFT)
     private void getBlockInfo(CallbackInfoReturnable<VoxelShape> cir, int i, int j, int k, int l, BlockView blockView, BlockState blockState) {
@@ -49,7 +51,7 @@ public class AllTerrainBlockCollisionSpliteratorMixin implements BlockCollisionS
         this.supplementary$blockState = blockState;
     }
 
-    @ModifyVariable(method = "computeNext()Lnet/minecraft/util/shape/VoxelShape;", at = @At(value = "INVOKE",
+    @ModifyVariable(method = "computeNext", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/util/shape/VoxelShapes;fullCube()Lnet/minecraft/util/shape/VoxelShape;"))
     private VoxelShape replaceWithFluidVoxelShape(VoxelShape voxelShape) {
         if (this.supplementary$extendCollision == 1) {

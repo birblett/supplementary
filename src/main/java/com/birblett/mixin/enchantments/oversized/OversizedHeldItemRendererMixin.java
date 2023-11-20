@@ -39,7 +39,7 @@ public class OversizedHeldItemRendererMixin {
         return SupplementaryEnchantmentHelper.getDrawspeedModifier(pullProgress, supplementary$BowItemStack);
     }
 
-    @Inject(method = "renderFirstPersonItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;multiply(Lnet/minecraft/util/math/Quaternion;)V",
+    @Inject(method = "renderFirstPersonItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;multiply(Lorg/joml/Quaternionf;)V",
             ordinal = 8))
     private void scaleFirstPersonUsingBow(AbstractClientPlayerEntity player, float tickDelta, float pitch, Hand hand, float swingProgress, ItemStack item, float equipProgress, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
         if (EnchantmentHelper.getLevel(SupplementaryEnchantments.OVERSIZED, item) > 0) {
@@ -48,7 +48,7 @@ public class OversizedHeldItemRendererMixin {
         }
     }
 
-    @Inject(method = "renderFirstPersonItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;translate(DDD)V",
+    @Inject(method = "renderFirstPersonItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;translate(FFF)V",
             ordinal = 12))
     private void scaleFirstPersonIdleBow(AbstractClientPlayerEntity player, float tickDelta, float pitch, Hand hand, float swingProgress, ItemStack item, float equipProgress, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
         if (item.getItem() instanceof BowItem && EnchantmentHelper.getLevel(SupplementaryEnchantments.OVERSIZED, item) > 0) {

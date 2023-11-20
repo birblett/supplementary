@@ -96,24 +96,24 @@ public class BoomerangEntity extends ProjectileEntity {
         Vec3d prevVelocity = this.getVelocity();
         Vec3d position = this.getPos();
         Vec3d nextPos = position.add(prevVelocity);
-        HitResult hitResult = this.world.raycast(new RaycastContext(position, nextPos, RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, this));
+        HitResult hitResult = this.getWorld().raycast(new RaycastContext(position, nextPos, RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, this));
         // get a non-owner entity collision
-        EntityHitResult entityHitResult = ProjectileUtil.getEntityCollision(this.world, this, this.getPos(), this.getPos()
+        EntityHitResult entityHitResult = ProjectileUtil.getEntityCollision(this.getWorld(), this, this.getPos(), this.getPos()
                 .add(prevVelocity), this.getBoundingBox().stretch(prevVelocity).expand(1.0), e -> e != getOwner(), this.isReturning ? 0.3f : 0.2f);
         if (entityHitResult != null) {
             Entity entity = entityHitResult.getEntity();
-            if (entity.collides() && this.damageCooldown <= 0) {
+            if (entity.isAttackable() && this.damageCooldown <= 0) {
                 // set a damage cooldown of 5 ticks minimum
                 this.damageCooldown = 5;
-                if (!world.isClient()) {
+                if (!getWorld().isClient()) {
                     if (entity instanceof LivingEntity livingEntity) {
                         livingEntity.hurtTime = 0;
                         livingEntity.timeUntilRegen = 0;
                     }
-                    entity.damage(DamageSource.thrownProjectile(this, this.getOwner()), getAttackDamage(entity));
+                    entity.damage(entity.getWorld().getDamageSources().thrown(this, this.getOwner()), getAttackDamage(entity));
                     // use durability on hit
                     if (this.itemStack.damage(1, random, (ServerPlayerEntity) this.getOwner())) {
-                        this.world.sendEntityStatus(this, EntityStatuses.BREAK_MAINHAND);
+                        this.getWorld().sendEntityStatus(this, EntityStatuses.BREAK_MAINHAND);
                         // drop inventory items if necessary
                         if (!this.inventory.isEmpty()) {
                             Vec3d velocity = this.getVelocity();
@@ -137,17 +137,17 @@ public class BoomerangEntity extends ProjectileEntity {
                     }
                 }
             }
-            else if (this.pickupLevel > 0 && entityHitResult.getEntity() instanceof ItemEntity item && !this.world.isClient()
+            else if (this.pickupLevel > 0 && entityHitResult.getEntity() instanceof ItemEntity item && !this.getWorld().isClient()
                     && this.pickupStack(item)) {
                 // if enchanted with pickup, this picks up and stores the nearest item entity
-                this.world.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2f, ((this.random.nextFloat() - this.random.nextFloat()) * 0.7f + 1.0f) * 2.0f);
+                this.getWorld().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2f, ((this.random.nextFloat() - this.random.nextFloat()) * 0.7f + 1.0f) * 2.0f);
             }
         }
         if (!isReturning) {
             if (hitResult.getType() == HitResult.Type.BLOCK) {
                 // use durability on block hit
-                if (!this.world.isClient() && this.itemStack.damage(2, random, (ServerPlayerEntity) this.getOwner())) {
-                    this.world.sendEntityStatus(this, EntityStatuses.BREAK_MAINHAND);
+                if (!this.getWorld().isClient() && this.itemStack.damage(2, random, (ServerPlayerEntity) this.getOwner())) {
+                    this.getWorld().sendEntityStatus(this, EntityStatuses.BREAK_MAINHAND);
                     // drop inventory items if necessary
                     if (!this.inventory.isEmpty()) {
                         Vec3d velocity = this.getVelocity();
@@ -270,7 +270,7 @@ public class BoomerangEntity extends ProjectileEntity {
         for (int i = 0; i < 15; ++i) {
             Vec3d particleVelocity = new Vec3d(((double)this.random.nextFloat() - 0.5) * 0.1, Math.random() * 0.1,
                     ((double)this.random.nextFloat() - 0.5) * 0.1).normalize().multiply(0.15 * (this.random.nextFloat() + 0.5));
-            this.world.addParticle(new ItemStackParticleEffect(ParticleTypes.ITEM, stack), this.getX(), this.getY(),this.getZ(), particleVelocity.x, particleVelocity.y + 0.05, particleVelocity.z);
+            this.getWorld().addParticle(new ItemStackParticleEffect(ParticleTypes.ITEM, stack), this.getX(), this.getY(),this.getZ(), particleVelocity.x, particleVelocity.y + 0.05, particleVelocity.z);
         }
     }
 
@@ -303,18 +303,18 @@ public class BoomerangEntity extends ProjectileEntity {
     }
 
     public void returnToOwner(PlayerEntity player) {
-        if (!this.world.isClient() && !player.getWorld().isClient()) {
+        if (!this.getWorld().isClient() && !player.getWorld().isClient()) {
             if (this.shouldInsert) {
                 // -99 is magic number representing offhand, as insertStack does not work with offhand slot
                 if (this.storedSlot == -99 && player.getOffHandStack() == ItemStack.EMPTY) {
                     player.setStackInHand(Hand.OFF_HAND, this.itemStack);
                     if (player instanceof ServerPlayerEntity serverPlayerEntity) {
-                        serverPlayerEntity.world.playSound(null, serverPlayerEntity.getX(), serverPlayerEntity.getY(), serverPlayerEntity.getZ(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2f, ((serverPlayerEntity.getRandom().nextFloat() - serverPlayerEntity.getRandom().nextFloat()) * 0.7f + 1.0f) * 2.0f);
+                        serverPlayerEntity.getWorld().playSound(null, serverPlayerEntity.getX(), serverPlayerEntity.getY(), serverPlayerEntity.getZ(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2f, ((serverPlayerEntity.getRandom().nextFloat() - serverPlayerEntity.getRandom().nextFloat()) * 0.7f + 1.0f) * 2.0f);
                     }
                 } else if (player.getInventory().getStack(this.storedSlot).isEmpty()) {
                     player.getInventory().insertStack(this.storedSlot, this.itemStack);
                     if (player instanceof ServerPlayerEntity serverPlayerEntity) {
-                        serverPlayerEntity.world.playSound(null, serverPlayerEntity.getX(), serverPlayerEntity.getY(), serverPlayerEntity.getZ(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2f, ((serverPlayerEntity.getRandom().nextFloat() - serverPlayerEntity.getRandom().nextFloat()) * 0.7f + 1.0f) * 2.0f);
+                        serverPlayerEntity.getWorld().playSound(null, serverPlayerEntity.getX(), serverPlayerEntity.getY(), serverPlayerEntity.getZ(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2f, ((serverPlayerEntity.getRandom().nextFloat() - serverPlayerEntity.getRandom().nextFloat()) * 0.7f + 1.0f) * 2.0f);
                     }
                 } else {
                     ItemEntity itemEntity = player.dropStack(this.itemStack, 1.0f);
@@ -383,7 +383,8 @@ public class BoomerangEntity extends ProjectileEntity {
         sync break sound and particle effects on client
          */
         if (status == EntityStatuses.BREAK_MAINHAND) {
-            this.world.playSound(this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_ITEM_BREAK, this.getSoundCategory(), 0.8f, 0.8f + this.world.random.nextFloat() * 0.4f, true);
+            this.getWorld().playSound(this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_ITEM_BREAK, this.getSoundCategory(),
+                    0.8f, 0.8f + this.getWorld().random.nextFloat() * 0.4f, true);
             this.spawnBreakParticles(itemStack);
         }
     }

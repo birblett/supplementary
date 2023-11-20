@@ -11,8 +11,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 
 import static com.birblett.Supplementary.MODID;
 
@@ -32,8 +33,8 @@ public class SupplementaryEntities {
 
     @SuppressWarnings({"Convert2MethodRef", "rawtypes", "unchecked"})
     public static void register() {
-        Registry.register(Registry.ENTITY_TYPE, new Identifier(MODID, "snowball_variant"), SNOWBALL_VARIANT);
-        Registry.register(Registry.ENTITY_TYPE, new Identifier(MODID, "boomerang"), BOOMERANG);
+        Registry.register(Registries.ENTITY_TYPE, new Identifier(MODID, "snowball_variant"), SNOWBALL_VARIANT);
+        Registry.register(Registries.ENTITY_TYPE, new Identifier(MODID, "boomerang"), BOOMERANG);
         EntityRendererRegistry.register(SNOWBALL_VARIANT, (EntityRendererFactory<Entity>) context -> new FlyingItemEntityRenderer(context));
         EntityRendererRegistry.register(BOOMERANG, BoomerangEntityRenderer::new);
     }

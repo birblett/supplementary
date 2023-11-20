@@ -14,10 +14,11 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.mutable.MutableFloat;
 import org.jetbrains.annotations.Nullable;
@@ -174,7 +175,7 @@ public class EnchantmentBuilder extends Enchantment {
      * Registers the enchantment to the enchantment registry
      */
     public void build() {
-        Registry.register(Registry.ENCHANTMENT, this.identifier, this);
+        Registry.register(Registries.ENCHANTMENT, this.identifier, this);
     }
 
     /**

@@ -23,7 +23,7 @@ public class SnowballVariantsGolemMixin {
         SnowGolemEntity self = (SnowGolemEntity) (Object) this;
         int snowballType = (int) SupplementaryComponents.SNOWBALL_TYPE.get(self).getValue();
         if (snowballType > 0) {
-            SnowballVariantEntity projectile = new SnowballVariantEntity(self.world, self);
+            SnowballVariantEntity projectile = new SnowballVariantEntity(self.getWorld(), self);
             switch (snowballType) {
                 case 1 -> projectile.setItem(new ItemStack(SupplementaryItems.GLOWBALL));
                 case 2 -> projectile.setItem(new ItemStack(SupplementaryItems.ICEBALL));
@@ -38,7 +38,7 @@ public class SnowballVariantsGolemMixin {
             double h = Math.sqrt(e * e + g * g) * (double)0.2f;
             projectile.setVelocity(e, f + h, g, 1.6f, 12.0f);
             self.playSound(SoundEvents.ENTITY_SNOW_GOLEM_SHOOT, 1.0f, 0.4f / (self.getRandom().nextFloat() * 0.4f + 0.8f));
-            self.world.spawnEntity(projectile);
+            self.getWorld().spawnEntity(projectile);
             ci.cancel();
         }
     }

@@ -38,9 +38,9 @@ public class EntityHelper {
         for (int xPos = 0; xPos < 2; xPos++) {
             for (int yPos = 2; yPos < 4; yPos++) {
                 for (int zPos = 4; zPos < 6; zPos++) {
-                    BlockPos corner = new BlockPos(corners[xPos], corners[yPos], corners[zPos]);
-                    BlockState blockState = self.world.getBlockState(corner);
-                    VoxelShape vs = blockState.getCollisionShape(self.world, corner, ShapeContext.of(self));
+                    BlockPos corner = BlockPos.ofFloored(corners[xPos], corners[yPos], corners[zPos]);
+                    BlockState blockState = self.getWorld().getBlockState(corner);
+                    VoxelShape vs = blockState.getCollisionShape(self.getWorld(), corner, ShapeContext.of(self));
                     if (!vs.isEmpty() && vs.getBoundingBox().offset(corner).intersects(box)) {
                         return true;
                     }

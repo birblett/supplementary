@@ -4,16 +4,15 @@ import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.LeashKnotEntityRenderer;
 import net.minecraft.client.render.entity.MobEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LightType;
+import org.joml.Matrix4f;
 
 /**
  * Helper functions for rendering certain components.
@@ -37,15 +36,15 @@ public class RenderHelper {
 
         VertexConsumer vertexConsumer = provider.getBuffer(RenderLayer.getLeash());
         Matrix4f matrix4f = matrices.peek().getPositionMatrix();
-        float n = MathHelper.fastInverseSqrt(j * j + l * l) * 0.025F / 2.0F;
+        float n = MathHelper.inverseSqrt(j * j + l * l) * 0.025F / 2.0F;
         float o = l * n;
         float p = j * n;
-        BlockPos blockPos = new BlockPos(entity.getCameraPosVec(tickDelta));
-        BlockPos blockPos2 = new BlockPos(rootEntity.getCameraPosVec(tickDelta));
-        int q = entity.isOnFire() ? 15 : entity.world.getLightLevel(LightType.BLOCK, blockPos);
-        int r = rootEntity.isOnFire() ? 15 : rootEntity.world.getLightLevel(LightType.BLOCK, blockPos);
-        int s = entity.world.getLightLevel(LightType.SKY, blockPos);
-        int t = entity.world.getLightLevel(LightType.SKY, blockPos2);
+        BlockPos blockPos = new BlockPos(VectorHelper.fromVec3d(entity.getCameraPosVec(tickDelta)));
+        BlockPos blockPos2 = new BlockPos(VectorHelper.fromVec3d(rootEntity.getCameraPosVec(tickDelta)));
+        int q = entity.isOnFire() ? 15 : entity.getWorld().getLightLevel(LightType.BLOCK, blockPos);
+        int r = rootEntity.isOnFire() ? 15 : rootEntity.getWorld().getLightLevel(LightType.BLOCK, blockPos);
+        int s = entity.getWorld().getLightLevel(LightType.SKY, blockPos);
+        int t = entity.getWorld().getLightLevel(LightType.SKY, blockPos2);
 
         int u;
         for(u = 0; u <= 24; ++u) {
@@ -59,9 +58,7 @@ public class RenderHelper {
     }
 
     /**
-     * Renders a single segment of grappling rope. Mostly copied from {@link MobEntityRenderer#renderLeashPiece(
-     * net.minecraft.client.render.VertexConsumer, net.minecraft.util.math.Matrix4f, float, float, float, int, int, int,
-     * int, float, float, float, float, int, boolean)}
+     * Renders a single segment of grappling rope. Mostly copied from {@link MobEntityRenderer#renderLeashPiece(VertexConsumer, Matrix4f, float, float, float, int, int, int, int, float, float, float, float, int, boolean)}
      */
     private static void renderRopePiece(VertexConsumer vertexConsumer, Matrix4f positionMatrix, float f, float g, float h, int projectileBlockLight, int ownerBlockLight, int projectileSkyLight, int ownerSkyLight, float j, float k, float l, int pieceIndex) {
         float index = (float)pieceIndex / 24.0F;

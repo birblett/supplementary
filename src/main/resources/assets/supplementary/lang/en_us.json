@@ -1,4 +1,6 @@
 {
+  "supplementary.item_group": "Supplementary",
+
   "entity.supplementary.snowball_variant": "Snowball Variant",
   "entity.supplementary.boomerang": "Boomerang",
 
@@ -10,6 +12,7 @@
   "enchantment.supplementary.all_terrain": "All Terrain",
   "enchantment.supplementary.assault_dash": "Assault Dash",
   "death.attack.assault_dash.player": "%1$s was shield bashed by %2$s",
+  "death.attack.assault_dash.fallback": "%1$s was shield bashed",
   "enchantment.supplementary.bunnyhop": "Bunnyhop",
   "enchantment.supplementary.burst_fire": "Burst Fire",
   "enchantment.supplementary.empowered": "Empowered",

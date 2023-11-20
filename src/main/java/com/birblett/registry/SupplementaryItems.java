@@ -6,6 +6,8 @@ import com.birblett.items.BoomerangItem;
 import com.birblett.items.SnowballVariantItem;
 import com.birblett.trinkets.CapeItem;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.block.DispenserBlock;
 import net.minecraft.block.dispenser.ProjectileDispenserBehavior;
 import net.minecraft.entity.Entity;
@@ -14,19 +16,25 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.boss.dragon.EnderDragonPart;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.DamageSources;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.BlazeEntity;
 import net.minecraft.entity.passive.SnowGolemEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.*;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.Position;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.birblett.Supplementary.MODID;
 
@@ -58,9 +66,9 @@ public class SupplementaryItems {
         registerSnowballVariant(String, Item) - registers item + registers snowball dispenser behavior for the item
      */
 
-    public static final Item CAPE = new CapeItem(new FabricItemSettings().group(ItemGroup.MISC).maxCount(1));
+    public static final Item CAPE = new CapeItem(new Item.Settings().maxCount(1));
 
-    public static final Item SNOWGOLEMBALL = new SnowballVariantItem(new Item.Settings().maxCount(16).group(ItemGroup.MISC)) {
+    public static final Item SNOWGOLEMBALL = new SnowballVariantItem(new Item.Settings().maxCount(16)) {
         @Override
         public void onEntityHitEvent(Entity target, SnowballVariantEntity snowballVariantEntity) {
             /*
@@ -86,7 +94,7 @@ public class SupplementaryItems {
             snowballVariantEntity.getWorld().spawnEntity(snowGolemEntity);
         }
     };
-    public static final Item GLOWBALL = new SnowballVariantItem(new Item.Settings().maxCount(16).group(ItemGroup.MISC), 1) {
+    public static final Item GLOWBALL = new SnowballVariantItem(new Item.Settings().maxCount(16), 1) {
         @Override
         public void onEntityHitEvent(Entity target, SnowballVariantEntity snowballVariantEntity) {
             /*
@@ -96,20 +104,20 @@ public class SupplementaryItems {
                 livingEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.GLOWING, 50, 0, false, false));
             }
             float damageAmount = target instanceof BlazeEntity ? 4.0f : 1.0f;
-            target.damage(DamageSource.thrownProjectile(snowballVariantEntity, snowballVariantEntity.getOwner()), damageAmount);
+            target.damage(target.getWorld().getDamageSources().thrown(snowballVariantEntity, snowballVariantEntity.getOwner()), damageAmount);
         }
     };
-    public static final Item ICEBALL = new SnowballVariantItem(new Item.Settings().maxCount(16).group(ItemGroup.MISC), 2) {
+    public static final Item ICEBALL = new SnowballVariantItem(new Item.Settings().maxCount(16), 2) {
         @Override
         public void onEntityHitEvent(Entity target, SnowballVariantEntity snowballVariantEntity) {
             /*
             deals 2 damage, or 7 if target is a blaze or ender dragon
              */
             float damageAmount = target instanceof BlazeEntity || target instanceof EnderDragonPart ? 7.0f : 2.0f;
-            target.damage(DamageSource.thrownProjectile(snowballVariantEntity, snowballVariantEntity.getOwner()), damageAmount);
+            target.damage(target.getWorld().getDamageSources().thrown(snowballVariantEntity, snowballVariantEntity.getOwner()), damageAmount);
         }
     };
-    public static final Item SLOWBALL = new SnowballVariantItem(new Item.Settings().maxCount(16).group(ItemGroup.MISC), 3) {
+    public static final Item SLOWBALL = new SnowballVariantItem(new Item.Settings().maxCount(16), 3) {
         @Override
         public void onEntityHitEvent(Entity target, SnowballVariantEntity snowballVariantEntity) {
             /*
@@ -119,10 +127,10 @@ public class SupplementaryItems {
                 livingEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 40, 1));
             }
             float damageAmount = target instanceof BlazeEntity ? 4.0f : 1.0f;
-            target.damage(DamageSource.thrownProjectile(snowballVariantEntity, snowballVariantEntity.getOwner()), damageAmount);
+            target.damage(target.getWorld().getDamageSources().thrown(snowballVariantEntity, snowballVariantEntity.getOwner()), damageAmount);
         }
     };
-    public static final Item BLOWBALL = new SnowballVariantItem(new Item.Settings().maxCount(16).group(ItemGroup.MISC), 4) {
+    public static final Item BLOWBALL = new SnowballVariantItem(new Item.Settings().maxCount(16), 4) {
         @Override
         public void onEntityHitEvent(Entity target, SnowballVariantEntity snowballVariantEntity) {
             /*
@@ -138,21 +146,21 @@ public class SupplementaryItems {
         }
     };
 
-    public static final Item WOODEN_BOOMERANG = new BoomerangItem(ToolMaterials.WOOD,
-            new FabricItemSettings().group(ItemGroup.COMBAT).maxCount(1));
-    public static final Item STONE_BOOMERANG = new BoomerangItem(ToolMaterials.STONE,
-            new FabricItemSettings().group(ItemGroup.COMBAT).maxCount(1));
-    public static final Item IRON_BOOMERANG = new BoomerangItem(ToolMaterials.IRON,
-            new FabricItemSettings().group(ItemGroup.COMBAT).maxCount(1));
-    public static final Item GOLD_BOOMERANG = new BoomerangItem(ToolMaterials.GOLD,
-            new FabricItemSettings().group(ItemGroup.COMBAT).maxCount(1));
-    public static final Item DIAMOND_BOOMERANG = new BoomerangItem(ToolMaterials.DIAMOND,
-            new FabricItemSettings().group(ItemGroup.COMBAT).maxCount(1));
-    public static final Item NETHERITE_BOOMERANG = new BoomerangItem(ToolMaterials.NETHERITE,
-            new FabricItemSettings().group(ItemGroup.COMBAT).maxCount(1));
+    public static final Item WOODEN_BOOMERANG = new BoomerangItem(ToolMaterials.WOOD, new FabricItemSettings().maxCount(1));
+    public static final Item STONE_BOOMERANG = new BoomerangItem(ToolMaterials.STONE, new FabricItemSettings().maxCount(1));
+    public static final Item IRON_BOOMERANG = new BoomerangItem(ToolMaterials.IRON, new FabricItemSettings().maxCount(1));
+    public static final Item GOLD_BOOMERANG = new BoomerangItem(ToolMaterials.GOLD, new FabricItemSettings().maxCount(1));
+    public static final Item DIAMOND_BOOMERANG = new BoomerangItem(ToolMaterials.DIAMOND, new FabricItemSettings().maxCount(1));
+    public static final Item NETHERITE_BOOMERANG = new BoomerangItem(ToolMaterials.NETHERITE, new FabricItemSettings().maxCount(1));
+
+    private static final ItemGroup ITEM_GROUP = FabricItemGroup.builder().icon(() -> new ItemStack(DIAMOND_BOOMERANG)).displayName(Text.translatable("supplementary.item_group"))
+            .entries((context, entries) -> {}).build();
+    private static final List<ItemStack> items = new ArrayList<>();
+
 
     private static void registerItem(String id, Item item) {
-        Registry.register(Registry.ITEM, new Identifier(MODID, id), item);
+        Registry.register(Registries.ITEM, new Identifier(MODID, id), item);
+        items.add(new ItemStack(item));
     }
 
     private static void registerSnowballVariant(String id, Item item) {
@@ -165,7 +173,7 @@ public class SupplementaryItems {
         registerItem(id, item);
     }
 
-    public static final Item BREAD_BAR = new Item(new Item.Settings().group(ItemGroup.MISC).food(new FoodComponent.Builder()
+    public static final Item BREAD_BAR = new Item(new Item.Settings().food(new FoodComponent.Builder()
             .hunger(6).saturationModifier(2.5f).build()));
     public static final Item BAGUETTE = new BaguetteItem(250, 0.0f, 1.3f, 0.5f);
 
@@ -187,5 +195,10 @@ public class SupplementaryItems {
         registerSnowballVariant("snowgolemball", SNOWGOLEMBALL);
 
         registerItem("cape", CAPE);
+
+        Registry.register(Registries.ITEM_GROUP, new Identifier("supplementary", "item_group"), ITEM_GROUP);
+        ItemGroupEvents.modifyEntriesEvent(Registries.ITEM_GROUP.getKey(ITEM_GROUP).orElse(ItemGroups.SEARCH)).register(content -> {
+            content.addAll(items);
+        });
     }
 }

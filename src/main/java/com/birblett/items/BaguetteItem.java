@@ -23,8 +23,7 @@ public class BaguetteItem extends ToolItem {
 
     public BaguetteItem(int durability, float attackDamage, float attackSpeed, float range) {
         super(ToolMaterialBuilder.build(MiningLevels.HAND, 10, 2.0f, 5.0f, 0, () -> Ingredient.ofItems(Items.BREAD)),
-                new Item.Settings().group(ItemGroup.FOOD).food(new FoodComponent.Builder().hunger(5).saturationModifier(0.6f)
-                        .build()).maxDamage(durability).group(ItemGroup.COMBAT));
+                new Item.Settings().food(new FoodComponent.Builder().hunger(5).saturationModifier(0.6f).build()).maxDamage(durability));
         ImmutableMultimap.Builder<EntityAttribute, EntityAttributeModifier> builder = ImmutableMultimap.builder();
         builder.put(EntityAttributes.GENERIC_ATTACK_DAMAGE, new EntityAttributeModifier(ATTACK_DAMAGE_MODIFIER_ID,
                 "Tool modifier", attackDamage + 5.0f, EntityAttributeModifier.Operation.ADDITION));
