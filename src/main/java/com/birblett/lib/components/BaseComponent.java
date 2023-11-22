@@ -135,6 +135,19 @@ public interface BaseComponent extends Component {
     default void onProjectileFire(LivingEntity user, ProjectileEntity projectileEntity, int level, ItemStack item, ItemStack projectileItem) {}
 
     /**
+     * Called immediately after projectile(s) is/are fired, after projectile(s) is/are fully instantiated.
+     * @param user entity from which projectile is being fired
+     * @param projectileEntity  fired projectile entity
+     * @param level provided enchantment level
+     * @param item item projectile is being fired from
+     * @param projectileItem item corresponding to the projectile
+     * @see com.birblett.lib.api.ItemEvents#ARROW_FIRED_EVENT
+     * @see com.birblett.lib.api.ItemEvents#FISHING_ROD_USE
+     * @see SupplementaryEvents#ARROW_FIRED_ENCHANT_EVENTS
+     */
+    default void afterProjectileFire(LivingEntity user, ProjectileEntity projectileEntity, int level, ItemStack item, ItemStack projectileItem) {}
+
+    /**
      * Called before rendering begins. Operates via side-effects, typically on the provided matrix stack.
      * @param projectileEntity rendered projectile entity
      * @param tickDelta subtick delta used for smooth rendering. Note that forced syncs such as

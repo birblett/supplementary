@@ -15,14 +15,8 @@ import net.minecraft.entity.*;
 import net.minecraft.entity.boss.dragon.EnderDragonPart;
 import net.minecraft.entity.passive.SnowGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.ArrowEntity;
-import net.minecraft.entity.projectile.FishingBobberEntity;
-import net.minecraft.entity.projectile.PersistentProjectileEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.item.BowItem;
-import net.minecraft.item.CrossbowItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.entity.projectile.*;
+import net.minecraft.item.*;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -32,7 +26,9 @@ import net.minecraft.util.UseAction;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.Vec3d;
+import org.joml.Vector3f;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.birblett.Supplementary.MODID;
@@ -64,6 +60,13 @@ public class SupplementaryComponents implements EntityComponentInitializer {
      */
     public static final ComponentKey<BaseComponent> GRAPPLING =
             ComponentRegistry.getOrCreate(new Identifier(MODID, "grappling"), BaseComponent.class);
+
+    /**
+     * Handles Hitscan functionality.
+     */
+    public static final ComponentKey<BaseComponent> HITSCAN =
+            ComponentRegistry.getOrCreate(new Identifier(MODID, "hitscan"), BaseComponent.class);
+
     /**
      * Handles Lightning Bolt projectile functionality.
      */
@@ -107,6 +110,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             LIGHTNING_BOLT,
             MARKED,
             OVERSIZED,
+            HITSCAN,
             GRAPPLING
     );
 
@@ -227,7 +231,6 @@ public class SupplementaryComponents implements EntityComponentInitializer {
         registry.registerFor(PersistentProjectileEntity.class, GRAPPLING, e -> new SyncedEnchantmentComponent("grappling") {
             // unused, for separating bow/crossbow impl later
             @SuppressWarnings("FieldCanBeLocal")
-            private int grappleType;
             private Hand activeHand = Hand.MAIN_HAND;
             private ItemStack activeStack;
 
@@ -238,7 +241,6 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                 if (user instanceof LivingEntity livingEntity) {
                     this.activeHand = livingEntity.getActiveHand();
                     this.activeStack = livingEntity.getStackInHand(this.activeHand);
-                    this.grappleType = this.activeStack.getItem() instanceof BowItem ? 2 : 1;
                 }
             }
 
@@ -336,7 +338,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
 
             @Override
             public void onHandSwingEvent(LivingEntity entity, Hand hand) {
-                // remove grappling from existing arrow if it exists on hand swing
+                // remove grappling from existing projectiles if it exists on hand swing
                 if (!entity.getWorld().isClient() && this.getEntity() instanceof PersistentProjectileEntity persistentProjectileEntity) {
                     GRAPPLING.get(persistentProjectileEntity).setValue(0);
                     GRAPPLING.sync(persistentProjectileEntity);
@@ -346,8 +348,8 @@ public class SupplementaryComponents implements EntityComponentInitializer {
 
             @Override
             public void onProjectileFire(LivingEntity user, ProjectileEntity projectileEntity, int level, ItemStack item, ItemStack projectileItem) {
-                // lots of server-client sync stuff so grappling line can properly render on arrows
-                // also resets prev. grappling arrow if it exists
+                // lots of server-client sync stuff so grappling line can properly render
+                // also resets prev. grapple if it exists
                 if (projectileEntity instanceof PersistentProjectileEntity && !projectileEntity.getWorld().isClient()) {
                     SupplementaryComponents.GRAPPLING.get(projectileEntity).setValue(1, user);
                     Entity lastProjectile;
@@ -447,6 +449,40 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                 return false;
             }
         });
+        registry.registerFor(PersistentProjectileEntity.class, HITSCAN, e -> new EnchantmentComponent("hitscan") {
+            @Override
+            public void afterProjectileFire(LivingEntity user, ProjectileEntity projectileEntity, int level, ItemStack item, ItemStack projectileItem) {
+                // instantly do 50 iterations of main projectile tick loop
+                if (projectileEntity instanceof PersistentProjectileEntity persistentProjectileEntity && (persistentProjectileEntity.isCritical() || persistentProjectileEntity instanceof TridentEntity)) {
+                    int i;
+                    List<Vector3f> path = new ArrayList<>();
+                    List<PlayerEntity> players = new ArrayList<>();
+                    for (i = 0; i < 65; i++) {
+                        persistentProjectileEntity.tick();
+                        path.add(persistentProjectileEntity.getPos().toVector3f());
+                        // build list of nearby players to send particle packets to
+                        if ((i & 0b111) == 0) {
+                            projectileEntity.getWorld().getPlayers().forEach(player -> {
+                                if (player.getPos().squaredDistanceTo(persistentProjectileEntity.getPos()) <= 128 * 128) {
+                                    players.add(player);
+                                }
+                            });
+                        }
+                        // stop if unable to continue
+                        if (persistentProjectileEntity.isRemoved()) break;
+                        if (persistentProjectileEntity.inGround) break;
+                    }
+                    if (i != 0) {
+                        SupplementaryPacketRegistry.HitscanPacket packet = new SupplementaryPacketRegistry.HitscanPacket(path);
+                        players.forEach(player -> {
+                            if (player instanceof ServerPlayerEntity p) {
+                                packet.send(p);
+                            }
+                        });
+                    }
+                }
+            }
+        });
         registry.registerFor(LivingEntity.class, MARKED, e -> new EnchantmentComponent() {
             private Entity trackedEntity;
 
@@ -495,14 +531,14 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                 // remove existing iframes on entity hit, before damage is applied
                 if (target instanceof LivingEntity livingEntity) {
                     livingEntity.hurtTime = 0;
-                    livingEntity.timeUntilRegen = 1;
+                    livingEntity.timeUntilRegen = 0;
                 }
                 else if (target instanceof EnderDragonPart dragonPart) {
                     dragonPart.owner.hurtTime = 0;
-                    dragonPart.timeUntilRegen = 1;
+                    dragonPart.owner.timeUntilRegen = 0;
                 }
             }
         });
-        registry.registerFor(SnowGolemEntity.class, SNOWBALL_TYPE, e -> new SimpleEntityComponent<Integer>("snowball_type"));
+        registry.registerFor(SnowGolemEntity.class, SNOWBALL_TYPE, e -> new SimpleEntityComponent<>("snowball_type", 0));
     }
 }

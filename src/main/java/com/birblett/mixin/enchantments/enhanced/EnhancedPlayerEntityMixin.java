@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 
 /**
- * Aqua affinity also improves mining speed while in the air with Enhanced
+ * Aqua Affinity also improves mining speed while in the air with Enhanced
  */
 @Mixin(PlayerEntity.class)
 public class EnhancedPlayerEntityMixin {

@@ -54,6 +54,7 @@
     "enchantments.oversized.OversizedHeldItemFeatureRendererMixin",
     "enchantments.oversized.OversizedHeldItemRendererMixin",
     "enchantments.oversized.OversizedModelProviderRegistryMixin",
+    "enchantments.strafe.StrafeClientPlayerMixin",
     "items.LoomScreenMixin",
     "render.PlayerCapeRenderer",
     "render.ProjectileEntityRendererMixin"

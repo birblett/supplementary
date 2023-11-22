@@ -29,13 +29,14 @@ public class SnowballVariantsGolemMixin {
                 case 2 -> projectile.setItem(new ItemStack(SupplementaryItems.ICEBALL));
                 case 3 -> projectile.setItem(new ItemStack(SupplementaryItems.SLOWBALL));
                 case 4 -> projectile.setItem(new ItemStack(SupplementaryItems.BLOWBALL));
-                default -> {}
+                default -> {
+                }
             }
-            double d = target.getEyeY() - (double)1.1f;
+            double d = target.getEyeY() - (double) 1.1f;
             double e = target.getX() - self.getX();
             double f = d - projectile.getY();
             double g = target.getZ() - self.getZ();
-            double h = Math.sqrt(e * e + g * g) * (double)0.2f;
+            double h = Math.sqrt(e * e + g * g) * (double) 0.2f;
             projectile.setVelocity(e, f + h, g, 1.6f, 12.0f);
             self.playSound(SoundEvents.ENTITY_SNOW_GOLEM_SHOOT, 1.0f, 0.4f / (self.getRandom().nextFloat() * 0.4f + 0.8f));
             self.getWorld().spawnEntity(projectile);

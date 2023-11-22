@@ -14,7 +14,10 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-          "com.birblett.Supplementary"
+          	"com.birblett.Supplementary"
+		],
+		"client": [
+			"com.birblett.SupplementaryClient"
 		],
 		"cardinal-components": [
 			"com.birblett.registry.SupplementaryComponents"
@@ -38,6 +41,7 @@
 			"supplementary:burst_fire",
 			"supplementary:enhanced",
 			"supplementary:grappling",
+			"supplementary:hitscan",
 			"supplementary:lightning_bolt",
 			"supplementary:marked",
 			"supplementary:oversized",

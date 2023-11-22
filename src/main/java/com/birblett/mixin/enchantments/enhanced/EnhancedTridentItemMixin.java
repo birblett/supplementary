@@ -26,7 +26,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 /**
- * Allows for Riptide to be used out of water with Enhanced
+ * Allows for Riptide to be used out of water with Enhanced, at the expense of a significant amount of durability
  */
 @Mixin(TridentItem.class)
 public class EnhancedTridentItemMixin {
@@ -59,7 +59,7 @@ public class EnhancedTridentItemMixin {
             SoundEvent soundEvent = j >= 3 ? SoundEvents.ITEM_TRIDENT_RIPTIDE_3 : (j == 2 ? SoundEvents.ITEM_TRIDENT_RIPTIDE_2 : SoundEvents.ITEM_TRIDENT_RIPTIDE_1);
             world.playSoundFromEntity(null, playerEntity, soundEvent, SoundCategory.PLAYERS, 1.0f, 1.0f);
             EquipmentSlot slot = user.getMainHandStack() == stack ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND;
-            stack.damage(3, user, e -> e.sendEquipmentBreakStatus(slot));
+            stack.damage(5, user, e -> e.sendEquipmentBreakStatus(slot));
         }
     }
 }

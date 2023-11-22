@@ -78,7 +78,7 @@ public class SupplementaryEvents {
     /**
      * <hr><center><h1>Projectile instantiation events</h1></center><hr>
      * <br><br>
-     * Called when an arrow is fired from either a bow or crossbow. Applies enchantment effects to fired arrows
+     * Called when an arrow is fired from either a bow or crossbow.
      * @see ItemEvents#ARROW_FIRED_EVENT
      */
     public static final ItemEvents.ProjectileFiredEvent ARROW_FIRED_ENCHANT_EVENTS = (user, projectile, item, arrow) -> {
@@ -92,6 +92,16 @@ public class SupplementaryEvents {
                         }
                     } else {
                         enchantmentBuilder.onProjectileFire(user, projectile, level, item);
+                    }
+                }
+            });
+            EnchantmentHelper.get(item).forEach((enchantment, level) -> {
+                if (enchantment instanceof EnchantmentBuilder enchantmentBuilder) {
+                    if (enchantmentBuilder.hasComponent()) {
+                        for (ComponentKey<BaseComponent> componentKey : enchantmentBuilder.getComponents()) {
+                            componentKey.maybeGet(user).ifPresent(component -> component.afterProjectileFire(user, projectile, level, item, arrow));
+                            componentKey.maybeGet(projectile).ifPresent(component -> component.afterProjectileFire(user, projectile, level, item, arrow));
+                        }
                     }
                 }
             });

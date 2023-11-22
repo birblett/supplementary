@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import java.util.Map;
 
 /**
- * Mending gear with Enhanced will grant half of their used exp to the player
+ * Mending gear with Enhanced will grant half of their used exp to the player while still repairing for the same amount
  */
 @Mixin(ExperienceOrbEntity.class)
 public class EnhancedExperienceOrbMixin {

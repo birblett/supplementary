@@ -17,9 +17,11 @@ public class SimpleEntityComponent<T> implements SimpleComponent<T> {
 
     /**
      * @param key The NBT key for this component to be stored under, in the format "supplementary:key"
+     * @param defaultValue Default value for the component
      */
-    public SimpleEntityComponent(String key) {
+    public SimpleEntityComponent(String key, T defaultValue) {
         this.key = MODID + ":" + key;
+        this.value = defaultValue;
     }
 
     /**

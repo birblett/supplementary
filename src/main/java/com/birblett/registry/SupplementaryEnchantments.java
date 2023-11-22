@@ -131,8 +131,9 @@ public class SupplementaryEnchantments {
      * Marked - On entity hit: set a marked entity. Subsequent arrows will home in on this entity. Max lvl: 3
      */
     public static final EnchantmentBuilder LIGHTNING_BOLT = new EnchantmentBuilder("lightning_bolt", Enchantment.Rarity.VERY_RARE, EnchantmentTarget.BOW, BOTH_HANDS);
-    public static final EnchantmentBuilder OVERSIZED = new EnchantmentBuilder("oversized", Enchantment.Rarity.UNCOMMON, EnchantmentTarget.BOW, BOTH_HANDS);
+    public static final EnchantmentBuilder HITSCAN = new EnchantmentBuilder("hitscan", Enchantment.Rarity.RARE, EnchantmentTarget.BOW, BOTH_HANDS);
     public static final EnchantmentBuilder MARKED = new EnchantmentBuilder("marked", Enchantment.Rarity.RARE, EnchantmentTarget.BOW, BOTH_HANDS);
+    public static final EnchantmentBuilder OVERSIZED = new EnchantmentBuilder("oversized", Enchantment.Rarity.UNCOMMON, EnchantmentTarget.BOW, BOTH_HANDS);
 
     /**
      * <hr><center><h1>Crossbow enchantments</h1></center><hr>
@@ -182,7 +183,8 @@ public class SupplementaryEnchantments {
      * Assault Dash - Shields: charge forward while holding shield up, knocking entities away. Max lvl: 2 <br>
      * Bunnyhop - Boots: decrease height, increase speed on jump. Scale small vertical gaps in the air. Max Lvl: 1 <br>
      * Grappling - Bows, crossbows, fishing rods: projectiles pull the user in. Varies by tool type. Max lvl: 1 <br>
-     * Slimed - Boots: become bouncy, experience much less friction. Max lvl: 1
+     * Slimed - Boots: become bouncy, experience much less friction. Max lvl: 1 <br>
+     * Strafe - Boots: double tap the left/right movement keys to strafe left or right while grounded, swimming, or flying. Max lvl: 1
      */
     public static final EnchantmentBuilder ACROBATIC = new EnchantmentBuilder("acrobatic", Enchantment.Rarity.VERY_RARE, EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
     public static final EnchantmentBuilder AIR_DASH = new EnchantmentBuilder("air_dash", Enchantment.Rarity.VERY_RARE, EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
@@ -191,6 +193,7 @@ public class SupplementaryEnchantments {
     public static final EnchantmentBuilder BUNNYHOP = new EnchantmentBuilder("bunnyhop", Enchantment.Rarity.VERY_RARE, EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
     public static final EnchantmentBuilder GRAPPLING = new EnchantmentBuilder("grappling", Enchantment.Rarity.UNCOMMON, EnchantmentTarget.CROSSBOW, MAIN_HAND);
     public static final EnchantmentBuilder SLIMED = new EnchantmentBuilder("slimed", Enchantment.Rarity.VERY_RARE, EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
+    public static final EnchantmentBuilder STRAFE = new EnchantmentBuilder("strafe", Enchantment.Rarity.VERY_RARE, EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
 
     /**
      * Sets of enchantments incompatible with each other.
@@ -251,6 +254,10 @@ public class SupplementaryEnchantments {
                 .setPower(20, 50)
                 .setTreasure(true)
                 .build();
+        HITSCAN.makeIncompatible(OVERSIZED, MARKED)
+                .setPower(20, 50)
+                .addComponent(SupplementaryComponents.HITSCAN)
+                .build();
         LIGHTNING_BOLT.makeIncompatible(Enchantments.POWER, OVERSIZED)
                 .setPower(20, 50)
                 .addComponent(SupplementaryComponents.LIGHTNING_BOLT)
@@ -274,6 +281,9 @@ public class SupplementaryEnchantments {
         SOULBOUND.makeIncompatible(GENERAL_COMPATIBILITY_GROUP)
                 .setPower(20, 50)
                 .setTreasure(true)
+                .build();
+        STRAFE.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
+                .setPower(20, 50)
                 .build();
     }
 }
