@@ -22,6 +22,6 @@ public class OversizedModelProviderRegistryMixin {
     @Inject(method = "method_27890(Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/world/ClientWorld;Lnet/minecraft/entity/LivingEntity;I)F",
             at = @At("RETURN"), cancellable = true)
     private static void applyDrawSpeedModifiers(ItemStack stack, ClientWorld world, LivingEntity entity, int seed, CallbackInfoReturnable<Float> cir) {
-        cir.setReturnValue(SupplementaryEnchantmentHelper.getDrawspeedModifier(cir.getReturnValue(), stack));
+        cir.setReturnValue(SupplementaryEnchantmentHelper.getDrawspeedModifier(entity, cir.getReturnValue(), stack));
     }
 }

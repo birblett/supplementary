@@ -21,17 +21,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class TridentItemMixin {
 
     @Unique private ItemStack supplementary$TridentStack;
+    @Unique private LivingEntity supplementary$Holder;
 
     @Inject(method = "onStoppedUsing", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/TridentItem;getMaxUseTime(Lnet/minecraft/item/ItemStack;)I"))
     private void getTridentStack(ItemStack stack, World world, LivingEntity user, int remainingUseTicks, CallbackInfo ci) {
         this.supplementary$TridentStack = stack;
+        this.supplementary$Holder = user;
     }
 
     @SuppressWarnings("InvalidInjectorMethodSignature")
     @ModifyVariable(method = "onStoppedUsing", at = @At(value = "STORE", ordinal = 0), index = 6)
     private int setUseTimeRemaining(int i) {
         if (EnchantmentHelper.getLevel(SupplementaryEnchantments.GROWTH, this.supplementary$TridentStack) > 0) {
-            i = (int) SupplementaryEnchantmentHelper.getDrawspeedModifier(i, this.supplementary$TridentStack);
+            i = (int) SupplementaryEnchantmentHelper.getDrawspeedModifier(this.supplementary$Holder, i, this.supplementary$TridentStack);
         }
         return i;
     }

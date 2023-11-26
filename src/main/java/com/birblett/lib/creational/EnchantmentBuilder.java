@@ -9,6 +9,8 @@ import net.minecraft.enchantment.EnchantmentTarget;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.attribute.EntityAttribute;
+import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
@@ -24,6 +26,7 @@ import org.apache.commons.lang3.mutable.MutableFloat;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Function;
 
 
 @SuppressWarnings("unused")
@@ -46,6 +49,16 @@ public class EnchantmentBuilder extends Enchantment {
     }
 
     /**
+     * <hr><center><h1>Subclasses</h1></center><hr>
+     * Used for ease of storage and access of some kinds of data. For now only contains the SupplementaryAttribute record,
+     * used to store certain attribute info.
+     */
+
+    public record SupplementaryAttribute(String baseName, EntityAttribute attribute, EntityAttributeModifier.Operation operation,
+                                         Function<Integer, Double> scaling) {}
+
+
+    /**
      * <hr><center><h1>Fields and builder methods</h1></center><hr>
      * Field values determine specific enchant attributes and stats. Builder methods are used to set these values and
      * finally register the enchantment to the enchantment registry. Finalize an EnchantmentBuilder with the
@@ -66,6 +79,7 @@ public class EnchantmentBuilder extends Enchantment {
     private final List<Class<?>> acceptableItemClasses = new ArrayList<>();
     private final List<ComponentKey<BaseComponent>> components = new ArrayList<>();
     private final List<Enchantment> incompatibleEnchantments = new ArrayList<>();
+    private final List<SupplementaryAttribute> attributes = new ArrayList<>();
 
      /**
      * Sets max level of enchant.
@@ -172,24 +186,25 @@ public class EnchantmentBuilder extends Enchantment {
     }
 
     /**
+     * Adds an associated attribute modifier. Processed in {@link com.birblett.mixin.LivingEntityAttributeManagerMixin}
+     * @param baseName Name of attribute modifier to be added. Final attribute name depends on equipped slot (i.e. "name_hand")
+     * @param attribute Type of the attribute
+     * @param operation Operation type i.e. multiply, add, percent
+     * @param scaling How attribute modifier value scales with level
+     * @see com.birblett.registry.SupplementaryEvents
+     */
+    public EnchantmentBuilder addAttribute(String baseName, EntityAttribute attribute, EntityAttributeModifier.Operation operation,
+                                           Function<Integer, Double> scaling) {
+        this.attributes.add(new SupplementaryAttribute(baseName, attribute, operation, scaling));
+        return this;
+    }
+
+
+    /**
      * Registers the enchantment to the enchantment registry
      */
     public void build() {
         Registry.register(Registries.ENCHANTMENT, this.identifier, this);
-    }
-
-    /**
-     * @return Whether the specified enchantment has an attached component or not
-     */
-    public boolean hasComponent() {
-        return !this.components.isEmpty();
-    }
-
-    /**
-     * @return A list of attached components
-     */
-    public List<ComponentKey<BaseComponent>> getComponents() {
-        return this.components;
     }
 
     /**
@@ -277,6 +292,25 @@ public class EnchantmentBuilder extends Enchantment {
     @Override
     public boolean isAvailableForRandomSelection() {
         return this.availableForRandomSelection;
+    }
+
+    /**
+     * @return Whether the specified enchantment has an attached component or not
+     */
+    public boolean hasComponent() {
+        return !this.components.isEmpty();
+    }
+
+    /**
+     * @return A list of attached components
+     */
+    public List<ComponentKey<BaseComponent>> getComponents() {
+        return this.components;
+    }
+
+
+    public List<SupplementaryAttribute> getAttributes() {
+        return this.attributes;
     }
 
     /**

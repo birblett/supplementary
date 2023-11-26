@@ -4,9 +4,7 @@ import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageScaling;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.damage.DamageType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryKey;
@@ -33,11 +31,12 @@ public class SupplementaryEnchantmentHelper {
      * @param stack Bow/crossbow itemstack
      * @return Draw speed after applying modifiers
      */
-    public static float getDrawspeedModifier(float base, ItemStack stack) {
+    public static float getDrawspeedModifier(LivingEntity holder, float base, ItemStack stack) {
         stack = stack == null ? ItemStack.EMPTY : stack;
         float oversizedModifier = (float) Math.pow(0.75, net.minecraft.enchantment.EnchantmentHelper.getLevel(SupplementaryEnchantments.OVERSIZED, stack));
         float growthModifier = 1 + getGrowthStat(stack, GrowthKey.DRAW_SPEED);
-        return base * oversizedModifier * growthModifier;
+        float atrophyModifier = Math.max(0.5f, 1 - 0.1f * net.minecraft.enchantment.EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.ATROPHY, holder));
+        return base * oversizedModifier * growthModifier * atrophyModifier;
     }
 
     /**

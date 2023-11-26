@@ -5,6 +5,7 @@
   "mixins": [
     "EnchantmentCompatMixin",
     "EnchantmentHelperCompatMixin",
+    "LivingEntityAttributeManagerMixin",
     "enchantments.air_dash.AirDashClientPlayerMixin",
     "enchantments.all_terrain.AllTerrainBlockCollisionSpliteratorMixin",
     "enchantments.all_terrain.AllTerrainEntityMixin",

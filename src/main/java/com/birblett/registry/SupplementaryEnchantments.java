@@ -2,15 +2,20 @@ package com.birblett.registry;
 
 import com.birblett.Supplementary;
 import com.birblett.items.BoomerangItem;
+import com.birblett.lib.creational.ContractBuilder;
+import com.birblett.lib.creational.CurseBuilder;
 import com.birblett.lib.creational.EnchantmentBuilder;
 import com.birblett.lib.helper.SupplementaryEnchantmentHelper;
 import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.EnchantmentTarget;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.attribute.EntityAttributeModifier.Operation;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -196,6 +201,45 @@ public class SupplementaryEnchantments {
     public static final EnchantmentBuilder STRAFE = new EnchantmentBuilder("strafe", Enchantment.Rarity.VERY_RARE, EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
 
     /**
+     * <hr><center><h1>Curses</h1></center><hr>
+     * Various curses with negative drawbacks. If enough curses are present, contracts can be applied. Vanilla curses can
+     * also contribute to this. <br><br>
+     * Atrophy - Melee attacks and bow drawing charge 10% slower per level. Max level: 3. Curse points: 1 per lvl <br>
+     * Backlash - Melee attacks incur a backlash of 1 damage per level, ignoring armor. Max level: 2. Curse points: 2 (lvl 1),
+     * 5 (lvl 2) <br>
+     * Decay - Disables natural health regeneration. At level 2, effect lasts until death. Max lvl: 2. Curse points: 3 (lvl 1),
+     * 8 (lvl 2) <br>
+     * Fragility - Take (10 + 5 * level)% more damage from entities and projectiles. Max level: 5. Curse points: 1 per lvl <br>
+     * Insatiable - Hunger and exhaustion accumulate 30% faster per level. Max lvl: 2. Curse points: 1 per lvl <br>
+     */
+    public static final EnchantmentBuilder ATROPHY = new CurseBuilder("atrophy", Enchantment.Rarity.VERY_RARE,
+            EnchantmentTarget.ARMOR_CHEST, ALL_ARMOR, lvl -> lvl);
+    public static final EnchantmentBuilder BACKLASH = new CurseBuilder("backlash", Enchantment.Rarity.VERY_RARE,
+            EnchantmentTarget.ARMOR_CHEST, ALL_ARMOR, lvl -> lvl > 1 ? 5 : 2);
+    public static final EnchantmentBuilder DECAY = new CurseBuilder("decay", Enchantment.Rarity.VERY_RARE,
+            EnchantmentTarget.ARMOR_CHEST, ALL_ARMOR, lvl -> lvl > 1 ? 8 : 3);
+    public static final EnchantmentBuilder FRAGILITY = new CurseBuilder("fragility",
+            Enchantment.Rarity.VERY_RARE, EnchantmentTarget.ARMOR_CHEST, ALL_ARMOR, lvl -> lvl);
+    public static final EnchantmentBuilder INSATIABLE = new CurseBuilder("insatiable",
+            Enchantment.Rarity.VERY_RARE, EnchantmentTarget.ARMOR_CHEST, ALL_ARMOR, lvl -> lvl);
+
+    /**
+     * <hr><center><h1>Contracts</h1></center><hr>
+     * Powerful effects that can only be applied if an item has enough curses on it. None are obtainable via random
+     * enchantment - they must be applied via anvil. <br><br>
+     *
+     * Cursed Strength - Increases all melee damage dealt by 50%. Curse points required: 7 <br>
+     * Magic Guard - Negates many forms of indirect damage entirely. Requires any level of Fragility. Curse points required: 5 <br>
+     * Vigor - Increases health by 10 points. Curse points required: 6 <br>
+     */
+    public static final ContractBuilder CURSED_STRENGTH = new ContractBuilder("backlash", Enchantment.Rarity.VERY_RARE,
+            EnchantmentTarget.ARMOR_CHEST, ALL_ARMOR, ContractBuilder.NO_OP, 7);
+    public static final ContractBuilder MAGIC_GUARD = new ContractBuilder("magic_guard", Enchantment.Rarity.VERY_RARE,
+            EnchantmentTarget.ARMOR_CHEST, ALL_ARMOR, stack -> EnchantmentHelper.getLevel(FRAGILITY, stack) > 0, 5);
+    public static final ContractBuilder VIGOR = new ContractBuilder("vigor", Enchantment.Rarity.VERY_RARE, EnchantmentTarget.ARMOR_CHEST, ALL_ARMOR,
+            ContractBuilder.NO_OP, 6);
+
+    /**
      * Sets of enchantments incompatible with each other.
      */
     public static final EnchantmentBuilder[] GENERAL_COMPATIBILITY_GROUP = {EMPOWERED, ENHANCED, GROWTH, SOULBOUND};
@@ -219,6 +263,9 @@ public class SupplementaryEnchantments {
                 .setMaxLevel(2)
                 .addCompatibleClasses(ShieldItem.class)
                 .build();
+        ATROPHY.setPower(20, 50)
+                .setTreasure(true)
+                .setCurse(true);
         BUNNYHOP.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
                 .setPower(20, 50)
                 .build();

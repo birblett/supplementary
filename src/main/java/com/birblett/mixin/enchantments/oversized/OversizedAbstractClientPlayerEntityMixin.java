@@ -4,6 +4,7 @@ import com.birblett.lib.helper.SupplementaryEnchantmentHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -18,6 +19,6 @@ public class OversizedAbstractClientPlayerEntityMixin {
     @SuppressWarnings("InvalidInjectorMethodSignature")
     @ModifyVariable(method = "getFovMultiplier", at = @At(value = "STORE", ordinal = 0), index = 4)
     private float scaledDrawSpeedFOV(float fovScale) {
-        return Math.min(1.0f, SupplementaryEnchantmentHelper.getDrawspeedModifier(fovScale, ((AbstractClientPlayerEntity) (Object) this).getActiveItem()));
+        return Math.min(1.0f, SupplementaryEnchantmentHelper.getDrawspeedModifier((LivingEntity) (Object) this, fovScale, ((AbstractClientPlayerEntity) (Object) this).getActiveItem()));
     }
 }

@@ -18,15 +18,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(BowItem.class)
 public class OversizedBowItemMixin {
 
+    @Unique private static LivingEntity supplementary$Holder;
     @Unique private static ItemStack supplementary$BowItemStack;
 
     @Inject(method = "onStoppedUsing", at = @At("HEAD"))
     private void getOversizedLevel(ItemStack stack, World world, LivingEntity user, int remainingUseTicks, CallbackInfo ci) {
         supplementary$BowItemStack = stack;
+        supplementary$Holder = user;
     }
 
     @ModifyVariable(method = "getPullProgress", at = @At(value = "STORE", ordinal = 1), index = 1)
     private static float scalePullProgress(float pullProgress) {
-        return SupplementaryEnchantmentHelper.getDrawspeedModifier(pullProgress, supplementary$BowItemStack);
+        return SupplementaryEnchantmentHelper.getDrawspeedModifier(supplementary$Holder, pullProgress, supplementary$BowItemStack);
     }
 }
