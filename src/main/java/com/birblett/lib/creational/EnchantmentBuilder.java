@@ -22,11 +22,12 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.apache.commons.lang3.function.TriFunction;
 import org.apache.commons.lang3.mutable.MutableFloat;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 
 @SuppressWarnings("unused")
@@ -45,6 +46,7 @@ public class EnchantmentBuilder extends Enchantment {
 
     public EnchantmentBuilder(String identifier, Rarity weight, @Nullable EnchantmentTarget type, EquipmentSlot[] slotTypes) {
         super(weight, type, slotTypes);
+        this.slotTypes = slotTypes;
         this.identifier = new Identifier(Supplementary.MODID, identifier);
     }
 
@@ -52,10 +54,14 @@ public class EnchantmentBuilder extends Enchantment {
      * <hr><center><h1>Subclasses</h1></center><hr>
      * Used for ease of storage and access of some kinds of data. For now only contains the SupplementaryAttribute record,
      * used to store certain attribute info.
+     * @param baseName Display name for attribute instance
+     * @param attribute Attribute to modify
+     * @param operation Operation type (ADD, MULTIPLY_TOTAL, etc)
+     * @param scaling How the modifier should interact with entity, item type, and level
      */
 
     public record SupplementaryAttribute(String baseName, EntityAttribute attribute, EntityAttributeModifier.Operation operation,
-                                         Function<Integer, Double> scaling) {}
+                                         TriFunction<LivingEntity, ItemStack, Integer, Double> scaling) {}
 
 
     /**
@@ -63,7 +69,6 @@ public class EnchantmentBuilder extends Enchantment {
      * Field values determine specific enchant attributes and stats. Builder methods are used to set these values and
      * finally register the enchantment to the enchantment registry. Finalize an EnchantmentBuilder with the
      * {@link EnchantmentBuilder#build()} method.
-     * <br><br>
      */
 
     private int maxLevel = 1;
@@ -71,10 +76,12 @@ public class EnchantmentBuilder extends Enchantment {
     private int minPowerScale = 0;
     private int maxPower = 100;
     private int maxPowerScale = 0;
+    private int customAnvilCost = -1;
     private boolean isCurse = false;
     private boolean isTreasure = false;
     private boolean availableForOffer = true;
     private boolean availableForRandomSelection = true;
+    private final EquipmentSlot[] slotTypes;
     private final List<Item> acceptableItems = new ArrayList<>();
     private final List<Class<?>> acceptableItemClasses = new ArrayList<>();
     private final List<ComponentKey<BaseComponent>> components = new ArrayList<>();
@@ -194,11 +201,19 @@ public class EnchantmentBuilder extends Enchantment {
      * @see com.birblett.registry.SupplementaryEvents
      */
     public EnchantmentBuilder addAttribute(String baseName, EntityAttribute attribute, EntityAttributeModifier.Operation operation,
-                                           Function<Integer, Double> scaling) {
+                                           TriFunction<LivingEntity, ItemStack, Integer, Double> scaling) {
         this.attributes.add(new SupplementaryAttribute(baseName, attribute, operation, scaling));
         return this;
     }
 
+    /**
+     * Set a custom anvil cost that overrides the vanilla anvil cost logic.
+     * @param cost Cost per level of the enchantment
+     */
+    public EnchantmentBuilder setCustomAnvilCost(int cost) {
+        this.customAnvilCost = cost;
+        return this;
+    }
 
     /**
      * Registers the enchantment to the enchantment registry
@@ -308,9 +323,25 @@ public class EnchantmentBuilder extends Enchantment {
         return this.components;
     }
 
-
+    /**
+     * @return A list of containers for base attribute fields
+     */
     public List<SupplementaryAttribute> getAttributes() {
         return this.attributes;
+    }
+
+    /**
+     * @return Custom anvil cost
+     */
+    public int getCustomAnvilCost() {
+        return this.customAnvilCost;
+    }
+
+    /**
+     * @return Valid slot types
+     */
+    public EquipmentSlot[] getSlotTypes() {
+        return this.slotTypes;
     }
 
     /**

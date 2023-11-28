@@ -30,6 +30,7 @@ import net.minecraft.world.World;
 import org.apache.commons.lang3.mutable.MutableFloat;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Enchantment instantiation and registration.
@@ -40,12 +41,14 @@ public class SupplementaryEnchantments {
      * Valid equipment slots of enchantments to be checked against by
      * {@link net.minecraft.enchantment.EnchantmentHelper#getEquipmentLevel(Enchantment, LivingEntity)}
      */
+    public static final EquipmentSlot[] ALL_SLOTS = new EquipmentSlot[]{EquipmentSlot.MAINHAND, EquipmentSlot.OFFHAND, EquipmentSlot.HEAD,
+            EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
     public static final EquipmentSlot[] MAIN_HAND = new EquipmentSlot[]{EquipmentSlot.MAINHAND};
     public static final EquipmentSlot[] BOTH_HANDS = new EquipmentSlot[]{EquipmentSlot.MAINHAND, EquipmentSlot.OFFHAND};
-    private static final EquipmentSlot[] ALL_ARMOR = new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
+    private static final EquipmentSlot[] ALL_ARMOR = new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS,
+            EquipmentSlot.FEET};
     public static final EquipmentSlot[] NONE = new EquipmentSlot[]{};
 
-    // TODO: implement enhanced
     /**
      * <hr><center><h1>General enchantments</h1></center><hr>
      * These are applicable to most enchantable items. <br><br>
@@ -131,12 +134,13 @@ public class SupplementaryEnchantments {
 
     /**
      * <hr><center><h1>Bow enchantments</h1></center><hr>
+     * Hitscan - Arrows instantly travel to their destination. Max lvl: 1 <br>
      * Lightning Bolt - Summon lightning on projectile hit, provided it has sky access. Max lvl: 1 <br>
      * Oversized - Longer draw time. Projectiles are bigger and faster, with higher damage. Max lvl: 2 <br>
      * Marked - On entity hit: set a marked entity. Subsequent arrows will home in on this entity. Max lvl: 3
      */
-    public static final EnchantmentBuilder LIGHTNING_BOLT = new EnchantmentBuilder("lightning_bolt", Enchantment.Rarity.VERY_RARE, EnchantmentTarget.BOW, BOTH_HANDS);
     public static final EnchantmentBuilder HITSCAN = new EnchantmentBuilder("hitscan", Enchantment.Rarity.RARE, EnchantmentTarget.BOW, BOTH_HANDS);
+    public static final EnchantmentBuilder LIGHTNING_BOLT = new EnchantmentBuilder("lightning_bolt", Enchantment.Rarity.VERY_RARE, EnchantmentTarget.BOW, BOTH_HANDS);
     public static final EnchantmentBuilder MARKED = new EnchantmentBuilder("marked", Enchantment.Rarity.RARE, EnchantmentTarget.BOW, BOTH_HANDS);
     public static final EnchantmentBuilder OVERSIZED = new EnchantmentBuilder("oversized", Enchantment.Rarity.UNCOMMON, EnchantmentTarget.BOW, BOTH_HANDS);
 
@@ -205,39 +209,54 @@ public class SupplementaryEnchantments {
      * Various curses with negative drawbacks. If enough curses are present, contracts can be applied. Vanilla curses can
      * also contribute to this. <br><br>
      * Atrophy - Melee attacks and bow drawing charge 10% slower per level. Max level: 3. Curse points: 1 per lvl <br>
-     * Backlash - Melee attacks incur a backlash of 1 damage per level, ignoring armor. Max level: 2. Curse points: 2 (lvl 1),
-     * 5 (lvl 2) <br>
-     * Decay - Disables natural health regeneration. At level 2, effect lasts until death. Max lvl: 2. Curse points: 3 (lvl 1),
+     * Backlash - Melee attacks incur a backlash of 1 damage per level, ignoring armor, enchantments, and resistance. Max
+     * level: 2. Curse points: 3 per lvl <br>
+     * Blighted - Disables natural health regeneration. At level 2, effect lasts until death. Max lvl: 2. Curse points: 3 (lvl 1),
      * 8 (lvl 2) <br>
      * Fragility - Take (10 + 5 * level)% more damage from entities and projectiles. Max level: 5. Curse points: 1 per lvl <br>
-     * Insatiable - Hunger and exhaustion accumulate 30% faster per level. Max lvl: 2. Curse points: 1 per lvl <br>
+     * Gluttony - Exhaustion/hunger accumulates 30% faster per level. Saturation is decreased by 30%. Max lvl: 2. Curse
+     * points: 2 * lvl - 1 <br>
      */
-    public static final EnchantmentBuilder ATROPHY = new CurseBuilder("atrophy", Enchantment.Rarity.VERY_RARE,
-            EnchantmentTarget.ARMOR_CHEST, ALL_ARMOR, lvl -> lvl);
-    public static final EnchantmentBuilder BACKLASH = new CurseBuilder("backlash", Enchantment.Rarity.VERY_RARE,
-            EnchantmentTarget.ARMOR_CHEST, ALL_ARMOR, lvl -> lvl > 1 ? 5 : 2);
-    public static final EnchantmentBuilder DECAY = new CurseBuilder("decay", Enchantment.Rarity.VERY_RARE,
-            EnchantmentTarget.ARMOR_CHEST, ALL_ARMOR, lvl -> lvl > 1 ? 8 : 3);
-    public static final EnchantmentBuilder FRAGILITY = new CurseBuilder("fragility",
-            Enchantment.Rarity.VERY_RARE, EnchantmentTarget.ARMOR_CHEST, ALL_ARMOR, lvl -> lvl);
-    public static final EnchantmentBuilder INSATIABLE = new CurseBuilder("insatiable",
-            Enchantment.Rarity.VERY_RARE, EnchantmentTarget.ARMOR_CHEST, ALL_ARMOR, lvl -> lvl);
+    public static final CurseBuilder ATROPHY = new CurseBuilder("atrophy", Enchantment.Rarity.UNCOMMON, EnchantmentTarget.ARMOR_CHEST,
+            ALL_ARMOR, lvl -> lvl);
+    public static final CurseBuilder BACKLASH = new CurseBuilder("backlash", Enchantment.Rarity.VERY_RARE, EnchantmentTarget.ARMOR_CHEST,
+            ALL_ARMOR, lvl -> lvl * 2) {
+        @Override
+        public float onAttack(LivingEntity user, Entity target, int level, boolean isCritical, boolean isMaxCharge, float damageAmount) {
+            user.damage(SupplementaryEnchantmentHelper.backlash(user.getWorld()), Math.min(level, 2));
+            return 0.0f;
+        }
+    };
+    public static final CurseBuilder BLIGHTED = new CurseBuilder("blighted", Enchantment.Rarity.VERY_RARE, EnchantmentTarget.ARMOR_CHEST,
+            ALL_ARMOR, lvl -> lvl > 1 ? 8 : 3);
+    public static final CurseBuilder FRAGILITY = new CurseBuilder("fragility", Enchantment.Rarity.VERY_RARE,
+            EnchantmentTarget.ARMOR_CHEST, ALL_ARMOR, lvl -> lvl) {
+        @Override
+        public float onDamageMultiplier(LivingEntity user, ItemStack itemStack, DamageSource source, int level, MutableFloat damageAmount) {
+            return 1.0f + 0.1f * level;
+        }
+    };
+    public static final CurseBuilder GLUTTONY = new CurseBuilder("gluttony", Enchantment.Rarity.VERY_RARE, EnchantmentTarget.ARMOR_CHEST,
+            ALL_ARMOR, lvl -> lvl * 2 - 1);
 
     /**
      * <hr><center><h1>Contracts</h1></center><hr>
      * Powerful effects that can only be applied if an item has enough curses on it. None are obtainable via random
      * enchantment - they must be applied via anvil. <br><br>
      *
-     * Cursed Strength - Increases all melee damage dealt by 50%. Curse points required: 7 <br>
-     * Magic Guard - Negates many forms of indirect damage entirely. Requires any level of Fragility. Curse points required: 5 <br>
-     * Vigor - Increases health by 10 points. Curse points required: 6 <br>
+     * Cursed Power - Increases all melee damage dealt by 10% per curse point, with a penalty of 20% per contract present.
+     * Curse points required: 7 <br>
+     * Magic Guard - Negates many forms of indirect (not from living entities or self) damage entirely. Requires any level
+     * of Fragility. Curse points required: 6 <br>
+     * Vigor - Increases health by 10 points/5 hearts. Prevents fatal damage once per life, but health bonus is removed
+     * until next death. Curse points required: 7 <br>
      */
-    public static final ContractBuilder CURSED_STRENGTH = new ContractBuilder("backlash", Enchantment.Rarity.VERY_RARE,
+    public static final ContractBuilder CURSED_POWER = new ContractBuilder("cursed_power", Enchantment.Rarity.VERY_RARE,
             EnchantmentTarget.ARMOR_CHEST, ALL_ARMOR, ContractBuilder.NO_OP, 7);
     public static final ContractBuilder MAGIC_GUARD = new ContractBuilder("magic_guard", Enchantment.Rarity.VERY_RARE,
             EnchantmentTarget.ARMOR_CHEST, ALL_ARMOR, stack -> EnchantmentHelper.getLevel(FRAGILITY, stack) > 0, 5);
-    public static final ContractBuilder VIGOR = new ContractBuilder("vigor", Enchantment.Rarity.VERY_RARE, EnchantmentTarget.ARMOR_CHEST, ALL_ARMOR,
-            ContractBuilder.NO_OP, 6);
+    public static final ContractBuilder VIGOR = new ContractBuilder("vigor", Enchantment.Rarity.VERY_RARE, EnchantmentTarget.ARMOR_CHEST,
+            ALL_ARMOR, ContractBuilder.NO_OP, 7);
 
     /**
      * Sets of enchantments incompatible with each other.
@@ -250,29 +269,7 @@ public class SupplementaryEnchantments {
      * {@link EnchantmentBuilder} for specific builder methods.
      */
     public static void register() {
-        ACROBATIC.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
-                .setPower(20, 50)
-                .build();
-        AIR_DASH.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
-                .setPower(20, 50)
-                .build();
-        ALL_TERRAIN.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
-                .setPower(20, 50)
-                .build();
-        ASSAULT_DASH.setPower(15, 15, 30, 15)
-                .setMaxLevel(2)
-                .addCompatibleClasses(ShieldItem.class)
-                .build();
-        ATROPHY.setPower(20, 50)
-                .setTreasure(true)
-                .setCurse(true);
-        BUNNYHOP.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
-                .setPower(20, 50)
-                .build();
-        BURST_FIRE.makeIncompatible(Enchantments.MULTISHOT)
-                .setPower(20, 50)
-                .addComponent(SupplementaryComponents.BURST_FIRE)
-                .build();
+        // region general
         EMPOWERED.makeIncompatible(GENERAL_COMPATIBILITY_GROUP)
                 .setPower(20, 50)
                 .setTreasure(true)
@@ -282,25 +279,22 @@ public class SupplementaryEnchantments {
                 .addComponent(SupplementaryComponents.ENHANCED)
                 .setTreasure(true)
                 .build();
-        FRANTIC.makeIncompatible(Enchantments.FIRE_ASPECT, Enchantments.KNOCKBACK)
-                .setPower(15, 5, 25, 5)
-                .setMaxLevel(3)
-                .build();
-        FRENZY.makeIncompatible(FRANTIC)
-                .setPower(20, 10, 30, 10)
-                .setMaxLevel(3)
-                .build();
-        GRAPPLING.makeIncompatible(Enchantments.QUICK_CHARGE, Enchantments.MULTISHOT)
-                .setPower(20,50)
-                .addComponent(SupplementaryComponents.GRAPPLING)
-                .setTreasure(true)
-                .addCompatibleClasses(FishingRodItem.class, BowItem.class)
-                .addCompatibleItems(Items.CROSSBOW)
-                .build();
         GROWTH.makeIncompatible(GENERAL_COMPATIBILITY_GROUP)
                 .setPower(20, 50)
                 .setTreasure(true)
                 .build();
+        SOULBOUND.makeIncompatible(GENERAL_COMPATIBILITY_GROUP)
+                .setPower(20, 50)
+                .setTreasure(true)
+                .build();
+        // endregion
+        // region boomerang
+        PICKUP.setPower(10, 10, 20, 20)
+                .setMaxLevel(3)
+                .addCompatibleClasses(BoomerangItem.class)
+                .build();
+        // endregion
+        // region bow
         HITSCAN.makeIncompatible(OVERSIZED, MARKED)
                 .setPower(20, 50)
                 .addComponent(SupplementaryComponents.HITSCAN)
@@ -318,19 +312,103 @@ public class SupplementaryEnchantments {
                 .setMaxLevel(2)
                 .addComponent(SupplementaryComponents.OVERSIZED)
                 .build();
-        PICKUP.setPower(10, 10, 20, 20)
+        // endregion
+        // region crossbow
+        BURST_FIRE.makeIncompatible(Enchantments.MULTISHOT)
+                .setPower(20, 50)
+                .addComponent(SupplementaryComponents.BURST_FIRE)
+                .build();
+        // endregion
+        // region sword
+        FRANTIC.makeIncompatible(Enchantments.FIRE_ASPECT, Enchantments.KNOCKBACK)
+                .setPower(15, 5, 25, 5)
                 .setMaxLevel(3)
-                .addCompatibleClasses(BoomerangItem.class)
+                .build();
+        FRENZY.makeIncompatible(FRANTIC)
+                .setPower(20, 10, 30, 10)
+                .setMaxLevel(3)
+                .build();
+        // endregion
+        // region mobility
+        ACROBATIC.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
+                .setPower(20, 50)
+                .setCustomAnvilCost(4)
+                .build();
+        AIR_DASH.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
+                .setPower(20, 50)
+                .setCustomAnvilCost(4)
+                .build();
+        ALL_TERRAIN.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
+                .setPower(20, 50)
+                .setCustomAnvilCost(2)
+                .build();
+        ASSAULT_DASH.setPower(15, 15, 30, 15)
+                .setMaxLevel(2)
+                .setCustomAnvilCost(8)
+                .addCompatibleClasses(ShieldItem.class)
+                .build();
+        BUNNYHOP.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
+                .setPower(20, 50)
+                .addAttribute("bunnyhop_move_speed", EntityAttributes.GENERIC_MOVEMENT_SPEED, Operation.MULTIPLY_TOTAL,
+                        (entity, stack, lvl) -> -0.15)
+                .build();
+        GRAPPLING.makeIncompatible(Enchantments.QUICK_CHARGE, Enchantments.MULTISHOT)
+                .setPower(20,50)
+                .addComponent(SupplementaryComponents.GRAPPLING)
+                .setTreasure(true)
+                .addCompatibleClasses(FishingRodItem.class, BowItem.class)
+                .addCompatibleItems(Items.CROSSBOW)
                 .build();
         SLIMED.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
                 .setPower(20, 50)
                 .build();
-        SOULBOUND.makeIncompatible(GENERAL_COMPATIBILITY_GROUP)
-                .setPower(20, 50)
-                .setTreasure(true)
-                .build();
         STRAFE.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
                 .setPower(20, 50)
                 .build();
+        // endregion
+
+        // region curses
+        ATROPHY.setPower(20, 5, 50, 5)
+                .setMaxLevel(3)
+                .setCustomAnvilCost(1)
+                .addAttribute("atrophy_attack_speed", EntityAttributes.GENERIC_ATTACK_SPEED, Operation.MULTIPLY_TOTAL,
+                        (entity, stack, lvl) -> lvl * -0.1)
+                .build();
+        BACKLASH.setPower(20, 10, 50, 10)
+                .setMaxLevel(2)
+                .setCustomAnvilCost(2)
+                .build();
+        BLIGHTED.setPower(20, 10, 50, 10)
+                .setMaxLevel(2)
+                .setCustomAnvilCost(2)
+                .build();
+        FRAGILITY.setPower(20, 2, 50, 2)
+                .setMaxLevel(5)
+                .setCustomAnvilCost(1)
+                .build();
+        GLUTTONY.setPower(20, 10, 50, 10)
+                .setMaxLevel(2)
+                .setCustomAnvilCost(2)
+                .build();
+        // endregion
+        // region contracts
+        CURSED_POWER.setPower(50, 50)
+                .setCustomAnvilCost(0)
+                .addAttribute("cursed_power_damage_bonus", EntityAttributes.GENERIC_ATTACK_DAMAGE, Operation.MULTIPLY_TOTAL,
+                        (entity, stack, lvl) -> (SupplementaryEnchantmentHelper.getCursePoints(stack, -2) - 2) * 0.1)
+                .build();
+        MAGIC_GUARD.setPower(50, 50)
+                .setCustomAnvilCost(0)
+                .build();
+        VIGOR.setPower(50, 50)
+                .setCustomAnvilCost(0)
+                .addAttribute("vigor_health_bonus", EntityAttributes.GENERIC_MAX_HEALTH, Operation.ADDITION,
+                        (entity, stack, lvl) -> {
+                            AtomicBoolean vigorRevive = new AtomicBoolean(false);
+                            SupplementaryComponents.VIGOR.maybeGet(entity).ifPresent(component -> vigorRevive.set((Boolean) component.getValue()));
+                            return vigorRevive.get() ? 0 : 10.0;
+                        })
+                .build();
+        // endregion
     }
 }

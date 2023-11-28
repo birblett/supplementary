@@ -1,13 +1,11 @@
 package com.birblett.lib.creational;
 
-import net.minecraft.enchantment.EnchantmentHelper;
+import com.birblett.lib.helper.SupplementaryEnchantmentHelper;
 import net.minecraft.enchantment.EnchantmentTarget;
-import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 public class ContractBuilder extends EnchantmentBuilder {
@@ -35,25 +33,7 @@ public class ContractBuilder extends EnchantmentBuilder {
      */
     @Override
     public boolean isAcceptableItem(ItemStack stack) {
-        AtomicInteger cursePoints = new AtomicInteger();
-        EnchantmentHelper.fromNbt(stack.getEnchantments()).forEach((ench, lvl) -> {
-            // contracts present reduce the total number of curse points
-            if (ench instanceof ContractBuilder contract) {
-                cursePoints.addAndGet(-contract.cursePointRequirement);
-            }
-            // if custom curse, add curse points based on enchantment level
-            if (ench instanceof CurseBuilder curse) {
-                cursePoints.addAndGet(curse.getCursePoints(lvl));
-            }
-            // default vanilla curses provide 2 curse points
-            else if (ench.equals(Enchantments.BINDING_CURSE) || ench.equals(Enchantments.VANISHING_CURSE)) {
-                cursePoints.addAndGet(2);
-            }
-            // modded curses provide 1 curse point
-            else if (ench.isCursed()) {
-                cursePoints.addAndGet(1);
-            }
-        });
-        return cursePoints.get() >= this.cursePointRequirement && super.isAcceptableItem(stack) && this.isValidItem.apply(stack);
+        int cursePoints = SupplementaryEnchantmentHelper.getCursePoints(stack, 0);
+        return cursePoints >= this.cursePointRequirement && super.isAcceptableItem(stack) && this.isValidItem.apply(stack);
     }
 }

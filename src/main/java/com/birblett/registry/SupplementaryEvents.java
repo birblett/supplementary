@@ -1,6 +1,5 @@
 package com.birblett.registry;
 
-import com.birblett.Supplementary;
 import com.birblett.lib.api.EntityEvents;
 import com.birblett.lib.api.ItemEvents;
 import com.birblett.lib.api.EventReturnable;
@@ -11,7 +10,6 @@ import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.entity.projectile.FishingBobberEntity;
@@ -42,7 +40,7 @@ public class SupplementaryEvents {
      * net.minecraft.item.Item#use(World, PlayerEntity, Hand)} implementation.
      * @see ItemEvents#ITEM_USE
      */
-    public static final ItemEvents.ItemUseEvent ITEM_USE_ENCHANT_EVENTS = (user, stack, hand) -> {
+    public static final ItemEvents.ItemUseEvent ITEM_USE_ENCHANT_EVENTS = (user, stack, hand) ->
         EnchantmentHelper.get(stack).forEach((enchantment, level) -> {
             if (enchantment instanceof EnchantmentBuilder enchantmentBuilder) {
                 if (enchantmentBuilder.hasComponent()) {
@@ -54,12 +52,11 @@ public class SupplementaryEvents {
                 }
             }
         });
-    };
     /**
      * Called before an arrow is fired from a crossbow. Applies enchantment effects to fired arrows.
      * @see ItemEvents#CROSSBOW_PREFIRE
      */
-    public static final ItemEvents.ItemUseEvent CROSSBOW_PREFIRE_ENCHANT_EVENTS = (user, crossbow, hand) -> {
+    public static final ItemEvents.ItemUseEvent CROSSBOW_PREFIRE_ENCHANT_EVENTS = (user, crossbow, hand) ->
         EnchantmentHelper.get(crossbow).forEach((enchantment, lvl) -> {
             if (enchantment instanceof EnchantmentBuilder enchantmentBuilder) {
                 List<ItemStack> projectiles = CrossbowItem.getProjectiles(crossbow);
@@ -73,7 +70,6 @@ public class SupplementaryEvents {
                 }
             }
         });
-    };
 
     /**
      * <hr><center><h1>Projectile instantiation events</h1></center><hr>
@@ -181,6 +177,14 @@ public class SupplementaryEvents {
         return amount;
     };
     /**
+     * Called when a living entity is damaged. Applies a flat damage decrease based on enchants, before multipliers are
+     * applied.
+     * @see EntityEvents#LIVING_ENTITY_DEATH_EVENT
+     */
+    @SuppressWarnings("unchecked")
+    public static final EntityEvents.EntityDeathEvent LIVING_ENTITY_SIMPLE_COMPONENT_RESET = (entity, source) -> SupplementaryComponents.RESET_ON_DEATH
+            .forEach(component -> component.maybeGet(entity).ifPresent(comp -> comp.setValue(comp.getDefaultValue())));
+    /**
      * Called when an arrow hits a block. Applies enchantment effects.
      * @see EntityEvents#ARROW_BLOCK_HIT_EVENT
      */
@@ -226,6 +230,13 @@ public class SupplementaryEvents {
      */
     public static final EntityEvents.LivingEntityAttackEvent PLAYER_ATTACK_ENCHANT_EVENTS = (self, target, amount, isCritical, isMaxCharge) -> {
         if (self instanceof PlayerEntity) {
+            for (ItemStack stack : self.getArmorItems()) {
+                for (Map.Entry<Enchantment, Integer> enchantment : EnchantmentHelper.get(stack).entrySet()) {
+                    if (enchantment.getKey() instanceof EnchantmentBuilder enchantmentBuilder) {
+                        amount += enchantmentBuilder.onAttack(self, target, enchantment.getValue(), isCritical, isMaxCharge, amount);
+                    }
+                }
+            }
             for (Map.Entry<Enchantment, Integer> enchantment : EnchantmentHelper.get(self.getMainHandStack()).entrySet()) {
                 if (enchantment.getKey() instanceof EnchantmentBuilder enchantmentBuilder) {
                     amount += enchantmentBuilder.onAttack(self, target, enchantment.getValue(), isCritical, isMaxCharge, amount);
@@ -373,6 +384,7 @@ public class SupplementaryEvents {
         ItemEvents.TRIDENT_THROW.register(TRIDENT_THROW_ENCHANT_EVENTS);
 
         EntityEvents.LIVING_ENTITY_ADDITIVE_DAMAGE_EVENT.register(LIVING_ENTITY_ADD_ENCHANT_DAMAGE_EVENTS);
+        EntityEvents.LIVING_ENTITY_DEATH_EVENT.register(LIVING_ENTITY_SIMPLE_COMPONENT_RESET);
         EntityEvents.ARROW_BLOCK_HIT_EVENT.register(ARROW_BLOCK_HIT_ENCHANT_EVENTS);
         EntityEvents.ARROW_POST_ENTITY_HIT_EVENT.register(ARROW_ENTITY_POSTHIT_ENCHANT_EVENTS);
         EntityEvents.ARROW_PRE_ENTITY_HIT_EVENT.register(ARROW_ENTITY_PREHIT_ENCHANT_EVENTS);

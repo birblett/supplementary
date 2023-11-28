@@ -1,18 +1,26 @@
 package com.birblett.lib.helper;
 
+import com.birblett.Supplementary;
+import com.birblett.lib.creational.ContractBuilder;
+import com.birblett.lib.creational.CurseBuilder;
 import com.birblett.registry.SupplementaryEnchantments;
+import com.google.common.util.concurrent.AtomicDouble;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.DamageType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.Identifier;
+import net.minecraft.world.World;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -40,23 +48,70 @@ public class SupplementaryEnchantmentHelper {
     }
 
     /**
-     * <hr><center><h1>Assault Dash enchantment helpers</h1></center><hr>
-     * Helper functions for operations involving the Enhanced enchantment<br><br>
+     * Get total number of curse points on the provided item.
+     * @param stack ItemStack to evaluate
+     * @param customContractPenalty Custom value to decrement per contract, instead of using contract curse point requirement
+     * @return Total number of curse points on the item
+     */
+    public static int getCursePoints(ItemStack stack, int customContractPenalty) {
+        AtomicDouble cursePoints = new AtomicDouble(0);
+        EnchantmentHelper.fromNbt(stack.getEnchantments()).forEach((ench, lvl) -> {
+            // contracts present reduce the total number of curse points,
+            if (ench instanceof ContractBuilder contract) {
+                cursePoints.addAndGet(customContractPenalty == 0 ? -contract.cursePointRequirement : customContractPenalty);
+            }
+            // if custom curse, add curse points based on enchantment level
+            if (ench instanceof CurseBuilder curse) {
+                cursePoints.addAndGet(curse.getCursePoints(lvl));
+            }
+            // default vanilla curses provide 2 curse points
+            else if (ench.equals(Enchantments.BINDING_CURSE) || ench.equals(Enchantments.VANISHING_CURSE)) {
+                cursePoints.addAndGet(2);
+            }
+            // modded curses provide 1 curse point
+            else if (ench.isCursed()) {
+                cursePoints.addAndGet(1);
+            }
+        });
+        return (int) cursePoints.get();
+    }
+
+
+    /**
+     * <hr><center><h1>Damage Types</h1></center><hr>
+     * Damage sources for different enchantments<br><br>
      *
      * Damage source for the Assault Dash enchantment
      * @param source the source entity
      * @return a new EntityDamageSource, with custom death message
      */
     public static DamageSource assaultDash(LivingEntity source) {
-        return new DamageSource(source.getWorld().getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier("supplementary", "assault_dash")))) {
+        return new DamageSource(source.getWorld().getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(RegistryKey.of(RegistryKeys.DAMAGE_TYPE,
+                new Identifier("supplementary", "assault_dash")))) {
             @Override
             public Text getDeathMessage(LivingEntity entity) {
                 if (this.getAttacker() != null)
-                    return MutableText.of(new TranslatableTextContent("death.attack." + this.getName() + ".player", null,
-                            new Object[]{entity.getDisplayName().getString(), this.getAttacker().getDisplayName().getString()}));
+                    return MutableText.of(new TranslatableTextContent("death.attack." + this.getName() + ".player",
+                            null, new Object[]{entity.getDisplayName().getString(), this.getAttacker().getDisplayName().getString()}));
                 else
                     return MutableText.of(new TranslatableTextContent("death.attack." + this.getName() + ".fallback",
                             null, new Object[]{entity.getDisplayName().getString()}));
+            }
+        };
+    }
+
+    /**
+     * Damage source for the Backlash curse
+     * @param world the world in which the damage was taken
+     * @return a new EntityDamageSource, with custom death message
+     */
+    public static DamageSource backlash(World world) {
+        return new DamageSource(world.getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(RegistryKey.of(RegistryKeys.DAMAGE_TYPE,
+                new Identifier("supplementary", "backlash")))) {
+            @Override
+            public Text getDeathMessage(LivingEntity entity) {
+                return MutableText.of(new TranslatableTextContent("death.attack." + this.getName() + ".player",
+                        null, new Object[]{entity.getDisplayName().getString()}));
             }
         };
     }
@@ -204,4 +259,12 @@ public class SupplementaryEnchantmentHelper {
         }
         return i;
     }
+
+
+    /**
+     * <hr><center><h1>Magic Guard enchantment helpers</h1></center><hr>
+     * Damage type tag for indirect damage
+     */
+    public static final TagKey<DamageType> INDIRECT_DAMAGE = TagKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Supplementary.MODID,
+            "indirect"));
 }

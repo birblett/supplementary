@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * Applies Growth draw speed modifiers to tridents
  */
 @Mixin(TridentItem.class)
-public class TridentItemMixin {
+public class GrowthTridentItemMixin {
 
     @Unique private ItemStack supplementary$TridentStack;
     @Unique private LivingEntity supplementary$Holder;

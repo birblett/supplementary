@@ -34,9 +34,6 @@ public class EntityEvents {
         float onDamage(Entity entity, DamageSource source, float amount);
     }
 
-    /**
-     * Standard functional patterns for EntityDamageEvent hooks.
-     */
     private static final Function<EntityDamageEvent[], EntityDamageEvent> ENTITY_DAMAGE_EVENT_ADDITIVE = callbacks -> (entity, source, amount) -> {
         float initialDamage = amount;
         for (EntityDamageEvent callback : callbacks) {
@@ -53,15 +50,36 @@ public class EntityEvents {
     };
 
     /**
+     * These hooks are called on entity death.
+     */
+    @FunctionalInterface
+    public interface EntityDeathEvent {
+        void onDeath(Entity entity, DamageSource source);
+    }
+
+    private static final Function<EntityDeathEvent[], EntityDeathEvent> ENTITY_DEATH_EVENT = callbacks -> (entity, source) -> {
+        for (EntityDeathEvent callback : callbacks) {
+            callback.onDeath(entity, source);
+        }
+    };
+
+    /**
      * Event hook for when damage is dealt to a LivingEntity; provides a float value appended to the damage amount, with
      * an initial value of 0.0f.
      */
-    public static final Event<EntityDamageEvent> LIVING_ENTITY_ADDITIVE_DAMAGE_EVENT = EventFactory.createArrayBacked(EntityDamageEvent.class, ENTITY_DAMAGE_EVENT_ADDITIVE);
+    public static final Event<EntityDamageEvent> LIVING_ENTITY_ADDITIVE_DAMAGE_EVENT = EventFactory.createArrayBacked(EntityDamageEvent.class,
+            ENTITY_DAMAGE_EVENT_ADDITIVE);
     /**
      * Event hook for when damage is dealt to a LivingEntity; provides a multiplier applied to the damage amount, with
      * an initial value of 1.
      */
-    public static final Event<EntityDamageEvent> LIVING_ENTITY_MULTIPLICATIVE_DAMAGE_EVENT = EventFactory.createArrayBacked(EntityDamageEvent.class, ENTITY_DAMAGE_EVENT_MULTIPLICATIVE);
+    public static final Event<EntityDamageEvent> LIVING_ENTITY_MULTIPLICATIVE_DAMAGE_EVENT = EventFactory.createArrayBacked(EntityDamageEvent.class,
+            ENTITY_DAMAGE_EVENT_MULTIPLICATIVE);
+    /**
+     * Event hook for when a LivingEntity dies.
+     */
+    public static final Event<EntityDeathEvent> LIVING_ENTITY_DEATH_EVENT = EventFactory.createArrayBacked(EntityDeathEvent.class,
+            ENTITY_DEATH_EVENT);
 
     /**
      * <hr><center><h1>Entity tick events</h1></center><hr>
@@ -84,15 +102,18 @@ public class EntityEvents {
     /**
      * Event hook for when a projectile entity is ticked.
      */
-    public static final Event<EntityTickEvent> PROJECTILE_GENERIC_TICK = EventFactory.createArrayBacked(EntityTickEvent.class, ENTITY_TICK_EVENT);
+    public static final Event<EntityTickEvent> PROJECTILE_GENERIC_TICK = EventFactory.createArrayBacked(EntityTickEvent.class,
+            ENTITY_TICK_EVENT);
     /**
      * Event hook for when a projectile entity is ticked while inside a block.
      */
-    public static final Event<EntityTickEvent> PROJECTILE_IN_BLOCK_TICK = EventFactory.createArrayBacked(EntityTickEvent.class, ENTITY_TICK_EVENT);
+    public static final Event<EntityTickEvent> PROJECTILE_IN_BLOCK_TICK = EventFactory.createArrayBacked(EntityTickEvent.class,
+            ENTITY_TICK_EVENT);
     /**
      * Event hook for when an entity is ticked.
      */
-    public static final Event<EntityTickEvent> ENTITY_GENERIC_TICK = EventFactory.createArrayBacked(EntityTickEvent.class, ENTITY_TICK_EVENT);
+    public static final Event<EntityTickEvent> ENTITY_GENERIC_TICK = EventFactory.createArrayBacked(EntityTickEvent.class,
+            ENTITY_TICK_EVENT);
 
     /**
      * <hr><center><h1>Entity travel tick events</h1></center><hr>
@@ -117,13 +138,15 @@ public class EntityEvents {
      * Event hook for when a projectile entity's movement is calculated. Expected to return some velocity value. This is
      * not applied as a modifier, but replaces the current velocity value.
      */
-    public static final Event<EntityTravelEvent> PROJECTILE_TRAVEL_TICK = EventFactory.createArrayBacked(EntityTravelEvent.class, ENTITY_TRAVEL_EVENT);
+    public static final Event<EntityTravelEvent> PROJECTILE_TRAVEL_TICK = EventFactory.createArrayBacked(EntityTravelEvent.class,
+            ENTITY_TRAVEL_EVENT);
 
     /**
      * Event hook for when a living entity's movement is calculated. Expected to return some velocity value. This is
      *  not applied as a modifier, but replaces the current velocity value.
      */
-    public static final Event<EntityTravelEvent> LIVING_ENTITY_TRAVEL_TICK = EventFactory.createArrayBacked(EntityTravelEvent.class, ENTITY_TRAVEL_EVENT);
+    public static final Event<EntityTravelEvent> LIVING_ENTITY_TRAVEL_TICK = EventFactory.createArrayBacked(EntityTravelEvent.class,
+            ENTITY_TRAVEL_EVENT);
 
     /**
      * <hr><center><h1>Entity hand swing events</h1></center><hr>
@@ -139,7 +162,8 @@ public class EntityEvents {
      * Event hook for when a LivingEntity swings a hand. This includes both the main- and off-hands, for any action that
      * results in a hand swing animation, like a fishing rod reel or an attack.
      */
-    public static final Event<LivingEntityHandSwingEvent> SWING_HAND_EVENT = EventFactory.createArrayBacked(LivingEntityHandSwingEvent.class, callbacks -> (entity, hand) -> {
+    public static final Event<LivingEntityHandSwingEvent> SWING_HAND_EVENT = EventFactory.createArrayBacked(LivingEntityHandSwingEvent.class,
+            callbacks -> (entity, hand) -> {
         for (LivingEntityHandSwingEvent callback : callbacks) {
             callback.onHandSwing(entity, hand);
         }
@@ -228,15 +252,18 @@ public class EntityEvents {
     /**
      * Event hook when an arrow hits a block.
      */
-    public static final Event<EntityHitEvent> ARROW_BLOCK_HIT_EVENT = EventFactory.createArrayBacked(EntityHitEvent.class, ON_BLOCK_HIT_EVENT);
+    public static final Event<EntityHitEvent> ARROW_BLOCK_HIT_EVENT = EventFactory.createArrayBacked(EntityHitEvent.class,
+            ON_BLOCK_HIT_EVENT);
     /**
      * Event hook when an arrow hits an entity, before damage calculation.
      */
-    public static final Event<EntityHitEvent> ARROW_PRE_ENTITY_HIT_EVENT = EventFactory.createArrayBacked(EntityHitEvent.class, ON_ENTITY_HIT_EVENT);
+    public static final Event<EntityHitEvent> ARROW_PRE_ENTITY_HIT_EVENT = EventFactory.createArrayBacked(EntityHitEvent.class,
+            ON_ENTITY_HIT_EVENT);
     /**
      * Event hook when an arrow hits an entity, after damage calculation.
      */
-    public static final Event<EntityHitEvent> ARROW_POST_ENTITY_HIT_EVENT = EventFactory.createArrayBacked(EntityHitEvent.class, ON_ENTITY_HIT_EVENT);
+    public static final Event<EntityHitEvent> ARROW_POST_ENTITY_HIT_EVENT = EventFactory.createArrayBacked(EntityHitEvent.class,
+            ON_ENTITY_HIT_EVENT);
 
     /**
      * <hr><center><h1>Block break events</h1></center><hr>

@@ -19,6 +19,9 @@ public class CurseBuilder extends EnchantmentBuilder {
      */
     public CurseBuilder(String identifier, Rarity weight, @Nullable EnchantmentTarget type, EquipmentSlot[] slotTypes, Function<Integer, Integer> cursePoints) {
         super(identifier, weight, type, slotTypes);
+        this.setCurse(true)
+                .setAvailability(true, false)
+                .setTreasure(true);
         this.cursePointProvider = cursePoints;
     }
 

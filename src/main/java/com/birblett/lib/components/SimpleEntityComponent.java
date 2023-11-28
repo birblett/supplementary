@@ -8,11 +8,12 @@ import static com.birblett.Supplementary.MODID;
 /**
  * Provides a simple component attachable to an entity storing a single data value. Generic parameter determines type of
  * data to be stored.
- * @param <T> Type of stored value. Only Integer, Float, and String will be stored as NBT.
+ * @param <T> Type of stored value. Only Integer, Float, String, and Boolean will be stored as NBT.
  */
 public class SimpleEntityComponent<T> implements SimpleComponent<T> {
 
     private T value;
+    private final T defaultValue;
     private final String key;
 
     /**
@@ -22,6 +23,7 @@ public class SimpleEntityComponent<T> implements SimpleComponent<T> {
     public SimpleEntityComponent(String key, T defaultValue) {
         this.key = MODID + ":" + key;
         this.value = defaultValue;
+        this.defaultValue = defaultValue;
     }
 
     /**
@@ -30,6 +32,14 @@ public class SimpleEntityComponent<T> implements SimpleComponent<T> {
     @Override
     public T getValue() {
         return this.value;
+    }
+
+    /**
+     * @return Default value of this component
+     */
+    @Override
+    public T getDefaultValue() {
+        return this.defaultValue;
     }
 
     /**
@@ -55,6 +65,8 @@ public class SimpleEntityComponent<T> implements SimpleComponent<T> {
                 this.value = type.cast(tag.getString(key));
             } else if (Float.class.equals(type)) {
                 this.value = type.cast(tag.getFloat(key));
+            } else if (Boolean.class.equals(type)) {
+                this.value = type.cast(tag.getBoolean(key));
             }
         }
     }
@@ -73,6 +85,8 @@ public class SimpleEntityComponent<T> implements SimpleComponent<T> {
                 tag.putFloat(key, (Float) this.value);
             } else if (String.class.equals(type)) {
                 tag.putString(key, (String) this.value);
+            } else if (Boolean.class.equals(type)) {
+                tag.putBoolean(key, (Boolean) this.value);
             }
         }
     }

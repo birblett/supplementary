@@ -12,8 +12,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 /**
- * Applies 2.8x horizontal jump velocity, 0.75x jump vertical velocity, and 0.85x overall movement speed penalty with
- * Bunny Hop equipped
+ * Applies 2.8x horizontal jump velocity, 0.75x jump vertical velocity. Formerly also applied horizontal movement
+ * speed penalty on the ground.
  */
 @Mixin(LivingEntity.class)
 public class BunnyHopLivingEntityMixin {
@@ -36,6 +36,7 @@ public class BunnyHopLivingEntityMixin {
         }
     }
 
+    /*
     @Inject(method = "travel", at = @At("TAIL"))
     private void decreaseMovementSpeed(Vec3d movementInput, CallbackInfo ci) {
         LivingEntity self = (LivingEntity) (Object) this;
@@ -44,4 +45,5 @@ public class BunnyHopLivingEntityMixin {
             self.setVelocity(self.getVelocity().multiply(movementPenalty, 1, movementPenalty));
         }
     }
+     */
 }

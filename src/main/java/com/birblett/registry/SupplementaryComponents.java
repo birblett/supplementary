@@ -1,6 +1,5 @@
 package com.birblett.registry;
 
-import com.birblett.Supplementary;
 import com.birblett.lib.components.*;
 import com.birblett.lib.helper.EntityHelper;
 import com.birblett.lib.helper.RenderHelper;
@@ -44,6 +43,12 @@ public class SupplementaryComponents implements EntityComponentInitializer {
     public static final ComponentKey<BaseComponent> ASSAULT_DASH =
             ComponentRegistry.getOrCreate(new Identifier(MODID, "assault_dash"), BaseComponent.class);
     /**
+     * Track Blighted curse status for players.
+     */
+    @SuppressWarnings("rawtypes")
+    public static final ComponentKey<SimpleComponent> BLIGHTED =
+            ComponentRegistry.getOrCreate(new Identifier(MODID, "blighted"), SimpleComponent.class);
+    /**
      * Burst Fire timing and firing after initial use.
      */
     public static final ComponentKey<BaseComponent> BURST_FIRE =
@@ -53,20 +58,22 @@ public class SupplementaryComponents implements EntityComponentInitializer {
      */
     public static final ComponentKey<BaseComponent> ENHANCED =
             ComponentRegistry.getOrCreate(new Identifier(MODID, "enhanced"), BaseComponent.class);
-
     /**
      * Handles Grappling functionality; individual functionalities registered for PersistentProjectileEntity,
      * FishingBobberEntity, and LivingEntity.
      */
     public static final ComponentKey<BaseComponent> GRAPPLING =
             ComponentRegistry.getOrCreate(new Identifier(MODID, "grappling"), BaseComponent.class);
-
     /**
      * Handles Hitscan functionality.
      */
     public static final ComponentKey<BaseComponent> HITSCAN =
             ComponentRegistry.getOrCreate(new Identifier(MODID, "hitscan"), BaseComponent.class);
-
+    /**
+     * Set value of this component to 1 on arrows to set invincibility frame ignoring property.
+     */
+    public static final ComponentKey<BaseComponent> IGNORES_IFRAMES =
+            ComponentRegistry.getOrCreate(new Identifier(MODID, "ignores_iframes"), BaseComponent.class);
     /**
      * Handles Lightning Bolt projectile functionality.
      */
@@ -83,17 +90,18 @@ public class SupplementaryComponents implements EntityComponentInitializer {
     public static final ComponentKey<BaseComponent> OVERSIZED =
             ComponentRegistry.getOrCreate(new Identifier(MODID, "oversized"), BaseComponent.class);
     /**
-     * Set value of this component to 1 on arrows to set invincibility frame ignoring property.
-     */
-    public static final ComponentKey<BaseComponent> IGNORES_IFRAMES =
-            ComponentRegistry.getOrCreate(new Identifier(MODID, "ignores_iframes"), BaseComponent.class);
-    /**
      * Allows snowball type of a snow golem to be tracked; logic for actually firing the snowball is handled in
      * {@link com.birblett.mixin.snowball_variants.SnowballVariantsGolemMixin}.
      */
     @SuppressWarnings("rawtypes")
     public static final ComponentKey<SimpleComponent> SNOWBALL_TYPE =
             ComponentRegistry.getOrCreate(new Identifier(MODID, "snowball_type"), SimpleComponent.class);
+    /**
+     * Track Blighted curse status for players.
+     */
+    @SuppressWarnings("rawtypes")
+    public static final ComponentKey<SimpleComponent> VIGOR =
+            ComponentRegistry.getOrCreate(new Identifier(MODID, "vigor"), SimpleComponent.class);
 
     /**
      * These components are ticked during certain tick events for living entities.
@@ -112,6 +120,12 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             OVERSIZED,
             HITSCAN,
             GRAPPLING
+    );
+
+    @SuppressWarnings("rawtypes")
+    public static final List<ComponentKey<SimpleComponent>> RESET_ON_DEATH = List.of(
+            BLIGHTED,
+            VIGOR
     );
 
     @Override
@@ -175,6 +189,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                 return velocity;
             }
         });
+        registry.registerFor(PlayerEntity.class, BLIGHTED, e -> new SimpleEntityComponent<>("blighted", false));
         registry.registerFor(LivingEntity.class, BURST_FIRE, e -> new EnchantmentComponent("burst_fire") {
             private ItemStack itemStack = ItemStack.EMPTY;
             private Hand hand = null;
@@ -365,6 +380,54 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                 }
             }
         });
+        registry.registerFor(PersistentProjectileEntity.class, HITSCAN, e -> new EnchantmentComponent("hitscan") {
+            @Override
+            public void afterProjectileFire(LivingEntity user, ProjectileEntity projectileEntity, int level, ItemStack item, ItemStack projectileItem) {
+                // instantly do 50 iterations of main projectile tick loop
+                if (projectileEntity instanceof PersistentProjectileEntity persistentProjectileEntity && (persistentProjectileEntity.isCritical() || persistentProjectileEntity instanceof TridentEntity)) {
+                    int i;
+                    List<Vector3f> path = new ArrayList<>();
+                    List<PlayerEntity> players = new ArrayList<>();
+                    for (i = 0; i < 65; i++) {
+                        persistentProjectileEntity.tick();
+                        path.add(persistentProjectileEntity.getPos().toVector3f());
+                        // build list of nearby players to send particle packets to
+                        if ((i & 0b111) == 0) {
+                            projectileEntity.getWorld().getPlayers().forEach(player -> {
+                                if (player.getPos().squaredDistanceTo(persistentProjectileEntity.getPos()) <= 128 * 128) {
+                                    players.add(player);
+                                }
+                            });
+                        }
+                        // stop if unable to continue
+                        if (persistentProjectileEntity.isRemoved()) break;
+                        if (persistentProjectileEntity.inGround) break;
+                    }
+                    if (i != 0) {
+                        SupplementaryPacketRegistry.HitscanPacket packet = new SupplementaryPacketRegistry.HitscanPacket(path);
+                        players.forEach(player -> {
+                            if (player instanceof ServerPlayerEntity p) {
+                                packet.send(p);
+                            }
+                        });
+                    }
+                }
+            }
+        });
+        registry.registerFor(PersistentProjectileEntity.class, IGNORES_IFRAMES, e -> new EnchantmentComponent("ignores_iframes") {
+            @Override
+            public void preEntityHit(Entity target, ProjectileEntity projectileEntity, int lvl) {
+                // remove existing iframes on entity hit, before damage is applied
+                if (target instanceof LivingEntity livingEntity) {
+                    livingEntity.hurtTime = 0;
+                    livingEntity.timeUntilRegen = 0;
+                }
+                else if (target instanceof EnderDragonPart dragonPart) {
+                    dragonPart.owner.hurtTime = 0;
+                    dragonPart.owner.timeUntilRegen = 0;
+                }
+            }
+        });
         registry.registerFor(PersistentProjectileEntity.class, LIGHTNING_BOLT, e -> new EnchantmentComponent("lightning_bolt") {
             @Override
             public boolean postEntityHit(Entity target, ProjectileEntity projectileEntity, int lvl) {
@@ -449,40 +512,6 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                 return false;
             }
         });
-        registry.registerFor(PersistentProjectileEntity.class, HITSCAN, e -> new EnchantmentComponent("hitscan") {
-            @Override
-            public void afterProjectileFire(LivingEntity user, ProjectileEntity projectileEntity, int level, ItemStack item, ItemStack projectileItem) {
-                // instantly do 50 iterations of main projectile tick loop
-                if (projectileEntity instanceof PersistentProjectileEntity persistentProjectileEntity && (persistentProjectileEntity.isCritical() || persistentProjectileEntity instanceof TridentEntity)) {
-                    int i;
-                    List<Vector3f> path = new ArrayList<>();
-                    List<PlayerEntity> players = new ArrayList<>();
-                    for (i = 0; i < 65; i++) {
-                        persistentProjectileEntity.tick();
-                        path.add(persistentProjectileEntity.getPos().toVector3f());
-                        // build list of nearby players to send particle packets to
-                        if ((i & 0b111) == 0) {
-                            projectileEntity.getWorld().getPlayers().forEach(player -> {
-                                if (player.getPos().squaredDistanceTo(persistentProjectileEntity.getPos()) <= 128 * 128) {
-                                    players.add(player);
-                                }
-                            });
-                        }
-                        // stop if unable to continue
-                        if (persistentProjectileEntity.isRemoved()) break;
-                        if (persistentProjectileEntity.inGround) break;
-                    }
-                    if (i != 0) {
-                        SupplementaryPacketRegistry.HitscanPacket packet = new SupplementaryPacketRegistry.HitscanPacket(path);
-                        players.forEach(player -> {
-                            if (player instanceof ServerPlayerEntity p) {
-                                packet.send(p);
-                            }
-                        });
-                    }
-                }
-            }
-        });
         registry.registerFor(LivingEntity.class, MARKED, e -> new EnchantmentComponent() {
             private Entity trackedEntity;
 
@@ -525,20 +554,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                 return false;
             }
         });
-        registry.registerFor(PersistentProjectileEntity.class, IGNORES_IFRAMES, e -> new EnchantmentComponent("ignores_iframes") {
-            @Override
-            public void preEntityHit(Entity target, ProjectileEntity projectileEntity, int lvl) {
-                // remove existing iframes on entity hit, before damage is applied
-                if (target instanceof LivingEntity livingEntity) {
-                    livingEntity.hurtTime = 0;
-                    livingEntity.timeUntilRegen = 0;
-                }
-                else if (target instanceof EnderDragonPart dragonPart) {
-                    dragonPart.owner.hurtTime = 0;
-                    dragonPart.owner.timeUntilRegen = 0;
-                }
-            }
-        });
         registry.registerFor(SnowGolemEntity.class, SNOWBALL_TYPE, e -> new SimpleEntityComponent<>("snowball_type", 0));
+        registry.registerFor(LivingEntity.class, VIGOR, e -> new SimpleEntityComponent<>("vigor", false));
     }
 }
