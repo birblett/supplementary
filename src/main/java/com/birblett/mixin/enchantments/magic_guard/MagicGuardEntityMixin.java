@@ -1,6 +1,5 @@
 package com.birblett.mixin.enchantments.magic_guard;
 
-import com.birblett.Supplementary;
 import com.birblett.lib.helper.SupplementaryEnchantmentHelper;
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.enchantment.EnchantmentHelper;

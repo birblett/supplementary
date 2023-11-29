@@ -1,5 +1,6 @@
 package com.birblett.registry;
 
+import com.birblett.Supplementary;
 import com.birblett.lib.components.*;
 import com.birblett.lib.helper.EntityHelper;
 import com.birblett.lib.helper.RenderHelper;
@@ -10,26 +11,38 @@ import dev.onyxstudios.cca.api.v3.entity.EntityComponentFactoryRegistry;
 import dev.onyxstudios.cca.api.v3.entity.EntityComponentInitializer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.*;
 import net.minecraft.entity.boss.dragon.EnderDragonPart;
+import net.minecraft.entity.mob.PhantomEntity;
 import net.minecraft.entity.passive.SnowGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.*;
 import net.minecraft.item.*;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.stat.ServerStatHandler;
+import net.minecraft.stat.Stats;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.UseAction;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.random.Random;
+import net.minecraft.world.LocalDifficulty;
+import net.minecraft.world.SpawnHelper;
+import net.minecraft.world.World;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.birblett.Supplementary.LOGGER;
 import static com.birblett.Supplementary.MODID;
 
 /**
@@ -38,77 +51,89 @@ import static com.birblett.Supplementary.MODID;
 public class SupplementaryComponents implements EntityComponentInitializer {
 
     /**
+     * Adaptability enchantment's half-health buff effect
+     */
+    public static final ComponentKey<BaseComponent> ADAPTABILITY = ComponentRegistry.getOrCreate(new Identifier(MODID, "adaptability"),
+            BaseComponent.class);
+    /**
      * Assault Dash enchantment's dashing and damaging.
      */
-    public static final ComponentKey<BaseComponent> ASSAULT_DASH =
-            ComponentRegistry.getOrCreate(new Identifier(MODID, "assault_dash"), BaseComponent.class);
+    public static final ComponentKey<BaseComponent> ASSAULT_DASH = ComponentRegistry.getOrCreate(new Identifier(MODID, "assault_dash"),
+            BaseComponent.class);
     /**
      * Track Blighted curse status for players.
      */
     @SuppressWarnings("rawtypes")
-    public static final ComponentKey<SimpleComponent> BLIGHTED =
-            ComponentRegistry.getOrCreate(new Identifier(MODID, "blighted"), SimpleComponent.class);
+    public static final ComponentKey<SimpleComponent> BLIGHTED = ComponentRegistry.getOrCreate(new Identifier(MODID, "blighted"),
+            SimpleComponent.class);
     /**
      * Burst Fire timing and firing after initial use.
      */
-    public static final ComponentKey<BaseComponent> BURST_FIRE =
-            ComponentRegistry.getOrCreate(new Identifier(MODID, "burst_fire"), BaseComponent.class);
+    public static final ComponentKey<BaseComponent> BURST_FIRE = ComponentRegistry.getOrCreate(new Identifier(MODID, "burst_fire"),
+            BaseComponent.class);
     /**
      * Handles Enhanced functionality for PersistentProjectileEntities.
      */
-    public static final ComponentKey<BaseComponent> ENHANCED =
-            ComponentRegistry.getOrCreate(new Identifier(MODID, "enhanced"), BaseComponent.class);
+    public static final ComponentKey<BaseComponent> ENHANCED = ComponentRegistry.getOrCreate(new Identifier(MODID, "enhanced"),
+            BaseComponent.class);
     /**
      * Handles Grappling functionality; individual functionalities registered for PersistentProjectileEntity,
      * FishingBobberEntity, and LivingEntity.
      */
-    public static final ComponentKey<BaseComponent> GRAPPLING =
-            ComponentRegistry.getOrCreate(new Identifier(MODID, "grappling"), BaseComponent.class);
+    public static final ComponentKey<BaseComponent> GRAPPLING = ComponentRegistry.getOrCreate(new Identifier(MODID, "grappling"),
+            BaseComponent.class);
+    /**
+     * Tracks whether a phantom was spawned by a player wearing Haunted gear.
+     */
+    public static final ComponentKey<BaseComponent> HAUNTED = ComponentRegistry.getOrCreate(new Identifier(MODID, "haunted"),
+            BaseComponent.class);
     /**
      * Handles Hitscan functionality.
      */
-    public static final ComponentKey<BaseComponent> HITSCAN =
-            ComponentRegistry.getOrCreate(new Identifier(MODID, "hitscan"), BaseComponent.class);
+    public static final ComponentKey<BaseComponent> HITSCAN = ComponentRegistry.getOrCreate(new Identifier(MODID, "hitscan"),
+            BaseComponent.class);
     /**
      * Set value of this component to 1 on arrows to set invincibility frame ignoring property.
      */
-    public static final ComponentKey<BaseComponent> IGNORES_IFRAMES =
-            ComponentRegistry.getOrCreate(new Identifier(MODID, "ignores_iframes"), BaseComponent.class);
+    public static final ComponentKey<BaseComponent> IGNORES_IFRAMES = ComponentRegistry.getOrCreate(new Identifier(MODID,
+            "ignores_iframes"), BaseComponent.class);
     /**
      * Handles Lightning Bolt projectile functionality.
      */
-    public static final ComponentKey<BaseComponent> LIGHTNING_BOLT =
-            ComponentRegistry.getOrCreate(new Identifier(MODID, "lightning_bolt"), BaseComponent.class);
+    public static final ComponentKey<BaseComponent> LIGHTNING_BOLT = ComponentRegistry.getOrCreate(new Identifier(MODID,
+            "lightning_bolt"), BaseComponent.class);
     /**
      * Handles entity tracking and homing functionality for Marked.
      */
-    public static final ComponentKey<BaseComponent> MARKED =
-            ComponentRegistry.getOrCreate(new Identifier(MODID, "marked"), BaseComponent.class);
+    public static final ComponentKey<BaseComponent> MARKED = ComponentRegistry.getOrCreate(new Identifier(MODID, "marked"),
+            BaseComponent.class);
     /**
      * Oversized rendering and damage/velocity increase.
      */
-    public static final ComponentKey<BaseComponent> OVERSIZED =
-            ComponentRegistry.getOrCreate(new Identifier(MODID, "oversized"), BaseComponent.class);
+    public static final ComponentKey<BaseComponent> OVERSIZED = ComponentRegistry.getOrCreate(new Identifier(MODID, "oversized"),
+            BaseComponent.class);
     /**
      * Allows snowball type of a snow golem to be tracked; logic for actually firing the snowball is handled in
      * {@link com.birblett.mixin.snowball_variants.SnowballVariantsGolemMixin}.
      */
     @SuppressWarnings("rawtypes")
-    public static final ComponentKey<SimpleComponent> SNOWBALL_TYPE =
-            ComponentRegistry.getOrCreate(new Identifier(MODID, "snowball_type"), SimpleComponent.class);
+    public static final ComponentKey<SimpleComponent> SNOWBALL_TYPE = ComponentRegistry.getOrCreate(new Identifier(MODID,
+            "snowball_type"), SimpleComponent.class);
     /**
      * Track Blighted curse status for players.
      */
     @SuppressWarnings("rawtypes")
-    public static final ComponentKey<SimpleComponent> VIGOR =
-            ComponentRegistry.getOrCreate(new Identifier(MODID, "vigor"), SimpleComponent.class);
+    public static final ComponentKey<SimpleComponent> VIGOR = ComponentRegistry.getOrCreate(new Identifier(MODID, "vigor"),
+            SimpleComponent.class);
 
     /**
      * These components are ticked during certain tick events for living entities.
      */
     public static final List<ComponentKey<BaseComponent>> LIVING_ENTITY_TICKING_COMPONENTS = List.of(
+            ADAPTABILITY,
             ASSAULT_DASH,
-            BURST_FIRE
+            BURST_FIRE,
+            HAUNTED
     );
     /**
      * These components are called during certain events for projectiles.
@@ -130,6 +155,14 @@ public class SupplementaryComponents implements EntityComponentInitializer {
 
     @Override
     public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
+        registry.registerFor(PlayerEntity.class, ADAPTABILITY, e -> new EnchantmentComponent("adaptability") {
+            @Override
+            public void onTick(LivingEntity entity) {
+                if (this.getValue() > 0 && EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.ADAPTABILITY, entity) > 0) {
+                    this.decrement();
+                }
+            }
+        });
         registry.registerFor(PlayerEntity.class, ASSAULT_DASH, e -> new EnchantmentComponent("assault_dash") {
             private Vec3d dashVelocity;
             @Override
@@ -377,6 +410,56 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                 }
                 else if (projectileEntity instanceof FishingBobberEntity) {
                     GRAPPLING.get(projectileEntity).setValue(1);
+                }
+            }
+        });
+        registry.registerFor(PhantomEntity.class, HAUNTED, e -> new EnchantmentComponent("haunted") {
+            @Override
+            public void onTick(LivingEntity entity) {
+                if (this.getValue() > 0) {
+                    this.increment();
+                    if (this.getValue() > 2400 && this.getValue() % 40 == 0) {
+                        entity.damage(entity.getWorld().getDamageSources().magic(), 5);
+                    }
+                }
+            }
+        });
+        registry.registerFor(PlayerEntity.class, HAUNTED, e -> new EnchantmentComponent("haunted") {
+            @Override
+            public void onTick(LivingEntity entity) {
+                // logic mostly copied from PhantomSpawner class
+                World w = entity.getWorld();
+                if (w instanceof ServerWorld world && EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.HAUNTED,
+                        entity) > 0) {
+                    this.decrement();
+                    Random random = world.getRandom();
+                    if (this.getValue() <= 0) {
+                        this.setValue(1200 + random.nextInt(1200));
+                        BlockPos blockPos;
+                        LocalDifficulty localDifficulty;
+                        BlockPos blockPos2;
+                        if (entity instanceof ServerPlayerEntity serverPlayerEntity && !serverPlayerEntity.isSpectator() &&
+                                (localDifficulty = world.getLocalDifficulty(blockPos = entity.getBlockPos())).isHarderThan(random.nextFloat() * 3.0f)) {
+                            ServerStatHandler serverStatHandler = serverPlayerEntity.getStatHandler();
+                            int j = MathHelper.clamp(serverStatHandler.getStat(Stats.CUSTOM.getOrCreateStat(Stats.TIME_SINCE_REST)),
+                                    288000, Integer.MAX_VALUE);
+                            if (!(random.nextInt(j) < 72000 || !SpawnHelper.isClearForSpawn(world, blockPos2 = blockPos
+                                            .up(20 + random.nextInt(15)).east(-10 + random.nextInt(21))
+                                            .south(-10 + random.nextInt(21)), world.getBlockState(blockPos2),
+                                    world.getFluidState(blockPos2), EntityType.PHANTOM))) {
+                                int l = 1 + random.nextInt(localDifficulty.getGlobalDifficulty().getId() + 1);
+                                for (int m = 0; m < l; ++m) {
+                                    PhantomEntity phantomEntity = EntityType.PHANTOM.create(world);
+                                    if (phantomEntity == null) continue;
+                                    phantomEntity.refreshPositionAndAngles(blockPos2, 0.0f, 0.0f);
+                                    phantomEntity.initialize(world, localDifficulty, SpawnReason.NATURAL, null, null);
+                                    SupplementaryComponents.HAUNTED.maybeGet(phantomEntity).ifPresent(component -> component.setValue(1));
+                                    phantomEntity.setTarget(serverPlayerEntity);
+                                    world.spawnEntityAndPassengers(phantomEntity);
+                                }
+                            }
+                        }
+                    }
                 }
             }
         });

@@ -37,11 +37,13 @@
 	},
 	"custom": {
 		"cardinal-components": [
+			"supplementary:adaptability",
 			"supplementary:assault_dash",
 			"supplementary:blighted",
 			"supplementary:burst_fire",
 			"supplementary:enhanced",
 			"supplementary:grappling",
+			"supplementary:haunted",
 			"supplementary:hitscan",
 			"supplementary:ignores_iframes",
 			"supplementary:lightning_bolt",

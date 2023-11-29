@@ -41,10 +41,13 @@ public class SupplementaryEnchantmentHelper {
      */
     public static float getDrawspeedModifier(LivingEntity holder, float base, ItemStack stack) {
         stack = stack == null ? ItemStack.EMPTY : stack;
-        float oversizedModifier = (float) Math.pow(0.75, net.minecraft.enchantment.EnchantmentHelper.getLevel(SupplementaryEnchantments.OVERSIZED, stack));
-        float growthModifier = 1 + getGrowthStat(stack, GrowthKey.DRAW_SPEED);
-        float atrophyModifier = Math.max(0.5f, 1 - 0.1f * net.minecraft.enchantment.EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.ATROPHY, holder));
-        return base * oversizedModifier * growthModifier * atrophyModifier;
+        if (holder != null) {
+            float oversizedModifier = (float) Math.pow(0.75, EnchantmentHelper.getLevel(SupplementaryEnchantments.OVERSIZED, stack));
+            float growthModifier = 1 + getGrowthStat(stack, GrowthKey.DRAW_SPEED);
+            float atrophyModifier = Math.max(0.5f, 1 - 0.1f * EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.ATROPHY, holder));
+            base *= oversizedModifier * growthModifier * atrophyModifier;
+        }
+        return base;
     }
 
     /**
@@ -99,6 +102,8 @@ public class SupplementaryEnchantmentHelper {
             }
         };
     }
+    public static final RegistryKey<DamageType> ASSAULT_DASH = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Supplementary.MODID,
+            "assault_dash"));
 
     /**
      * Damage source for the Backlash curse
@@ -115,6 +120,8 @@ public class SupplementaryEnchantmentHelper {
             }
         };
     }
+    public static final RegistryKey<DamageType> BACKLASH = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Supplementary.MODID,
+            "backlash"));
 
     /**
      * <hr><center><h1>Growth enchantment helpers</h1></center><hr>
