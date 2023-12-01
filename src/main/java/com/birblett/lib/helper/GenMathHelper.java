@@ -1,5 +1,6 @@
 package com.birblett.lib.helper;
 
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 
@@ -8,7 +9,7 @@ import static com.birblett.Supplementary.SUPPLEMENTARY_RANDOM;
 /**
  * Helper functions for vector math.
  */
-public class VectorHelper {
+public class GenMathHelper {
 
     private static final Vec3d X_AXIS = new Vec3d(1, 0, 0);
     private static final Vec3d Y_AXIS = new Vec3d(0, 1, 0);
@@ -51,5 +52,15 @@ public class VectorHelper {
         Vec3d skew = v.crossProduct(axis).multiply(Math.sin(angle));
         Vec3d offset = axis.multiply(v.dotProduct(axis)).multiply(1 - Math.cos(angle));
         return scale.add(skew).add(offset);
+    }
+
+    /**
+     * Basic smoothstep for delta values 0.0f to 1.0f.
+     * @param progress Delta of current step
+     * @return
+     */
+    public static float smoothstep(float progress) {
+        progress = MathHelper.clamp(progress, 0.0f, 1.0f);
+        return progress * progress * (3.0f - 2.0f * progress);
     }
 }

@@ -36,6 +36,13 @@ public interface BaseComponent extends Component {
     default void setValue(int level) {}
 
     /**
+     * Custom getter for components requiring some form of return value not already available. Default: null
+     */
+    default Object getCustom() {
+        return null;
+    }
+
+    /**
      * Set stored value, if it exists, and allows for operating via side effects with an entity provider.
      */
     default void setValue(int level, Entity provider) {}

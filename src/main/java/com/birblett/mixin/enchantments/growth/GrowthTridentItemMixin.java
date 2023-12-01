@@ -1,6 +1,6 @@
 package com.birblett.mixin.enchantments.growth;
 
-import com.birblett.lib.helper.SupplementaryEnchantmentHelper;
+import com.birblett.lib.helper.EnchantHelper;
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.LivingEntity;
@@ -33,7 +33,7 @@ public class GrowthTridentItemMixin {
     @ModifyVariable(method = "onStoppedUsing", at = @At(value = "STORE", ordinal = 0), index = 6)
     private int setUseTimeRemaining(int i) {
         if (EnchantmentHelper.getLevel(SupplementaryEnchantments.GROWTH, this.supplementary$TridentStack) > 0) {
-            i = (int) SupplementaryEnchantmentHelper.getDrawspeedModifier(this.supplementary$Holder, i, this.supplementary$TridentStack);
+            i = (int) EnchantHelper.getDrawSpeedModifier(this.supplementary$Holder, i, this.supplementary$TridentStack);
         }
         return i;
     }

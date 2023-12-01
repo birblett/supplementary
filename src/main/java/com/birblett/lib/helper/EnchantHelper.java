@@ -3,14 +3,17 @@ package com.birblett.lib.helper;
 import com.birblett.Supplementary;
 import com.birblett.lib.creational.ContractBuilder;
 import com.birblett.lib.creational.CurseBuilder;
+import com.birblett.registry.SupplementaryComponents;
 import com.birblett.registry.SupplementaryEnchantments;
 import com.google.common.util.concurrent.AtomicDouble;
+import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageType;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryKey;
@@ -21,6 +24,8 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
+import org.apache.commons.lang3.mutable.MutableFloat;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -29,17 +34,18 @@ import java.util.Map;
 /**
  * Used to get certain attributes/values associated with enchantments. Will be used for serverconfig in the future.
  */
-public class SupplementaryEnchantmentHelper {
+public class EnchantHelper {
 
     /**
-     * <hr><center><h1>General helpers</h1></center><hr><br><br>
+     * <hr><center><h1>General helpers</h1></center><hr>
+     * Utilities for functionalities that may not require a full event hook or scalable mixin to process.<br><br>
      *
      * Apply draw speed modifiers for enchantments
      * @param base Base amount
      * @param stack Bow/crossbow itemstack
      * @return Draw speed after applying modifiers
      */
-    public static float getDrawspeedModifier(LivingEntity holder, float base, ItemStack stack) {
+    public static float getDrawSpeedModifier(LivingEntity holder, float base, ItemStack stack) {
         stack = stack == null ? ItemStack.EMPTY : stack;
         if (holder != null) {
             float oversizedModifier = (float) Math.pow(0.75, EnchantmentHelper.getLevel(SupplementaryEnchantments.OVERSIZED, stack));
@@ -48,6 +54,41 @@ public class SupplementaryEnchantmentHelper {
             base *= oversizedModifier * growthModifier * atrophyModifier;
         }
         return base;
+    }
+
+    /**
+     * Essentially a rewrite of vanilla {@link net.minecraft.item.BowItem#getPullProgress(int)}, to reduce reliance on shared
+     * variables between static and non-static contexts.
+     * @param holder User of the bow
+     * @param useTicks Number of ticks bow has been drawn
+     * @param stack Associated ItemStack for bow
+     * @return Scaled pull progress value
+     */
+    public static float customPullProgress(LivingEntity holder, int useTicks, ItemStack stack) {
+        float f = EnchantHelper.getDrawSpeedModifier(holder, (float) useTicks / 20.0f, stack);
+        f = (f * f + f * 2.0f) / 3.0f;
+        if (f > 1.0f) {
+            f = 1.0f;
+        }
+        return f;
+    }
+
+    /**
+     * Block breaking speed modifier, applied in {@link com.birblett.mixin.modifiers.mining_speed.MiningSpeedPlayerEntityMixin#applyBlockBreakingSpeedMods(BlockState, CallbackInfoReturnable)}
+     * @param self Player to be tested
+     * @param state Block currently being mined
+     * @return The overall block breaking speed multiplier
+     */
+    public static float getBlockBreakModifier(PlayerEntity self, BlockState state) {
+        MutableFloat mult = new MutableFloat(1.0f);
+        SupplementaryComponents.MOODY.maybeGet(self).ifPresent(component -> {
+            if (component.getCustom() instanceof float[] arr) {
+                float progress = (self.getWorld().getTime() - arr[2]) / (arr[3] - arr[2]);
+                float smoothed = arr[0] + GenMathHelper.smoothstep(progress) * (arr[1] - arr[0]);
+                mult.setValue(mult.getValue() * (1.0f + smoothed / 300));
+            }
+        });
+        return mult.getValue();
     }
 
     /**
@@ -89,13 +130,15 @@ public class SupplementaryEnchantmentHelper {
      * @return a new EntityDamageSource, with custom death message
      */
     public static DamageSource assaultDash(LivingEntity source) {
-        return new DamageSource(source.getWorld().getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(RegistryKey.of(RegistryKeys.DAMAGE_TYPE,
+        return new DamageSource(source.getWorld().getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(RegistryKey
+                .of(RegistryKeys.DAMAGE_TYPE,
                 new Identifier("supplementary", "assault_dash")))) {
             @Override
             public Text getDeathMessage(LivingEntity entity) {
                 if (this.getAttacker() != null)
                     return MutableText.of(new TranslatableTextContent("death.attack." + this.getName() + ".player",
-                            null, new Object[]{entity.getDisplayName().getString(), this.getAttacker().getDisplayName().getString()}));
+                            null, new Object[]{entity.getDisplayName().getString(), this.getAttacker().getDisplayName()
+                            .getString()}));
                 else
                     return MutableText.of(new TranslatableTextContent("death.attack." + this.getName() + ".fallback",
                             null, new Object[]{entity.getDisplayName().getString()}));

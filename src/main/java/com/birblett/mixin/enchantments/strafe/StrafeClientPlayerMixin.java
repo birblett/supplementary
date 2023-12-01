@@ -1,6 +1,5 @@
 package com.birblett.mixin.enchantments.strafe;
 
-import com.birblett.Supplementary;
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.enchantment.EnchantmentHelper;

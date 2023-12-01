@@ -1,9 +1,7 @@
 package com.birblett.mixin.enchantments.slimed;
 
-import com.birblett.Supplementary;
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;

@@ -1,10 +1,9 @@
 package com.birblett.registry;
 
-import com.birblett.Supplementary;
 import com.birblett.lib.components.*;
+import com.birblett.lib.helper.EnchantHelper;
 import com.birblett.lib.helper.EntityHelper;
 import com.birblett.lib.helper.RenderHelper;
-import com.birblett.lib.helper.SupplementaryEnchantmentHelper;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import dev.onyxstudios.cca.api.v3.component.ComponentRegistry;
 import dev.onyxstudios.cca.api.v3.entity.EntityComponentFactoryRegistry;
@@ -18,7 +17,10 @@ import net.minecraft.entity.mob.PhantomEntity;
 import net.minecraft.entity.passive.SnowGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.*;
-import net.minecraft.item.*;
+import net.minecraft.item.CrossbowItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -37,12 +39,12 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.SpawnHelper;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.birblett.Supplementary.LOGGER;
 import static com.birblett.Supplementary.MODID;
 
 /**
@@ -108,6 +110,11 @@ public class SupplementaryComponents implements EntityComponentInitializer {
     public static final ComponentKey<BaseComponent> MARKED = ComponentRegistry.getOrCreate(new Identifier(MODID, "marked"),
             BaseComponent.class);
     /**
+     * Handles random fluctuation of Moody.
+     */
+    public static final ComponentKey<BaseComponent> MOODY = ComponentRegistry.getOrCreate(new Identifier(MODID, "moody"),
+            BaseComponent.class);
+    /**
      * Oversized rendering and damage/velocity increase.
      */
     public static final ComponentKey<BaseComponent> OVERSIZED = ComponentRegistry.getOrCreate(new Identifier(MODID, "oversized"),
@@ -133,7 +140,8 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             ADAPTABILITY,
             ASSAULT_DASH,
             BURST_FIRE,
-            HAUNTED
+            HAUNTED,
+            MOODY
     );
     /**
      * These components are called during certain events for projectiles.
@@ -191,7 +199,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                         for (EntityHitResult entityHitResult : entityHitResults) {
                             Entity target = entityHitResult.getEntity();
                             // damage target based on current velocity
-                            if (target.damage(SupplementaryEnchantmentHelper.assaultDash(user), (float) this.dashVelocity.length() * 2)) {
+                            if (target.damage(EnchantHelper.assaultDash(user), (float) this.dashVelocity.length() * 2)) {
                                 // if damaged successfully, apply knockback and damage the shield
                                 target.setVelocity(target.getVelocity().add(this.dashVelocity.multiply(1.2)).add(0, 0.2, 0));
                                 if (target instanceof PlayerEntity) {
@@ -297,13 +305,14 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                 if (!projectileEntity.getWorld().isClient()) {
                     Entity owner = projectileEntity.getOwner();
                     // proceed if owner exists, is holding the correct grappling item, and is within 50 blocks
-                    if (owner instanceof LivingEntity livingEntity && owner.isAlive() && owner.getWorld() == projectileEntity.getWorld() &&
-                            livingEntity.getStackInHand(this.activeHand) == this.activeStack &&
-                            projectileEntity.getOwner().getPos().subtract(projectileEntity.getPos()).lengthSquared() < 2500 &&
-                                GRAPPLING.get(owner).getEntity() == projectileEntity) {
+                    if (owner instanceof LivingEntity livingEntity && owner.isAlive() && owner.getWorld() == projectileEntity
+                            .getWorld() && livingEntity.getStackInHand(this.activeHand) == this.activeStack && projectileEntity
+                            .getOwner().getPos().subtract(projectileEntity.getPos()).lengthSquared() < 2500 && GRAPPLING
+                            .get(owner).getEntity() == projectileEntity) {
                         // pull user in, discard when player gets too close
                         double pullSpeed = Math.min(1, 1 / owner.getVelocity().lengthSquared()) * (owner.isTouchingWater() ? 0.05 : 0.2);
-                        owner.setVelocity(projectileEntity.getPos().subtract(owner.getPos()).normalize().multiply(pullSpeed).add(owner.getVelocity()));
+                        owner.setVelocity(projectileEntity.getPos().subtract(owner.getPos()).normalize().multiply(pullSpeed)
+                                .add(owner.getVelocity()));
                         owner.velocityModified = true;
                         if (projectileEntity.getOwner().getPos().subtract(projectileEntity.getPos()).lengthSquared() < 2) {
                             this.setValue(0);
@@ -606,6 +615,47 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             @Override
             public void setEntity(Entity entity) {
                 trackedEntity = entity;
+            }
+        });
+        registry.registerFor(PlayerEntity.class, MOODY, e -> new SyncedEnchantmentComponent("moody") {
+
+            private int current = 0;
+            private int next = 0;
+            private long startTime = 0;
+            private long endTime = 0;
+
+            @Override
+            public void onTick(LivingEntity entity) {
+                if (entity.getWorld().getTime() >= this.endTime) {
+                    this.startTime = this.endTime;
+                    this.endTime = entity.getWorld().getTime() + 100 + entity.getWorld().getRandom().nextInt(100);
+                    this.current = this.next;
+                    this.next = entity.getWorld().getRandom().nextInt(301) - 150;
+                    MOODY.sync(entity);
+                }
+            }
+
+            @Override
+            public void writeToNbt(@NotNull NbtCompound tag) {
+                super.writeToNbt(tag);
+                tag.putInt("current", this.current);
+                tag.putInt("next", this.next);
+                tag.putLong("timer", this.startTime);
+                tag.putLong("timer_max", this.endTime);
+            }
+
+            @Override
+            public void readFromNbt(@NotNull NbtCompound tag) {
+                super.readFromNbt(tag);
+                this.current = tag.getInt("current");
+                this.next = tag.getInt("next");
+                this.startTime = tag.getLong("timer");
+                this.endTime = tag.getLong("timer_max");
+            }
+
+            @Override
+            public Object getCustom() {
+                return new float[]{this.current, this.next, this.startTime, this.endTime};
             }
         });
         registry.registerFor(PersistentProjectileEntity.class, OVERSIZED, e -> new SyncedEnchantmentComponent("oversized") {

@@ -1,13 +1,13 @@
 package com.birblett.mixin.enchantments.bunny_hop;
 
-import com.birblett.lib.helper.SupplementaryEnchantmentHelper;
+import com.birblett.lib.helper.EnchantHelper;
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.*;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
@@ -22,7 +22,7 @@ public class BunnyHopLivingEntityMixin {
     private void boostJumpSpeed(Args args) {
         LivingEntity self = (LivingEntity) (Object) this;
         if (EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.BUNNYHOP, self) > 0) {
-            double boost = SupplementaryEnchantmentHelper.getEnhancedEquipLevel(SupplementaryEnchantments.ALL_TERRAIN, self) > 0 ? 3.1 : 2.8;
+            double boost = EnchantHelper.getEnhancedEquipLevel(SupplementaryEnchantments.ALL_TERRAIN, self) > 0 ? 3.1 : 2.8;
             args.set(0, (double) args.get(0) * boost);
             args.set(2, (double) args.get(2) * boost);
         }

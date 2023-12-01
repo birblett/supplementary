@@ -5,7 +5,8 @@ import com.birblett.items.BoomerangItem;
 import com.birblett.lib.creational.ContractBuilder;
 import com.birblett.lib.creational.CurseBuilder;
 import com.birblett.lib.creational.EnchantmentBuilder;
-import com.birblett.lib.helper.SupplementaryEnchantmentHelper;
+import com.birblett.lib.helper.EnchantHelper;
+import com.birblett.lib.helper.GenMathHelper;
 import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -28,9 +29,9 @@ import net.minecraft.entity.projectile.TridentEntity;
 import net.minecraft.item.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.apache.commons.lang3.mutable.MutableDouble;
 import org.apache.commons.lang3.mutable.MutableFloat;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -74,11 +75,11 @@ public class SupplementaryEnchantments {
             // Gives 1 draw speed growth on arrow fire, and an extra if fully charged
             if (projectileEntity instanceof ArrowEntity arrow) {
                 int growthAmount = arrow.isCritical() && item.getItem() instanceof BowItem ? 2 : 1;
-                SupplementaryEnchantmentHelper.addGrowthPoints(item, SupplementaryEnchantmentHelper.GrowthKey.DRAW_SPEED, growthAmount);
+                EnchantHelper.addGrowthPoints(item, EnchantHelper.GrowthKey.DRAW_SPEED, growthAmount);
             }
             // Gives 2 flat draw speed growth on trident throw
             else if (projectileEntity instanceof TridentEntity trident) {
-                SupplementaryEnchantmentHelper.addGrowthPoints(item, SupplementaryEnchantmentHelper.GrowthKey.DRAW_SPEED, 2);
+                EnchantHelper.addGrowthPoints(item, EnchantHelper.GrowthKey.DRAW_SPEED, 2);
                 trident.tridentStack = item;
             }
         }
@@ -89,20 +90,20 @@ public class SupplementaryEnchantments {
             // or 2 points if the attack is fully charged, and modifies final attack damage with the boosted amount
             if (!user.getWorld().isClient()) {
                 int growthAmount = isMaxCharge ? 2 : 1;
-                SupplementaryEnchantmentHelper.addGrowthPoints(user.getMainHandStack(), isCritical ? SupplementaryEnchantmentHelper.GrowthKey.ATTACK_DAMAGE :
-                        SupplementaryEnchantmentHelper.GrowthKey.ATTACK_SPEED, growthAmount);
+                EnchantHelper.addGrowthPoints(user.getMainHandStack(), isCritical ? EnchantHelper.GrowthKey.ATTACK_DAMAGE :
+                        EnchantHelper.GrowthKey.ATTACK_SPEED, growthAmount);
             }
-            return SupplementaryEnchantmentHelper.getGrowthStat(user.getMainHandStack(), SupplementaryEnchantmentHelper.GrowthKey.ATTACK_DAMAGE);
+            return EnchantHelper.getGrowthStat(user.getMainHandStack(), EnchantHelper.GrowthKey.ATTACK_DAMAGE);
         }
 
         @Override
         public void onBlockBreak(World world, BlockState state, BlockPos pos, PlayerEntity miner, ItemStack item) {
             // Add base mining speed growth stat if appropriate blockstate for the tool, or adaptable if not
             if (item.getMiningSpeedMultiplier(state) > 1) {
-                SupplementaryEnchantmentHelper.addGrowthPoints(item, SupplementaryEnchantmentHelper.GrowthKey.MINING_SPEED, 1);
+                EnchantHelper.addGrowthPoints(item, EnchantHelper.GrowthKey.MINING_SPEED, 1);
             }
             else {
-                SupplementaryEnchantmentHelper.addGrowthPoints(item, SupplementaryEnchantmentHelper.GrowthKey.ALT_MINING_SPEED, 1);
+                EnchantHelper.addGrowthPoints(item, EnchantHelper.GrowthKey.ALT_MINING_SPEED, 1);
             }
         }
 
@@ -111,10 +112,10 @@ public class SupplementaryEnchantments {
             // Add some growth scaling with incoming damage
             if (itemStack.getItem() instanceof ArmorItem) {
                 if (source.getAttacker() != null) {
-                    SupplementaryEnchantmentHelper.addGrowthPoints(itemStack, SupplementaryEnchantmentHelper.GrowthKey.ENTITY_DAMAGE_REDUCTION, damageAmount.getValue() / 5);
+                    EnchantHelper.addGrowthPoints(itemStack, EnchantHelper.GrowthKey.ENTITY_DAMAGE_REDUCTION, damageAmount.getValue() / 5);
                 }
                 else if (!(Objects.equals(source.getTypeRegistryEntry().getKey().orElse(DamageTypes.OUT_OF_WORLD), DamageTypes.OUT_OF_WORLD))) {
-                    SupplementaryEnchantmentHelper.addGrowthPoints(itemStack, SupplementaryEnchantmentHelper.GrowthKey.ENVIRONMENTAL_DAMAGE_REDUCTION, damageAmount.getValue() / 4);
+                    EnchantHelper.addGrowthPoints(itemStack, EnchantHelper.GrowthKey.ENVIRONMENTAL_DAMAGE_REDUCTION, damageAmount.getValue() / 4);
                 }
             }
         }
@@ -124,10 +125,10 @@ public class SupplementaryEnchantments {
             // Apply damage reduction from Growth
             if (itemStack.getItem() instanceof ArmorItem) {
                 if (source.getAttacker() != null) {
-                    return 1 - SupplementaryEnchantmentHelper.getGrowthStat(itemStack, SupplementaryEnchantmentHelper.GrowthKey.ENTITY_DAMAGE_REDUCTION);
+                    return 1 - EnchantHelper.getGrowthStat(itemStack, EnchantHelper.GrowthKey.ENTITY_DAMAGE_REDUCTION);
                 }
                 else if (!(Objects.equals(source.getTypeRegistryEntry().getKey().orElse(DamageTypes.OUT_OF_WORLD), DamageTypes.OUT_OF_WORLD))) {
-                    return 1 - SupplementaryEnchantmentHelper.getGrowthStat(itemStack, SupplementaryEnchantmentHelper.GrowthKey.ENVIRONMENTAL_DAMAGE_REDUCTION);
+                    return 1 - EnchantHelper.getGrowthStat(itemStack, EnchantHelper.GrowthKey.ENVIRONMENTAL_DAMAGE_REDUCTION);
                 }
             }
             return 1.0f;
@@ -175,75 +176,25 @@ public class SupplementaryEnchantments {
     }
 
     /**
-     * <hr><center><h1>Bow enchantments</h1></center><hr>
+     * <hr><center><h1>Offensive enchantments</h1></center><hr>
      */
-    public static final List<EnchantmentBuilder> BOW;
+    public static final List<EnchantmentBuilder> OFFENSIVE;
     /**
-     * Hitscan - Arrows instantly travel to their destination. Max lvl: 1
+     * Burst fire (Crossbow) - Arrows are fired in bursts of 3. Damage and velocity are slightly decreased. Max lvl: 1
      */
-    public static final EnchantmentBuilder HITSCAN = new EnchantmentBuilder("hitscan", Enchantment.Rarity.RARE, EnchantmentTarget.BOW, BOTH_HANDS);
+    public static final EnchantmentBuilder BURST_FIRE = new EnchantmentBuilder("burst_fire", Enchantment.Rarity.RARE,
+            EnchantmentTarget.CROSSBOW, BOTH_HANDS);
     /**
-     * Lightning Bolt - Summon lightning on projectile hit, provided it has sky access. Max lvl: 1
+     * Frantic (Sword) - Critical hits grant a short speed boost. Deal extra damage while speedy. Max lvl: 3
      */
-    public static final EnchantmentBuilder LIGHTNING_BOLT = new EnchantmentBuilder("lightning_bolt", Enchantment.Rarity.VERY_RARE, EnchantmentTarget.BOW, BOTH_HANDS);
-    /**
-     * Oversized - Longer draw time. Projectiles are bigger and faster, with higher damage. Max lvl: 2
-     */
-    public static final EnchantmentBuilder MARKED = new EnchantmentBuilder("marked", Enchantment.Rarity.RARE, EnchantmentTarget.BOW, BOTH_HANDS);
-    /**
-     * Marked - On entity hit: set a marked entity. Subsequent arrows will home in on this entity. Max lvl: 3
-     */
-    public static final EnchantmentBuilder OVERSIZED = new EnchantmentBuilder("oversized", Enchantment.Rarity.UNCOMMON, EnchantmentTarget.BOW, BOTH_HANDS);
-
-    static {
-        BOW = List.of(
-                HITSCAN.makeIncompatible(OVERSIZED, MARKED)
-                        .setPower(20, 50)
-                        .addComponent(SupplementaryComponents.HITSCAN),
-                LIGHTNING_BOLT.makeIncompatible(Enchantments.POWER, OVERSIZED)
-                        .setPower(20, 50)
-                        .addComponent(SupplementaryComponents.LIGHTNING_BOLT),
-                MARKED.setPower(20, 5, 25, 5)
-                        .setMaxLevel(3)
-                        .addComponent(SupplementaryComponents.MARKED),
-                OVERSIZED.makeIncompatible(LIGHTNING_BOLT)
-                        .setPower(20, 5, 30, 10)
-                        .setMaxLevel(2)
-                        .addComponent(SupplementaryComponents.OVERSIZED)
-        );
-    }
-
-    /**
-     * <hr><center><h1>Crossbow enchantments</h1></center><hr>
-     */
-    public static final List<EnchantmentBuilder> CROSSBOW;
-    /**
-     * Burst fire - Arrows are fired in bursts of 3. Damage and velocity are slightly decreased. Max lvl: 1
-     */
-    public static final EnchantmentBuilder BURST_FIRE = new EnchantmentBuilder("burst_fire", Enchantment.Rarity.RARE, EnchantmentTarget.CROSSBOW, BOTH_HANDS);
-
-    static {
-        CROSSBOW = List.of(
-                BURST_FIRE.makeIncompatible(Enchantments.MULTISHOT)
-                        .setPower(20, 50)
-                        .addComponent(SupplementaryComponents.BURST_FIRE)
-        );
-    }
-
-    /**
-     * <hr><center><h1>Sword enchantments</h1></center><hr>
-     */
-    public static final List<EnchantmentBuilder> SWORD;
-    /**
-     * Frantic - Critical hits grant a short speed boost. Deal extra damage while speedy. Max lvl: 3
-     */
-    public static final EnchantmentBuilder FRANTIC = new EnchantmentBuilder("frantic", Enchantment.Rarity.UNCOMMON, EnchantmentTarget.WEAPON, MAIN_HAND) {
+    public static final EnchantmentBuilder FRANTIC = new EnchantmentBuilder("frantic", Enchantment.Rarity.UNCOMMON,
+            EnchantmentTarget.WEAPON, MAIN_HAND) {
         @Override
         public float onAttack(LivingEntity user, Entity target, int level, boolean isCritical, boolean isMaxCharge, float damageAmount) {
             float modifier = 0.0f;
             if (!user.getWorld().isClient()) {
                 if (user.hasStatusEffect(StatusEffects.SPEED)) {
-                    modifier = 0.1f * level * damageAmount;
+                    modifier = 0.06f * level * damageAmount;
                 }
                 if (isCritical) {
                     user.addStatusEffect(new StatusEffectInstance(StatusEffects.SPEED, 50));
@@ -253,9 +204,10 @@ public class SupplementaryEnchantments {
         }
     };
     /**
-     * Frenzy - Take more damage, deal more at lower health. Max lvl: 3
+     * Frenzy (Sword) - Take more damage, deal more at lower health. Max lvl: 3
      */
-    public static final EnchantmentBuilder FRENZY = new EnchantmentBuilder("frenzy", Enchantment.Rarity.RARE, EnchantmentTarget.WEAPON, MAIN_HAND) {
+    public static final EnchantmentBuilder FRENZY = new EnchantmentBuilder("frenzy", Enchantment.Rarity.RARE, EnchantmentTarget.WEAPON,
+            MAIN_HAND) {
         @Override
         public float onAttack(LivingEntity user, Entity target, int level, boolean isCritical, boolean isMaxCharge, float damageAmount) {
             float lostHealthPercent = 2 * Math.max(0.5f, 1 - user.getHealth() / user.getMaxHealth());
@@ -267,15 +219,54 @@ public class SupplementaryEnchantments {
             return source.getAttacker() != null ? 1.2f : 1.0f;
         }
     };
+    /**
+     * Hitscan (Bow) - Arrows instantly travel to their destination. Max lvl: 1
+     */
+    public static final EnchantmentBuilder HITSCAN = new EnchantmentBuilder("hitscan", Enchantment.Rarity.RARE,
+            EnchantmentTarget.BOW, BOTH_HANDS);
+    /**
+     * Lightning Bolt (Bow) - Summon lightning on projectile hit, provided it has sky access. Max lvl: 1
+     */
+    public static final EnchantmentBuilder LIGHTNING_BOLT = new EnchantmentBuilder("lightning_bolt", Enchantment.Rarity.VERY_RARE,
+            EnchantmentTarget.BOW, BOTH_HANDS);
+    /**
+     * Marked (Bow and Crossbow) - On entity hit: set a marked entity. Subsequent arrows will home in on this entity. Max
+     * lvl: 3
+     */
+    public static final EnchantmentBuilder MARKED = new EnchantmentBuilder("marked", Enchantment.Rarity.RARE, EnchantmentTarget.BOW,
+            BOTH_HANDS);
+    /**
+     * Oversized (Bow) - Longer draw time. Projectiles are bigger and faster, with higher damage. Max lvl: 2
+     */
+    public static final EnchantmentBuilder OVERSIZED = new EnchantmentBuilder("oversized", Enchantment.Rarity.UNCOMMON,
+            EnchantmentTarget.BOW, BOTH_HANDS);
 
     static {
-        SWORD = List.of(
+        OFFENSIVE = List.of(
+                BURST_FIRE.makeIncompatible(Enchantments.MULTISHOT)
+                        .setPower(20, 50)
+                        .addComponent(SupplementaryComponents.BURST_FIRE),
                 FRANTIC.makeIncompatible(Enchantments.FIRE_ASPECT, Enchantments.KNOCKBACK)
                         .setPower(15, 5, 25, 5)
                         .setMaxLevel(3),
                 FRENZY.makeIncompatible(FRANTIC)
                         .setPower(20, 10, 30, 10)
+                        .setMaxLevel(3),
+                HITSCAN.makeIncompatible(OVERSIZED, MARKED)
+                        .setPower(20, 50)
+                        .addComponent(SupplementaryComponents.HITSCAN),
+                LIGHTNING_BOLT.makeIncompatible(Enchantments.POWER, OVERSIZED)
+                        .setPower(20, 50)
+                        .addComponent(SupplementaryComponents.LIGHTNING_BOLT),
+                MARKED.setPower(20, 5, 25, 5)
+                        .addCompatibleItems(Items.CROSSBOW, Items.BOW)
                         .setMaxLevel(3)
+                        .addComponent(SupplementaryComponents.MARKED),
+                OVERSIZED.makeIncompatible(LIGHTNING_BOLT, Enchantments.QUICK_CHARGE)
+                        .setPower(20, 5, 30, 10)
+                        .addCompatibleItems(Items.CROSSBOW, Items.BOW)
+                        .setMaxLevel(2)
+                        .addComponent(SupplementaryComponents.OVERSIZED)
         );
     }
 
@@ -378,7 +369,7 @@ public class SupplementaryEnchantments {
             ALL_ARMOR, lvl -> lvl * 2) {
         @Override
         public float onAttack(LivingEntity user, Entity target, int level, boolean isCritical, boolean isMaxCharge, float damageAmount) {
-            user.damage(SupplementaryEnchantmentHelper.backlash(user.getWorld()), Math.min(level, 2));
+            user.damage(EnchantHelper.backlash(user.getWorld()), Math.min(level, 2));
             return 0.0f;
         }
     };
@@ -406,7 +397,8 @@ public class SupplementaryEnchantments {
             ALL_ARMOR, lvl -> lvl * 2 - 1);
     /**
      * Haunted - Phantoms spawn at all times of day and are more aggressive to wearers. Phantoms may randomly spawn
-     * underground. Max lvl: 1. Curse points: 2
+     * underground. Damage dealt to phantoms is halved, and phantoms spawned via this effect are immune to fire damage.
+     * Max lvl: 1. Curse points: 2
      */
     public static final CurseBuilder HAUNTED = new CurseBuilder("haunted", Enchantment.Rarity.VERY_RARE, EnchantmentTarget.ARMOR_CHEST,
             ALL_ARMOR, lvl -> 2) {
@@ -416,6 +408,12 @@ public class SupplementaryEnchantments {
             return damageAmount;
         }
     };
+    /**
+     * Moody - Attack damage and mining speed randomly fluctuate from anywhere between -50% to 50% every 5-10 seconds. Max
+     * lvl: 1. Curse points: 1.
+     */
+    public static final CurseBuilder MOODY = new CurseBuilder("moody", Enchantment.Rarity.VERY_RARE, EnchantmentTarget.ARMOR_CHEST,
+            ALL_ARMOR, lvl -> 1);
 
     static {
         CURSES = List.of(
@@ -439,7 +437,23 @@ public class SupplementaryEnchantments {
                 HAUNTED.setPower(20, 10, 50, 10)
                         .setMaxLevel(1)
                         .setCustomAnvilCost(4)
-                        .addComponent(SupplementaryComponents.HAUNTED)
+                        .addComponent(SupplementaryComponents.HAUNTED),
+                MOODY.setPower(20, 5, 50, 5)
+                        .setMaxLevel(1)
+                        .setCustomAnvilCost(1)
+                        .addComponent(SupplementaryComponents.MOODY)
+                        .addAttribute("moody_attack_damage", EntityAttributes.GENERIC_ATTACK_DAMAGE, Operation.MULTIPLY_TOTAL,
+                                (entity, stack, lvl) -> {
+                                    MutableDouble mult = new MutableDouble(0.0);
+                                    SupplementaryComponents.MOODY.maybeGet(entity).ifPresent(component -> {
+                                        if (component.getCustom() instanceof float[] arr) {
+                                            float progress = (entity.getWorld().getTime() - arr[2]) / (arr[3] - arr[2]);
+                                            float smoothed = arr[0] + GenMathHelper.smoothstep(progress) * (arr[1] - arr[0]);
+                                            mult.setValue(smoothed / 300);
+                                        }
+                                    });
+                                    return mult.getValue();
+                                })
         );
     }
 
@@ -459,7 +473,7 @@ public class SupplementaryEnchantments {
             EnchantmentTarget.ARMOR_CHEST, ALL_ARMOR, ContractBuilder.NO_OP, 7) {
         @Override
         public float onDamageMultiplier(LivingEntity user, ItemStack itemStack, DamageSource source, int level, MutableFloat damageAmount) {
-            float mult = source.isOf(SupplementaryEnchantmentHelper.BACKLASH) ? 0.5f : 1.0f;
+            float mult = source.isOf(EnchantHelper.BACKLASH) ? 0.5f : 1.0f;
             if (user.hasStatusEffect(StatusEffects.STRENGTH)) {
                 user.addStatusEffect(new StatusEffectInstance( StatusEffects.SPEED, 160, 0, false, false));
             }
@@ -510,7 +524,7 @@ public class SupplementaryEnchantments {
                 CURSED_POWER.setPower(50, 50)
                         .setCustomAnvilCost(0)
                         .addAttribute("cursed_power_damage_bonus", EntityAttributes.GENERIC_ATTACK_DAMAGE, Operation.MULTIPLY_TOTAL,
-                                (entity, stack, lvl) -> (SupplementaryEnchantmentHelper.getCursePoints(stack, -2) - 2) * 0.1),
+                                (entity, stack, lvl) -> (EnchantHelper.getCursePoints(stack, -2) - 2) * 0.1),
                 MAGIC_GUARD.setPower(50, 50)
                         .setCustomAnvilCost(0),
                 VIGOR.setPower(50, 50)
@@ -531,9 +545,7 @@ public class SupplementaryEnchantments {
     public static void register() {
         GENERAL.forEach(EnchantmentBuilder::build);
         BOOMERANG.forEach(EnchantmentBuilder::build);
-        BOW.forEach(EnchantmentBuilder::build);
-        CROSSBOW.forEach(EnchantmentBuilder::build);
-        SWORD.forEach(EnchantmentBuilder::build);
+        OFFENSIVE.forEach(EnchantmentBuilder::build);
         MOBILITY.forEach(EnchantmentBuilder::build);
         CURSES.forEach(EnchantmentBuilder::build);
         CONTRACTS.forEach(EnchantmentBuilder::build);

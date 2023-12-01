@@ -1,6 +1,6 @@
 package com.birblett.mixin.enchantments.growth;
 
-import com.birblett.lib.helper.SupplementaryEnchantmentHelper;
+import com.birblett.lib.helper.EnchantHelper;
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.item.CrossbowItem;
@@ -19,7 +19,7 @@ public class GrowthCrossbowItemMixin {
     @Inject(method = "getPullTime", at = @At("RETURN"), cancellable = true)
     private static void getStack(ItemStack stack, CallbackInfoReturnable<Integer> cir) {
         if (EnchantmentHelper.getLevel(SupplementaryEnchantments.GROWTH, stack) > 0) {
-            cir.setReturnValue((int) (cir.getReturnValue() / (SupplementaryEnchantmentHelper.getGrowthStat(stack, SupplementaryEnchantmentHelper.GrowthKey.DRAW_SPEED) + 1)));
+            cir.setReturnValue((int) (cir.getReturnValue() / (EnchantHelper.getGrowthStat(stack, EnchantHelper.GrowthKey.DRAW_SPEED) + 1)));
         }
     }
 }

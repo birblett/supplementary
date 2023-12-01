@@ -1,10 +1,10 @@
 package com.birblett.registry;
 
 import com.birblett.lib.api.EntityEvents;
-import com.birblett.lib.api.ItemEvents;
 import com.birblett.lib.api.EventReturnable;
-import com.birblett.lib.creational.EnchantmentBuilder;
+import com.birblett.lib.api.ItemEvents;
 import com.birblett.lib.components.BaseComponent;
+import com.birblett.lib.creational.EnchantmentBuilder;
 import com.birblett.lib.helper.EntityHelper;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import net.minecraft.enchantment.Enchantment;

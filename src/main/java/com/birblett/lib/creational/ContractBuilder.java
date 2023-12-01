@@ -1,6 +1,6 @@
 package com.birblett.lib.creational;
 
-import com.birblett.lib.helper.SupplementaryEnchantmentHelper;
+import com.birblett.lib.helper.EnchantHelper;
 import net.minecraft.enchantment.EnchantmentTarget;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
@@ -10,7 +10,7 @@ import java.util.function.Function;
 
 public class ContractBuilder extends EnchantmentBuilder {
 
-    public static Function<ItemStack, Boolean> NO_OP = stack -> true;
+    public static final Function<ItemStack, Boolean> NO_OP = stack -> true;
     private final Function<ItemStack, Boolean> isValidItem;
     public final int cursePointRequirement;
 
@@ -33,7 +33,7 @@ public class ContractBuilder extends EnchantmentBuilder {
      */
     @Override
     public boolean isAcceptableItem(ItemStack stack) {
-        int cursePoints = SupplementaryEnchantmentHelper.getCursePoints(stack, 0);
+        int cursePoints = EnchantHelper.getCursePoints(stack, 0);
         return cursePoints >= this.cursePointRequirement && super.isAcceptableItem(stack) && this.isValidItem.apply(stack);
     }
 }

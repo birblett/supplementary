@@ -1,6 +1,6 @@
 package com.birblett.mixin.enchantments.air_dash;
 
-import com.birblett.lib.helper.SupplementaryEnchantmentHelper;
+import com.birblett.lib.helper.EnchantHelper;
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -47,7 +47,7 @@ public class AirDashClientPlayerMixin {
                 }
             }
             else {
-                this.supplementary$AirDashes = SupplementaryEnchantmentHelper.getEnhancedEquipLevel(SupplementaryEnchantments.AIR_DASH, self) > 0 ? 2 : 1;
+                this.supplementary$AirDashes = EnchantHelper.getEnhancedEquipLevel(SupplementaryEnchantments.AIR_DASH, self) > 0 ? 2 : 1;
                 this.supplementary$AirDashState = 0;
             }
         }

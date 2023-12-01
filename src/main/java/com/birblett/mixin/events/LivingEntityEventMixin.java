@@ -1,22 +1,18 @@
 package com.birblett.mixin.events;
 
 import com.birblett.lib.api.EntityEvents;
-import com.birblett.registry.SupplementaryComponents;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.util.Hand;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityEventMixin {
-
-    @Unique private static DamageSource supplementary$DamageSource;
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void onEntityTickEvent(CallbackInfo ci) {
@@ -34,19 +30,14 @@ public abstract class LivingEntityEventMixin {
         EntityEvents.SWING_HAND_EVENT.invoker().onHandSwing((LivingEntity) (Object) this, hand);
     }
 
-    @Inject(method = "damage", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;blockedByShield(Lnet/minecraft/entity/damage/DamageSource;)Z"))
-    private void getDamageSource(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
-        supplementary$DamageSource = source;
-    }
-
     @ModifyVariable(method = "damage", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;blockedByShield(Lnet/minecraft/entity/damage/DamageSource;)Z"),
             argsOnly = true)
-    private float onDamageEvent(float amount) {
+    private float onDamageEvent(float amount, @Local DamageSource source) {
         if (!((LivingEntity) (Object) this).getWorld().isClient()) {
             amount += EntityEvents.LIVING_ENTITY_ADDITIVE_DAMAGE_EVENT.invoker().onDamage((LivingEntity) (Object) this,
-                    supplementary$DamageSource, amount);
+                    source, amount);
             amount *= EntityEvents.LIVING_ENTITY_MULTIPLICATIVE_DAMAGE_EVENT.invoker().onDamage((LivingEntity) (Object) this,
-                    supplementary$DamageSource, amount);
+                    source, amount);
         }
         return amount;
     }

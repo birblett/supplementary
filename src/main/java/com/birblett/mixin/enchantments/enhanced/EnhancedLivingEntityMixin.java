@@ -1,7 +1,6 @@
 package com.birblett.mixin.enchantments.enhanced;
 
-import com.birblett.Supplementary;
-import com.birblett.lib.helper.SupplementaryEnchantmentHelper;
+import com.birblett.lib.helper.EnchantHelper;
 import com.birblett.registry.SupplementaryComponents;
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -70,7 +69,7 @@ public class EnhancedLivingEntityMixin {
 
     @Inject(method = "damage", at = @At("HEAD"))
     private void getKnockbackMultiplier(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
-        this.supplementary$ApplyKnockbackMult = (this.supplementary$KnockbackMult = SupplementaryEnchantmentHelper.enhancedProtKnockbackAmount((LivingEntity) (Object) this, source)) < 1.0f;
+        this.supplementary$ApplyKnockbackMult = (this.supplementary$KnockbackMult = EnchantHelper.enhancedProtKnockbackAmount((LivingEntity) (Object) this, source)) < 1.0f;
     }
 
     @ModifyVariable(method = "takeKnockback", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;getVelocity()Lnet/minecraft/util/math/Vec3d;"),

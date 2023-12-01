@@ -1,6 +1,6 @@
 package com.birblett.mixin.enchantments.growth;
 
-import com.birblett.lib.helper.SupplementaryEnchantmentHelper;
+import com.birblett.lib.helper.EnchantHelper;
 import com.birblett.registry.SupplementaryEnchantments;
 import com.google.common.collect.Multimap;
 import net.fabricmc.api.EnvType;
@@ -55,10 +55,10 @@ public class GrowthItemStackMixin {
     private double modifyTooltipValue(double val) {
         if (EnchantmentHelper.getLevel(SupplementaryEnchantments.GROWTH, (ItemStack) (Object) this) > 0) {
             if (this.supplementary$toolTipAttributeModifier == 1) {
-                return val + SupplementaryEnchantmentHelper.getGrowthStat((ItemStack) (Object) this, SupplementaryEnchantmentHelper.GrowthKey.ATTACK_DAMAGE);
+                return val + EnchantHelper.getGrowthStat((ItemStack) (Object) this, EnchantHelper.GrowthKey.ATTACK_DAMAGE);
             }
             else if (this.supplementary$toolTipAttributeModifier == 2) {
-                return val + SupplementaryEnchantmentHelper.getGrowthStat((ItemStack) (Object) this, SupplementaryEnchantmentHelper.GrowthKey.ATTACK_SPEED);
+                return val + EnchantHelper.getGrowthStat((ItemStack) (Object) this, EnchantHelper.GrowthKey.ATTACK_SPEED);
             }
         }
         return val;
@@ -70,7 +70,7 @@ public class GrowthItemStackMixin {
         // Adds a short tooltip if advanced tooltips not enabled
         if (!context.isAdvanced() && EnchantmentHelper.getLevel(SupplementaryEnchantments.GROWTH, (ItemStack) (Object) this) > 0) {
             list.add(MutableText.of(new TranslatableTextContent("item.supplementary.growth_total_tooltip", null,
-                    new Object[]{(int) SupplementaryEnchantmentHelper.getTotalGrowthPoints((ItemStack) (Object) this), 1000})));
+                    new Object[]{(int) EnchantHelper.getTotalGrowthPoints((ItemStack) (Object) this), 1000})));
         }
     }
 
@@ -81,8 +81,8 @@ public class GrowthItemStackMixin {
         ItemStack self = (ItemStack) (Object) this;
         if (EnchantmentHelper.getLevel(SupplementaryEnchantments.GROWTH, self) > 0) {
             list.add(MutableText.of(new TranslatableTextContent("item.supplementary.growth_total_tooltip", null,
-                    new Object[]{(int) SupplementaryEnchantmentHelper.getTotalGrowthPoints(self), 1000})));
-            for (Map.Entry<SupplementaryEnchantmentHelper.GrowthKey, Float> entry: SupplementaryEnchantmentHelper.getAllGrowthPoints(self).entrySet()) {
+                    new Object[]{(int) EnchantHelper.getTotalGrowthPoints(self), 1000})));
+            for (Map.Entry<EnchantHelper.GrowthKey, Float> entry: EnchantHelper.getAllGrowthPoints(self).entrySet()) {
                 float value = entry.getValue() * entry.getKey().scale * (entry.getKey().isPercentage ? 100 : 1);
                 BigDecimal format = new BigDecimal(value).setScale(2, RoundingMode.HALF_EVEN);
                 if (value > 0) {

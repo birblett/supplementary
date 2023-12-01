@@ -1,4 +1,4 @@
-package com.birblett.mixin.items;
+package com.birblett.mixin.cape;
 
 import com.birblett.registry.SupplementaryItems;
 import net.minecraft.entity.player.PlayerEntity;

@@ -15,6 +15,7 @@ import static com.birblett.Supplementary.MODID;
  * most basic implementation, it only stores enchantment levels in attached projectile entities. Individual components
  * are instantiated and registered in {@link com.birblett.registry.SupplementaryComponents}
  */
+@SuppressWarnings("unused")
 public class EnchantmentComponent implements BaseComponent {
 
     private final String id;

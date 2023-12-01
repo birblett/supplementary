@@ -43,6 +43,7 @@ dependencies {
 	modImplementation include("com.jamieswhiteshirt:reach-entity-attributes:${rea_version}")
 	modImplementation include("dev.onyxstudios.cardinal-components-api:cardinal-components-base:${cca_version}")
 	modImplementation include("dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${cca_version}")
+	include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:0.2.1")))
 }
 
 processResources {

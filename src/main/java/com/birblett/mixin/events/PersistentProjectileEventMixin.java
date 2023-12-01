@@ -1,6 +1,5 @@
 package com.birblett.mixin.events;
 
-import com.birblett.Supplementary;
 import com.birblett.lib.api.EntityEvents;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.util.hit.BlockHitResult;

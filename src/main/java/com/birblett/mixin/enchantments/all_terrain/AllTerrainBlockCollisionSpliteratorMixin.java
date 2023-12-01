@@ -37,6 +37,7 @@ public class AllTerrainBlockCollisionSpliteratorMixin implements BlockCollisionS
         this.supplementary$extendCollision = type;
     }
 
+    @SuppressWarnings("rawtypes")
     @Inject(method = "<init>(Lnet/minecraft/world/CollisionView;Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Box;ZLjava/util/function/BiFunction;)V",
             at = @At("TAIL"))
     private void getWorld(CollisionView world, Entity entity, Box box, boolean forEntity, BiFunction resultFunction, CallbackInfo ci) {

@@ -7,6 +7,8 @@
     "EnchantmentCompatMixin",
     "EnchantmentHelperCompatMixin",
     "LivingEntityAttributeManagerMixin",
+    "cape.LoomScreenHandlerInnerMixin",
+    "cape.LoomScreenHandlerMixin",
     "enchantments.air_dash.AirDashClientPlayerMixin",
     "enchantments.all_terrain.AllTerrainBlockCollisionSpliteratorMixin",
     "enchantments.all_terrain.AllTerrainEntityMixin",
@@ -32,7 +34,6 @@
     "enchantments.haunted.HauntedPhantomAttackGoalMixin",
     "enchantments.haunted.HauntedPhantomTargetGoalMixin",
     "enchantments.magic_guard.MagicGuardEntityMixin",
-    "enchantments.oversized.OversizedBowItemMixin",
     "enchantments.slimed.SlimedEntityMixin",
     "enchantments.slimed.SlimedLivingEntityMixin",
     "enchantments.soulbound.SoulboundPlayerInventoryMixin",
@@ -48,23 +49,25 @@
     "events.PersistentProjectileEventMixin",
     "events.PlayerEntityEventMixin",
     "events.TridentThrowEventMixin",
-    "items.LoomScreenHandlerInnerMixin",
-    "items.LoomScreenHandlerMixin",
+    "modifiers.draw_speed.DrawSpeedBowAttackGoalMixin",
+    "modifiers.draw_speed.DrawSpeedBowItemMixin",
+    "modifiers.draw_speed.DrawSpeedCrossbowItemMixin",
+    "modifiers.mining_speed.MiningSpeedPlayerEntityMixin",
     "snowball_variants.SnowballVariantsGolemMixin"
   ],
   "injectors": {
     "defaultRequire": 1
   },
   "client": [
+    "cape.LoomScreenMixin",
     "enchantments.acrobatic.AcrobaticClientPlayerMixin",
     "enchantments.growth.GrowthHeldItemRendererMixin",
     "enchantments.growth.GrowthItemStackMixin",
-    "enchantments.oversized.OversizedAbstractClientPlayerEntityMixin",
     "enchantments.oversized.OversizedHeldItemFeatureRendererMixin",
     "enchantments.oversized.OversizedHeldItemRendererMixin",
-    "enchantments.oversized.OversizedModelProviderRegistryMixin",
     "enchantments.strafe.StrafeClientPlayerMixin",
-    "items.LoomScreenMixin",
+    "modifiers.draw_speed.DrawSpeedAbstractClientPlayerEntityMixin",
+    "modifiers.draw_speed.DrawSpeedModelProviderRegistryMixin",
     "render.PlayerCapeRenderer",
     "render.ProjectileEntityRendererMixin"
   ]

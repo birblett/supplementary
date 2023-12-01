@@ -1,6 +1,5 @@
 package com.birblett.client.render.entities;
 
-import com.birblett.Supplementary;
 import com.birblett.entities.BoomerangEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

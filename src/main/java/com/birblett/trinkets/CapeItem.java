@@ -10,7 +10,6 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.DyeColor;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
@@ -37,11 +36,14 @@ public class CapeItem extends TrinketItem {
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         String color = getBaseColor(stack).getName();
-        tooltip.add(MutableText.of(new TranslatableTextContent("color.minecraft." + color, null, null)).formatted(Formatting.byName(color)));
+        tooltip.add(MutableText.of(new TranslatableTextContent("color.minecraft." + color, null, null)));
         BannerItem.appendBannerTooltip(stack, tooltip);
     }
 
     public static DyeColor getBaseColor(ItemStack stack) {
-        return DyeColor.byId(stack.getOrCreateNbt().getInt("Color"));
+        if (stack.getNbt() != null) {
+            return DyeColor.byId(stack.getNbt().getInt("Color"));
+        }
+        return DyeColor.WHITE;
     }
 }

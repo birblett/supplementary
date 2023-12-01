@@ -1,6 +1,6 @@
 package com.birblett.mixin.enchantments.slimed;
 
-import com.birblett.lib.helper.SupplementaryEnchantmentHelper;
+import com.birblett.lib.helper.EnchantHelper;
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -25,8 +25,8 @@ public abstract class SlimedLivingEntityMixin {
     @Inject(method = "getJumpVelocity", at = @At("RETURN"), cancellable = true)
     private void applyJumpBoost(CallbackInfoReturnable<Float> cir) {
         LivingEntity self = (LivingEntity) (Object) this;
-        if ((EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.SLIMED, self) > 0)) {
-            float jumpBoost = SupplementaryEnchantmentHelper.getEnhancedEquipLevel(SupplementaryEnchantments.ACROBATIC, self) > 0 ? 2.0f : 1.5f;
+        if (EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.SLIMED, self) > 0) {
+            float jumpBoost = EnchantHelper.getEnhancedEquipLevel(SupplementaryEnchantments.ACROBATIC, self) > 0 ? 2.0f : 1.5f;
             cir.setReturnValue(cir.getReturnValue() * jumpBoost);
         }
     }
@@ -43,7 +43,7 @@ public abstract class SlimedLivingEntityMixin {
     @Inject(method = "getMovementSpeed(F)F", at = @At("RETURN"), cancellable = true)
     private void amendSlipperinessSlowdown(float slipperiness, CallbackInfoReturnable<Float> cir) {
         LivingEntity self = (LivingEntity) (Object) this;
-        if ((EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.SLIMED, self) > 0)) {
+        if (EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.SLIMED, self) > 0) {
             cir.setReturnValue(cir.getReturnValue() * slipperiness * slipperiness * slipperiness);
         }
     }
@@ -59,7 +59,7 @@ public abstract class SlimedLivingEntityMixin {
     @ModifyVariable(method = "handleFallDamage", at = @At("HEAD"), index = 1, argsOnly = true)
     private float modifySlimedFallDistance(float fallDistance) {
         if ((Entity) (Object) this instanceof LivingEntity self && EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.SLIMED, self) > 0) {
-            int reduceFallDamage = SupplementaryEnchantmentHelper.getEnhancedEquipLevel(SupplementaryEnchantments.ACROBATIC, self) > 0 ? 4 : 3;
+            int reduceFallDamage = EnchantHelper.getEnhancedEquipLevel(SupplementaryEnchantments.ACROBATIC, self) > 0 ? 4 : 3;
             return fallDistance / reduceFallDamage;
         }
         return fallDistance;

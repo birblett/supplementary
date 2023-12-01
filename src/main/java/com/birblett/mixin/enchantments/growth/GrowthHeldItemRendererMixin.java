@@ -1,6 +1,6 @@
 package com.birblett.mixin.enchantments.growth;
 
-import com.birblett.lib.helper.SupplementaryEnchantmentHelper;
+import com.birblett.lib.helper.EnchantHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
@@ -36,7 +36,7 @@ public class GrowthHeldItemRendererMixin {
 
     @ModifyVariable(method = "renderFirstPersonItem", at = @At(value = "STORE", ordinal = 5), index = 16)
     private float scaleModelPullProgress(float pullProgress){
-        return SupplementaryEnchantmentHelper.getDrawspeedModifier(this.supplementary$Holder, pullProgress, this.supplementary$TridentItemStack);
+        return EnchantHelper.getDrawSpeedModifier(this.supplementary$Holder, pullProgress, this.supplementary$TridentItemStack);
     }
 
 }

@@ -1,13 +1,8 @@
 package com.birblett.mixin.enchantments.haunted;
 
-import com.birblett.lib.helper.SupplementaryEnchantmentHelper;
 import com.birblett.registry.SupplementaryComponents;
-import com.birblett.registry.SupplementaryEnchantments;
-import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.mob.PhantomEntity;
 import net.minecraft.registry.tag.DamageTypeTags;
 import org.spongepowered.asm.mixin.Mixin;

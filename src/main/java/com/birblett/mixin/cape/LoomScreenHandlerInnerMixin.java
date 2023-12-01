@@ -1,6 +1,5 @@
-package com.birblett.mixin.items;
+package com.birblett.mixin.cape;
 
-import com.birblett.Supplementary;
 import com.birblett.trinkets.CapeItem;
 import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;

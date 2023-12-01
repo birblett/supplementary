@@ -1,6 +1,6 @@
 package com.birblett.mixin.enchantments.magic_guard;
 
-import com.birblett.lib.helper.SupplementaryEnchantmentHelper;
+import com.birblett.lib.helper.EnchantHelper;
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
@@ -20,7 +20,7 @@ public class MagicGuardEntityMixin {
     @SuppressWarnings("ConstantConditions")
     @Inject(method = "isInvulnerableTo", at = @At("HEAD"), cancellable = true)
     private void disableIndirectDamage(DamageSource damageSource, CallbackInfoReturnable<Boolean> cir) {
-        if ((Object) this instanceof LivingEntity self && damageSource.isIn(SupplementaryEnchantmentHelper.INDIRECT_DAMAGE) &&
+        if ((Object) this instanceof LivingEntity self && damageSource.isIn(EnchantHelper.INDIRECT_DAMAGE) &&
                 EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.MAGIC_GUARD,self) > 0) {
             cir.setReturnValue(true);
         }

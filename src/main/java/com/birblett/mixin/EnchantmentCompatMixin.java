@@ -2,7 +2,6 @@ package com.birblett.mixin;
 
 import com.birblett.items.SupplementaryEnchantable;
 import com.birblett.lib.creational.ContractBuilder;
-import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Formatting;

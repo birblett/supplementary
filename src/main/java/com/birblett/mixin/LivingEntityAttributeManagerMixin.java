@@ -1,6 +1,5 @@
 package com.birblett.mixin;
 
-import com.birblett.Supplementary;
 import com.birblett.lib.creational.EnchantmentBuilder;
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.enchantment.EnchantmentHelper;

@@ -1,4 +1,4 @@
-package com.birblett.mixin.items;
+package com.birblett.mixin.cape;
 
 import com.birblett.trinkets.CapeItem;
 import net.minecraft.client.gui.screen.ingame.LoomScreen;
@@ -8,7 +8,9 @@ import net.minecraft.item.Items;
 import net.minecraft.util.DyeColor;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.*;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 /**
  * Allows for applying patterns to capes
@@ -28,8 +30,8 @@ public class LoomScreenMixin {
         return itemStack;
     }
 
-    @ModifyArg(method = "onInventoryChanged", at = @At(target = "Lnet/minecraft/block/entity/BannerBlockEntity;getPatterns" +
-               "FromNbt(Lnet/minecraft/util/DyeColor;Lnet/minecraft/nbt/NbtList;)Ljava/util/List;", value = "INVOKE"))
+    @ModifyArg(method = "onInventoryChanged", at = @At(target = "Lnet/minecraft/block/entity/BannerBlockEntity;getPatternsFromNbt(Lnet/minecraft/util/DyeColor;Lnet/minecraft/nbt/NbtList;)Ljava/util/List;",
+            value = "INVOKE"))
     private DyeColor allowCapesInPlaceOfBanners(DyeColor baseColor) {
         // Get base color of provided cape here if applicable
         if (!(displayedStack.getItem() instanceof BannerItem)) {
