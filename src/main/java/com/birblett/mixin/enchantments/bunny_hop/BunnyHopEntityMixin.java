@@ -25,8 +25,8 @@ public class BunnyHopEntityMixin {
     @Inject(method = "adjustMovementForCollisions(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Box;Lnet/minecraft/world/World;Ljava/util/List;)Lnet/minecraft/util/math/Vec3d;",
             at = @At("HEAD"))
     private static void getCollidingEntity(@Nullable Entity entity, Vec3d movement, Box entityBoundingBox, World world, List<VoxelShape> collisions, CallbackInfoReturnable<Vec3d> cir) {
-        if (entity instanceof LivingEntity self && EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.BUNNYHOP, self) > 0 &&
-                self.getVelocity().y < 0.1) {
+        if (entity instanceof LivingEntity self && EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.BUNNYHOP,
+                self) > 0 && self.getVelocity().y < 0.1) {
             self.setOnGround(true);
         }
     }

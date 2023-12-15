@@ -3,6 +3,7 @@ package com.birblett.lib.components;
 import com.birblett.registry.SupplementaryEvents;
 import dev.onyxstudios.cca.api.v3.component.Component;
 import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.entity.ProjectileEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -12,7 +13,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.Vec3d;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
  * Base component interface used for easy storage of data and server-client sync. Provides a variety of implementable
@@ -155,16 +155,20 @@ public interface BaseComponent extends Component {
     default void afterProjectileFire(LivingEntity user, ProjectileEntity projectileEntity, int level, ItemStack item, ItemStack projectileItem) {}
 
     /**
-     * Called before rendering begins. Operates via side-effects, typically on the provided matrix stack.
+     * Called before rendering begins. Operates via side-effects, typically on the provided matrix stack. Only called on
+     * SyncedEnchantmentComponents.
+     * @param renderer base renderer
      * @param projectileEntity rendered projectile entity
      * @param tickDelta subtick delta used for smooth rendering. Note that forced syncs such as
-     *                  <code>entity.velocityModified = true</code> may produce graphical inconsistencies.
+ *                  <code>entity.velocityModified = true</code> may produce graphical inconsistencies.
      * @param matrixStack provided matrix stack
      * @param vertexConsumerProvider provided vertex consumer
+     * @param rgbl rgbl base values to apply to texture. default {255, 255, 255, 255}. alpha does nothing currently.
      * @param level provided enchantment level
-     * @see com.birblett.mixin.render.ProjectileEntityRendererMixin#onRender(PersistentProjectileEntity, float, float, MatrixStack, VertexConsumerProvider, int, CallbackInfo)
      */
-    default void onProjectileRender(ProjectileEntity projectileEntity, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int level) {}
+    default void onProjectileRender(ProjectileEntityRenderer<PersistentProjectileEntity> renderer, ProjectileEntity projectileEntity,
+                                    float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider,
+                                    int[] rgbl, int level) {}
 
     /**
      * Called when an entity begins a hand swing animation. This encompasses both right and left click hand swings.

@@ -1,4 +1,4 @@
-package com.birblett.mixin;
+package com.birblett.mixin.modifiers;
 
 import com.birblett.lib.creational.EnchantmentBuilder;
 import com.birblett.registry.SupplementaryEnchantments;

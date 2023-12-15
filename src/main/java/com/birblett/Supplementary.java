@@ -15,10 +15,11 @@ public class Supplementary implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		SupplementaryAttributes.register();
 		SupplementaryBlocks.register();
 		SupplementaryEnchantments.register();
 		SupplementaryEntities.register();
-		SupplementaryItems.register();
 		SupplementaryEvents.register();
+		SupplementaryItems.register();
 	}
 }

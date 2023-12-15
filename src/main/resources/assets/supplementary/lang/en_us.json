@@ -1,6 +1,11 @@
 {
   "supplementary.item_group": "Supplementary",
 
+  "attribute.name.generic.supplementary.draw_speed": "Draw Speed",
+  "attribute.name.generic.supplementary.mining_speed": "Mining Speed",
+  "attribute.name.generic.supplementary.effective_mining_speed": "Effective Mining Speed",
+  "attribute.name.generic.supplementary.ineffective_mining_speed": "Ineffective Mining Speed",
+
   "entity.supplementary.snowball_variant": "Snowball Variant",
   "entity.supplementary.boomerang": "Boomerang",
 
@@ -41,6 +46,7 @@
   "enchantment.supplementary.soulbound": "Soulbound",
   "enchantment.supplementary.strafe": "Strafe",
   "enchantment.supplementary.vigor": "Vigor",
+  "enchantment.supplementary.warp": "Warp",
 
   "item.supplementary.blowball": "Blowball",
   "item.supplementary.glowball": "Glowball",

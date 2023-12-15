@@ -51,7 +51,8 @@
 			"supplementary:moody",
 			"supplementary:oversized",
 			"supplementary:snowball_type",
-			"supplementary:vigor"
+			"supplementary:vigor",
+			"supplementary:warp"
 		],
 		"lithium:options": {
 			"mixin.entity.collisions.movement": false

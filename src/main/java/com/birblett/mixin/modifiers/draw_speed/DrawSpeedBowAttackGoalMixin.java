@@ -1,6 +1,7 @@
 package com.birblett.mixin.modifiers.draw_speed;
 
 import com.birblett.lib.helper.EnchantHelper;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.entity.ai.goal.BowAttackGoal;
 import net.minecraft.entity.mob.HostileEntity;
@@ -18,6 +19,15 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 public class DrawSpeedBowAttackGoalMixin {
 
     @Shadow @Final private HostileEntity actor;
+
+    @ModifyExpressionValue(method = "tick", at = @At(value = "CONSTANT", args = "intValue=20", ordinal = 2))
+    private int modifyReleaseThreshold(int threshold) {
+        ItemStack stack;
+        if ((stack = actor.getActiveItem()) != null) {
+            return (int) (threshold / EnchantHelper.customPullProgress(actor, threshold, stack));
+        }
+        return threshold;
+    }
 
     @SuppressWarnings("InvalidInjectorMethodSignature")
     @ModifyArg(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ai/RangedAttackMob;attack(Lnet/minecraft/entity/LivingEntity;F)V"),

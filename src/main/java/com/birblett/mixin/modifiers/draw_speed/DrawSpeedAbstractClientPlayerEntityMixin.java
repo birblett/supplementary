@@ -1,10 +1,9 @@
 package com.birblett.mixin.modifiers.draw_speed;
 
-import com.birblett.lib.helper.EnchantHelper;
+import com.birblett.registry.SupplementaryAttributes;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -19,7 +18,10 @@ public class DrawSpeedAbstractClientPlayerEntityMixin {
     @SuppressWarnings("InvalidInjectorMethodSignature")
     @ModifyVariable(method = "getFovMultiplier", at = @At(value = "STORE", ordinal = 0), index = 4)
     private float scaledDrawSpeedFOV(float fovScale) {
-        return Math.min(1.0f, EnchantHelper.getDrawSpeedModifier((LivingEntity) (Object) this, fovScale,
-                ((AbstractClientPlayerEntity) (Object) this).getActiveItem()));
+        AbstractClientPlayerEntity p = (AbstractClientPlayerEntity) (Object) this;
+        if (p.getAttributeInstance(SupplementaryAttributes.DRAW_SPEED) != null) {
+            return (float) (fovScale * p.getAttributeValue(SupplementaryAttributes.DRAW_SPEED) / 10.0f);
+        }
+        return fovScale;
     }
 }

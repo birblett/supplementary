@@ -1,5 +1,6 @@
 package com.birblett.registry;
 
+import com.birblett.Supplementary;
 import com.birblett.lib.components.*;
 import com.birblett.lib.helper.EnchantHelper;
 import com.birblett.lib.helper.EntityHelper;
@@ -9,10 +10,12 @@ import dev.onyxstudios.cca.api.v3.component.ComponentRegistry;
 import dev.onyxstudios.cca.api.v3.entity.EntityComponentFactoryRegistry;
 import dev.onyxstudios.cca.api.v3.entity.EntityComponentInitializer;
 import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.entity.ProjectileEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.*;
 import net.minecraft.entity.boss.dragon.EnderDragonPart;
+import net.minecraft.entity.mob.EndermiteEntity;
 import net.minecraft.entity.mob.PhantomEntity;
 import net.minecraft.entity.passive.SnowGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -21,6 +24,7 @@ import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -36,6 +40,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.SpawnHelper;
 import net.minecraft.world.World;
@@ -132,6 +137,11 @@ public class SupplementaryComponents implements EntityComponentInitializer {
     @SuppressWarnings("rawtypes")
     public static final ComponentKey<SimpleComponent> VIGOR = ComponentRegistry.getOrCreate(new Identifier(MODID, "vigor"),
             SimpleComponent.class);
+    /**
+     * Makes Warped arrows teleport owner
+     */
+    public static final ComponentKey<BaseComponent> WARP = ComponentRegistry.getOrCreate(new Identifier(MODID, "warp"),
+            BaseComponent.class);
 
     /**
      * These components are ticked during certain tick events for living entities.
@@ -149,6 +159,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
     public static final List<ComponentKey<BaseComponent>> PROJECTILE_COMPONENTS = List.of(
             IGNORES_IFRAMES,
             LIGHTNING_BOLT,
+            WARP,
             MARKED,
             OVERSIZED,
             HITSCAN,
@@ -338,7 +349,9 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             }
 
             @Override
-            public void onProjectileRender(ProjectileEntity projectileEntity, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int level) {
+            public void onProjectileRender(ProjectileEntityRenderer<PersistentProjectileEntity> renderer, ProjectileEntity projectileEntity,
+                                           float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider,
+                                           int[] rgbl, int level) {
                 // renders a line behind grappling arrows
                 Entity owner = projectileEntity.getOwner();
                 if (GRAPPLING.get(projectileEntity).getValue() > 0 && owner != null) {
@@ -671,7 +684,9 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             }
 
             @Override
-            public void onProjectileRender(ProjectileEntity projectileEntity, float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int level) {
+            public void onProjectileRender(ProjectileEntityRenderer<PersistentProjectileEntity> renderer, ProjectileEntity projectileEntity,
+                                           float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider,
+                                           int[] rgbl, int level) {
                 // scale arrow size up by (30 + 20 * level)%
                 float scale = 1.3f + level * 0.2f;
                 matrixStack.scale(scale, scale, scale);
@@ -689,5 +704,86 @@ public class SupplementaryComponents implements EntityComponentInitializer {
         });
         registry.registerFor(SnowGolemEntity.class, SNOWBALL_TYPE, e -> new SimpleEntityComponent<>("snowball_type", 0));
         registry.registerFor(LivingEntity.class, VIGOR, e -> new SimpleEntityComponent<>("vigor", false));
+        registry.registerFor(PersistentProjectileEntity.class, WARP, e -> new SyncedEnchantmentComponent("warp") {
+            @Override
+            public void onProjectileFire(LivingEntity user, ProjectileEntity projectileEntity, int level, ItemStack item, ItemStack projectileItem) {
+                if (projectileEntity instanceof PersistentProjectileEntity persistentProjectileEntity) {
+                    // increase velocity and damage of fired arrow
+                    this.setValue(level);
+                    WARP.sync(projectileEntity);
+                }
+            }
+
+            @Override
+            public void onProjectileRender(ProjectileEntityRenderer<PersistentProjectileEntity> renderer, ProjectileEntity projectileEntity,
+                                           float tickDelta, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider,
+                                           int[] rgbl, int level) {
+                // scale arrow size up by (30 + 20 * level)%
+                rgbl[0] *= 0.7;
+                rgbl[1] *= 0.1;
+                rgbl[3] = 0xFFFFFF;
+            }
+
+            @Override
+            public boolean postEntityHit(Entity target, ProjectileEntity projectileEntity, int lvl) {
+                // set min distance to target of 1
+                if (target != null) {
+                    Vec3d targetPos = target.getPos();
+                    Vec3d tpPos = projectileEntity.getPos();
+                    Vec3d dist = tpPos.subtract(targetPos);
+                    if (dist.lengthSquared() > 1) {
+                        projectileEntity.setPosition(targetPos.add(dist.normalize()));
+                    }
+                }
+                // rest is just ender pearl teleport logic with enderman sfx
+                for (int i = 0; i < 32; ++i) {
+                    projectileEntity.getWorld().addParticle(ParticleTypes.PORTAL, projectileEntity.getX(), projectileEntity.getY() +
+                                    projectileEntity.random.nextDouble() * 2.0, projectileEntity.getZ(), projectileEntity.random.nextGaussian(),
+                            0.0, projectileEntity.random.nextGaussian());
+                }
+                if (!projectileEntity.getWorld().isClient) {
+                    Entity entity = projectileEntity.getOwner();
+                    if (entity instanceof ServerPlayerEntity serverPlayerEntity) {
+                        if (serverPlayerEntity.networkHandler.isConnectionOpen() && serverPlayerEntity.getWorld() == projectileEntity.getWorld() &&
+                                !serverPlayerEntity.isSleeping()) {
+                            EndermiteEntity endermiteEntity;
+                            if (projectileEntity.random.nextFloat() < 0.1f && projectileEntity.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_SPAWNING) &&
+                                    (endermiteEntity = EntityType.ENDERMITE.create(projectileEntity.getWorld())) != null) {
+                                endermiteEntity.refreshPositionAndAngles(entity.getX(), entity.getY(), entity.getZ(), entity.getYaw(),
+                                        entity.getPitch());
+                                projectileEntity.getWorld().spawnEntity(endermiteEntity);
+                            }
+                            projectileEntity.getWorld().playSound(null, entity.getX(), entity.getY(), entity.getZ(), SoundEvents.ENTITY_ENDERMAN_TELEPORT,
+                                    projectileEntity.getSoundCategory(), 1.0f, 1.0f);
+                            if (entity.hasVehicle()) {
+                                serverPlayerEntity.requestTeleportAndDismount(projectileEntity.getX(), projectileEntity.getY(),
+                                        projectileEntity.getZ());
+                            } else {
+                                entity.requestTeleport(projectileEntity.getX(), projectileEntity.getY(), projectileEntity.getZ());
+                            }
+                            projectileEntity.playSound(SoundEvents.ENTITY_ENDERMAN_TELEPORT, 1.0f, 1.0f);
+                            entity.onLanding();
+                            entity.damage(projectileEntity.getDamageSources().fall(), 5.0f);
+                        }
+                    } else if (entity != null) {
+                        projectileEntity.getWorld().playSound(null, entity.getX(), entity.getY(), entity.getZ(), SoundEvents.ENTITY_ENDERMAN_TELEPORT,
+                                projectileEntity.getSoundCategory(), 1.0f, 1.0f);
+                        entity.requestTeleport(projectileEntity.getX(), projectileEntity.getY(), projectileEntity.getZ());
+                        projectileEntity.playSound(SoundEvents.ENTITY_ENDERMAN_TELEPORT, 1.0f, 1.0f);
+                        entity.onLanding();
+                    }
+                }
+                return false;
+            }
+
+            @Override
+            public void onBlockHit(BlockHitResult blockHitResult, ProjectileEntity projectileEntity, int lvl) {
+                if (blockHitResult != null) {
+                    // center on hit blockface
+                    projectileEntity.setPosition(blockHitResult.getBlockPos().add(blockHitResult.getSide().getVector()).toCenterPos());
+                    this.postEntityHit(null, projectileEntity, lvl);
+                }
+            }
+        });
     }
 }

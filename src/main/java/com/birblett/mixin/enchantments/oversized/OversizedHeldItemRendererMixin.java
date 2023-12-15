@@ -1,7 +1,9 @@
 package com.birblett.mixin.enchantments.oversized;
 
 import com.birblett.lib.helper.EnchantHelper;
+import com.birblett.registry.SupplementaryAttributes;
 import com.birblett.registry.SupplementaryEnchantments;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
@@ -9,12 +11,10 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.HeldItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.BowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -27,19 +27,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(HeldItemRenderer.class)
 public class OversizedHeldItemRendererMixin {
 
-    @Unique private ItemStack supplementary$BowItemStack;
-    @Unique private LivingEntity supplementary$Holder;
-
-    @Inject(method = "renderFirstPersonItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;getMaxUseTime()I",
-            ordinal = 1))
-    private void getOversizedLevel(AbstractClientPlayerEntity player, float tickDelta, float pitch, Hand hand, float swingProgress, ItemStack item, float equipProgress, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci){
-        this.supplementary$BowItemStack = item;
-        this.supplementary$Holder = player;
-    }
-
+    @SuppressWarnings("InvalidInjectorMethodSignature")
     @ModifyVariable(method = "renderFirstPersonItem", at = @At(value = "STORE", ordinal = 2), index = 16)
-    private float scaleModelPullProgress(float pullProgress){
-        return EnchantHelper.getDrawSpeedModifier(this.supplementary$Holder, pullProgress, this.supplementary$BowItemStack);
+    private float scaleModelPullProgress(float pullProgress, @Local AbstractClientPlayerEntity player, @Local ItemStack stack){
+        if (player.getAttributeInstance(SupplementaryAttributes.DRAW_SPEED) != null) {
+            pullProgress *= player.getAttributeValue(SupplementaryAttributes.DRAW_SPEED) / 10.0f;
+        }
+        return pullProgress;
     }
 
     @Inject(method = "renderFirstPersonItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;multiply(Lorg/joml/Quaternionf;)V",
@@ -47,6 +41,13 @@ public class OversizedHeldItemRendererMixin {
     private void scaleFirstPersonUsingBow(AbstractClientPlayerEntity player, float tickDelta, float pitch, Hand hand, float swingProgress, ItemStack item, float equipProgress, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
         if (EnchantmentHelper.getLevel(SupplementaryEnchantments.OVERSIZED, item) > 0) {
             matrices.translate(0, -0.1, 0);
+            matrices.scale(1.3f, 1.3f, 1.3f);
+        }
+    }
+
+    @Inject(method = "renderFirstPersonItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/item/HeldItemRenderer;renderItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/render/model/json/ModelTransformationMode;ZLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V"))
+    private void scaleFirstPersonUsingCrossbow(AbstractClientPlayerEntity player, float tickDelta, float pitch, Hand hand, float swingProgress, ItemStack item, float equipProgress, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
+        if (EnchantmentHelper.getLevel(SupplementaryEnchantments.OVERSIZED, item) > 0) {
             matrices.scale(1.3f, 1.3f, 1.3f);
         }
     }

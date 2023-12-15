@@ -3,17 +3,16 @@ package com.birblett.lib.helper;
 import com.birblett.Supplementary;
 import com.birblett.lib.creational.ContractBuilder;
 import com.birblett.lib.creational.CurseBuilder;
-import com.birblett.registry.SupplementaryComponents;
+import com.birblett.registry.SupplementaryAttributes;
 import com.birblett.registry.SupplementaryEnchantments;
 import com.google.common.util.concurrent.AtomicDouble;
-import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageType;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryKey;
@@ -24,8 +23,7 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
-import org.apache.commons.lang3.mutable.MutableFloat;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -40,24 +38,7 @@ public class EnchantHelper {
      * <hr><center><h1>General helpers</h1></center><hr>
      * Utilities for functionalities that may not require a full event hook or scalable mixin to process.<br><br>
      *
-     * Apply draw speed modifiers for enchantments
-     * @param base Base amount
-     * @param stack Bow/crossbow itemstack
-     * @return Draw speed after applying modifiers
-     */
-    public static float getDrawSpeedModifier(LivingEntity holder, float base, ItemStack stack) {
-        stack = stack == null ? ItemStack.EMPTY : stack;
-        if (holder != null) {
-            float oversizedModifier = (float) Math.pow(0.75, EnchantmentHelper.getLevel(SupplementaryEnchantments.OVERSIZED, stack));
-            float growthModifier = 1 + getGrowthStat(stack, GrowthKey.DRAW_SPEED);
-            float atrophyModifier = Math.max(0.5f, 1 - 0.1f * EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.ATROPHY, holder));
-            base *= oversizedModifier * growthModifier * atrophyModifier;
-        }
-        return base;
-    }
-
-    /**
-     * Essentially a rewrite of vanilla {@link net.minecraft.item.BowItem#getPullProgress(int)}, to reduce reliance on shared
+     * Essentially a rewrite of vanilla {@link net.minecraft.item.BowItem#getPullProgress(int)} to reduce reliance on shared
      * variables between static and non-static contexts.
      * @param holder User of the bow
      * @param useTicks Number of ticks bow has been drawn
@@ -65,7 +46,7 @@ public class EnchantHelper {
      * @return Scaled pull progress value
      */
     public static float customPullProgress(LivingEntity holder, int useTicks, ItemStack stack) {
-        float f = EnchantHelper.getDrawSpeedModifier(holder, (float) useTicks / 20.0f, stack);
+        float f = useTicks * (float) holder.getAttributeValue(SupplementaryAttributes.DRAW_SPEED) / 200.0f;
         f = (f * f + f * 2.0f) / 3.0f;
         if (f > 1.0f) {
             f = 1.0f;
@@ -74,21 +55,37 @@ public class EnchantHelper {
     }
 
     /**
-     * Block breaking speed modifier, applied in {@link com.birblett.mixin.modifiers.mining_speed.MiningSpeedPlayerEntityMixin#applyBlockBreakingSpeedMods(BlockState, CallbackInfoReturnable)}
-     * @param self Player to be tested
-     * @param state Block currently being mined
-     * @return The overall block breaking speed multiplier
+     * Essentially a rewrite of vanilla {@link net.minecraft.item.CrossbowItem#getPullProgress(int, ItemStack)} to reduce
+     * reliance on shared variables between static and non-static contexts. Replaces instances where it's called.
+     * @param holder User of the bow
+     * @param useTicks Number of ticks bow has been drawn
+     * @param stack Associated ItemStack for crossbow
+     * @return Scaled pull progress value
      */
-    public static float getBlockBreakModifier(PlayerEntity self, BlockState state) {
-        MutableFloat mult = new MutableFloat(1.0f);
-        SupplementaryComponents.MOODY.maybeGet(self).ifPresent(component -> {
-            if (component.getCustom() instanceof float[] arr) {
-                float progress = (self.getWorld().getTime() - arr[2]) / (arr[3] - arr[2]);
-                float smoothed = arr[0] + GenMathHelper.smoothstep(progress) * (arr[1] - arr[0]);
-                mult.setValue(mult.getValue() * (1.0f + smoothed / 300));
-            }
-        });
-        return mult.getValue();
+    public static float customCrossbowPullProgress(int useTicks, LivingEntity holder, ItemStack stack) {
+        float f = (float)useTicks / (float) CrossbowItem.getPullTime(stack);
+        if (holder.getAttributeInstance(SupplementaryAttributes.DRAW_SPEED) != null) {
+            f *= (float) holder.getAttributeValue(SupplementaryAttributes.DRAW_SPEED) / 10.0f;
+        }
+        if (f > 1.0f) {
+            f = 1.0f;
+        }
+        return f;
+    }
+
+    /**
+     * Rewrite of vanilla {@link net.minecraft.item.CrossbowItem#getPullTime(ItemStack)} to reduce reliance on shared variables
+     * between static and non-static contexts. Replaces instances where it's called. Math.ceil() necessary so Pillager attack
+     * goal does not break.
+     * @param holder User of the bow
+     * @param stack Associated ItemStack for crossbow
+     * @return Scaled pull time
+     */
+    public static int customCrossbowPullTime(@Nullable LivingEntity holder, ItemStack stack) {
+        int i = EnchantmentHelper.getLevel(Enchantments.QUICK_CHARGE, stack);
+        double j = holder != null && holder.getAttributeInstance(SupplementaryAttributes.DRAW_SPEED) != null ? holder.getAttributeValue(
+                SupplementaryAttributes.DRAW_SPEED) / 10.0f : 1;
+        return (int) Math.ceil(Math.max((25 / j) - 5 * i, 0));
     }
 
     /**
@@ -120,7 +117,6 @@ public class EnchantHelper {
         return (int) cursePoints.get();
     }
 
-
     /**
      * <hr><center><h1>Damage Types</h1></center><hr>
      * Damage sources for different enchantments<br><br>
@@ -145,8 +141,6 @@ public class EnchantHelper {
             }
         };
     }
-    public static final RegistryKey<DamageType> ASSAULT_DASH = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Supplementary.MODID,
-            "assault_dash"));
 
     /**
      * Damage source for the Backlash curse

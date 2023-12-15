@@ -11,7 +11,6 @@ import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.entity.projectile.FishingBobberEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.TridentEntity;
@@ -78,7 +77,7 @@ public class SupplementaryEvents {
      * @see ItemEvents#ARROW_FIRED_EVENT
      */
     public static final ItemEvents.ProjectileFiredEvent ARROW_FIRED_ENCHANT_EVENTS = (user, projectile, item, arrow) -> {
-        if (projectile instanceof ArrowEntity) {
+        if (projectile instanceof PersistentProjectileEntity) {
             EnchantmentHelper.get(item).forEach((enchantment, level) -> {
                 if (enchantment instanceof EnchantmentBuilder enchantmentBuilder) {
                     if (enchantmentBuilder.hasComponent()) {

@@ -2,6 +2,7 @@ package com.birblett.lib.creational;
 
 import com.birblett.Supplementary;
 import com.birblett.lib.components.BaseComponent;
+import com.birblett.mixin.modifiers.LivingEntityAttributeManagerMixin;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.Enchantment;
@@ -194,7 +195,7 @@ public class EnchantmentBuilder extends Enchantment {
     }
 
     /**
-     * Adds an associated attribute modifier. Processed in {@link com.birblett.mixin.LivingEntityAttributeManagerMixin}
+     * Adds an associated attribute modifier. Processed in {@link LivingEntityAttributeManagerMixin}
      * @param baseName Name of attribute modifier to be added. Final attribute name depends on equipped slot (i.e. "name_hand")
      * @param attribute Type of the attribute
      * @param operation Operation type i.e. multiply, add, percent

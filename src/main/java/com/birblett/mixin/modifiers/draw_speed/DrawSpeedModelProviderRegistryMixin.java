@@ -1,6 +1,9 @@
 package com.birblett.mixin.modifiers.draw_speed;
 
 import com.birblett.lib.helper.EnchantHelper;
+import com.birblett.registry.SupplementaryAttributes;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.item.ModelPredicateProviderRegistry;
@@ -22,12 +25,15 @@ public class DrawSpeedModelProviderRegistryMixin {
     @Inject(method = "method_27890(Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/world/ClientWorld;Lnet/minecraft/entity/LivingEntity;I)F",
             at = @At("RETURN"), cancellable = true)
     private static void applyBowDrawSpeedModifiers(ItemStack stack, ClientWorld world, LivingEntity entity, int seed, CallbackInfoReturnable<Float> cir) {
-        cir.setReturnValue(EnchantHelper.getDrawSpeedModifier(entity, cir.getReturnValue(), stack));
+        if (entity != null && entity.getAttributeInstance(SupplementaryAttributes.DRAW_SPEED) != null) {
+            cir.setReturnValue((float) (cir.getReturnValue() * entity.getAttributeValue(SupplementaryAttributes.DRAW_SPEED) / 10.0f));
+        }
     }
 
-    @Inject(method = "method_27888(Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/world/ClientWorld;Lnet/minecraft/entity/LivingEntity;I)F",
-            at = @At("RETURN"), cancellable = true)
-    private static void applyCrossbowDrawSpeedModifiers(ItemStack stack, ClientWorld world, LivingEntity entity, int seed, CallbackInfoReturnable<Float> cir) {
-        cir.setReturnValue(EnchantHelper.getDrawSpeedModifier(entity, cir.getReturnValue(), stack));
+    @ModifyExpressionValue(method = "method_27888(Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/world/ClientWorld;Lnet/minecraft/entity/LivingEntity;I)F",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/item/CrossbowItem;getPullTime(Lnet/minecraft/item/ItemStack;)I"))
+    private static int replacePullTime(int pullTime, @Local LivingEntity entity, @Local ItemStack stack) {
+        return EnchantHelper.customCrossbowPullTime(entity, stack);
     }
+
 }

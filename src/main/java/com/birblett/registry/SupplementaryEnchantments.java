@@ -15,6 +15,7 @@ import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeModifier.Operation;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
@@ -69,7 +70,7 @@ public class SupplementaryEnchantments {
     /**
      * Growth - Continually gains small amounts of base stats while being used. Max lvl: 1
      */
-    public static final EnchantmentBuilder GROWTH = new EnchantmentBuilder("growth", Enchantment.Rarity.RARE, EnchantmentTarget.BREAKABLE, NONE){
+    public static final EnchantmentBuilder GROWTH = new EnchantmentBuilder("growth", Enchantment.Rarity.RARE, EnchantmentTarget.BREAKABLE, ALL_SLOTS){
         @Override
         public void onProjectileFire(LivingEntity user, ProjectileEntity projectileEntity, int level, ItemStack item) {
             // Gives 1 draw speed growth on arrow fire, and an extra if fully charged
@@ -93,7 +94,7 @@ public class SupplementaryEnchantments {
                 EnchantHelper.addGrowthPoints(user.getMainHandStack(), isCritical ? EnchantHelper.GrowthKey.ATTACK_DAMAGE :
                         EnchantHelper.GrowthKey.ATTACK_SPEED, growthAmount);
             }
-            return EnchantHelper.getGrowthStat(user.getMainHandStack(), EnchantHelper.GrowthKey.ATTACK_DAMAGE);
+            return 0;
         }
 
         @Override
@@ -151,27 +152,24 @@ public class SupplementaryEnchantments {
                         .setTreasure(true),
                 GROWTH.makeIncompatible(GENERAL_COMPATIBILITY_GROUP)
                         .setPower(20, 50)
-                        .setTreasure(true),
+                        .setTreasure(true)
+                        .addAttribute("growth_attack_damage", EntityAttributes.GENERIC_ATTACK_DAMAGE, Operation.ADDITION,
+                                (entity, stack, lvl) -> (double) EnchantHelper.getGrowthStat(entity.getMainHandStack(),
+                                        EnchantHelper.GrowthKey.ATTACK_DAMAGE))
+                        .addAttribute("growth_attack_speed", EntityAttributes.GENERIC_ATTACK_SPEED, Operation.MULTIPLY_TOTAL,
+                                (entity, stack, lvl) -> (double) EnchantHelper.getGrowthStat(entity.getMainHandStack(),
+                                        EnchantHelper.GrowthKey.ATTACK_SPEED))
+                        .addAttribute("growth_draw_speed", SupplementaryAttributes.DRAW_SPEED, Operation.MULTIPLY_TOTAL,
+                                (entity, stack, lvl) -> (double) EnchantHelper.getGrowthStat(stack, EnchantHelper.GrowthKey.DRAW_SPEED))
+                        .addAttribute("growth_effective_mining_speed", SupplementaryAttributes.EFFECTIVE_MINING_SPEED,
+                                Operation.MULTIPLY_TOTAL, (entity, stack, lvl) -> (double) EnchantHelper.getGrowthStat(stack,
+                                        EnchantHelper.GrowthKey.MINING_SPEED))
+                        .addAttribute("growth_ineffective_mining_speed", SupplementaryAttributes.INEFFECTIVE_MINING_SPEED,
+                                Operation.MULTIPLY_TOTAL, (entity, stack, lvl) -> (double) EnchantHelper.getGrowthStat(stack,
+                                        EnchantHelper.GrowthKey.ALT_MINING_SPEED)),
                 SOULBOUND.makeIncompatible(GENERAL_COMPATIBILITY_GROUP)
                         .setPower(20, 50)
                         .setTreasure(true)
-        );
-    }
-
-    /**
-     * <hr><center><h1>Boomerang enchantments</h1></center><hr>
-     */
-    public static final List<EnchantmentBuilder> BOOMERANG;
-    /**
-     * Pickup - boomerangs can pick up items, with larger inventories based on level. Max lvl: 3
-     */
-    public static final EnchantmentBuilder PICKUP = new EnchantmentBuilder("pickup", Enchantment.Rarity.UNCOMMON, null, BOTH_HANDS);
-
-    static {
-        BOOMERANG = List.of(
-                PICKUP.setPower(10, 10, 20, 20)
-                        .setMaxLevel(3)
-                        .addCompatibleClasses(BoomerangItem.class)
         );
     }
 
@@ -267,6 +265,26 @@ public class SupplementaryEnchantments {
                         .addCompatibleItems(Items.CROSSBOW, Items.BOW)
                         .setMaxLevel(2)
                         .addComponent(SupplementaryComponents.OVERSIZED)
+                        .addAttribute("oversized_draw_speed", SupplementaryAttributes.DRAW_SPEED, Operation.MULTIPLY_TOTAL,
+                                (entity, stack, lvl) -> Math.pow(0.75, lvl) - 1)
+        );
+    }
+
+    /**
+     * <hr><center><h1>Utility enchantments</h1></center><hr>
+     */
+    public static final List<EnchantmentBuilder> UTILITY;
+    /**
+     * Pickup - boomerangs can pick up items, with larger inventories based on level. Max lvl: 3
+     */
+    public static final EnchantmentBuilder PICKUP = new EnchantmentBuilder("pickup", Enchantment.Rarity.UNCOMMON,
+            null, BOTH_HANDS);
+
+    static {
+        UTILITY = List.of(
+                PICKUP.setPower(10, 10, 20, 20)
+                        .setMaxLevel(3)
+                        .addCompatibleClasses(BoomerangItem.class)
         );
     }
 
@@ -316,6 +334,11 @@ public class SupplementaryEnchantments {
      */
     public static final EnchantmentBuilder STRAFE = new EnchantmentBuilder("strafe", Enchantment.Rarity.VERY_RARE,
             EnchantmentTarget.ARMOR_FEET, ALL_ARMOR);
+    /**
+     * Warp - teleport to arrow location. Max lvl: 1
+     */
+    public static final EnchantmentBuilder WARP = new EnchantmentBuilder("warp", Enchantment.Rarity.VERY_RARE, EnchantmentTarget.BOW,
+            BOTH_HANDS);
 
     public static final EnchantmentBuilder[] MOBILITY_INCOMPATIBILITY_GROUP = {ACROBATIC, AIR_DASH, ALL_TERRAIN, BUNNYHOP, SLIMED};
     static {
@@ -346,7 +369,10 @@ public class SupplementaryEnchantments {
                 SLIMED.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
                         .setPower(20, 50),
                 STRAFE.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
-                        .setPower(20, 50)
+                        .setPower(20, 50),
+                WARP.setPower(25, 50)
+                        .setMaxLevel(1)
+                        .addComponent(SupplementaryComponents.WARP)
         );
     }
 
@@ -421,6 +447,8 @@ public class SupplementaryEnchantments {
                         .setMaxLevel(3)
                         .setCustomAnvilCost(1)
                         .addAttribute("atrophy_attack_speed", EntityAttributes.GENERIC_ATTACK_SPEED, Operation.MULTIPLY_TOTAL,
+                                (entity, stack, lvl) -> lvl * -0.1)
+                        .addAttribute("atrophy_draw_speed", SupplementaryAttributes.DRAW_SPEED, Operation.MULTIPLY_TOTAL,
                                 (entity, stack, lvl) -> lvl * -0.1),
                 BACKLASH.setPower(20, 10, 50, 10)
                         .setMaxLevel(2)
@@ -443,6 +471,18 @@ public class SupplementaryEnchantments {
                         .setCustomAnvilCost(1)
                         .addComponent(SupplementaryComponents.MOODY)
                         .addAttribute("moody_attack_damage", EntityAttributes.GENERIC_ATTACK_DAMAGE, Operation.MULTIPLY_TOTAL,
+                                (entity, stack, lvl) -> {
+                                    MutableDouble mult = new MutableDouble(0.0);
+                                    SupplementaryComponents.MOODY.maybeGet(entity).ifPresent(component -> {
+                                        if (component.getCustom() instanceof float[] arr) {
+                                            float progress = (entity.getWorld().getTime() - arr[2]) / (arr[3] - arr[2]);
+                                            float smoothed = arr[0] + GenMathHelper.smoothstep(progress) * (arr[1] - arr[0]);
+                                            mult.setValue(smoothed / 300);
+                                        }
+                                    });
+                                    return mult.getValue();
+                                })
+                        .addAttribute("moody_mining_speed", SupplementaryAttributes.MINING_SPEED, Operation.MULTIPLY_TOTAL,
                                 (entity, stack, lvl) -> {
                                     MutableDouble mult = new MutableDouble(0.0);
                                     SupplementaryComponents.MOODY.maybeGet(entity).ifPresent(component -> {
@@ -544,7 +584,7 @@ public class SupplementaryEnchantments {
      */
     public static void register() {
         GENERAL.forEach(EnchantmentBuilder::build);
-        BOOMERANG.forEach(EnchantmentBuilder::build);
+        UTILITY.forEach(EnchantmentBuilder::build);
         OFFENSIVE.forEach(EnchantmentBuilder::build);
         MOBILITY.forEach(EnchantmentBuilder::build);
         CURSES.forEach(EnchantmentBuilder::build);

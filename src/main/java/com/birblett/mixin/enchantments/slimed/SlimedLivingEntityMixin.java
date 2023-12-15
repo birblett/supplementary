@@ -64,4 +64,5 @@ public abstract class SlimedLivingEntityMixin {
         }
         return fallDistance;
     }
+
 }

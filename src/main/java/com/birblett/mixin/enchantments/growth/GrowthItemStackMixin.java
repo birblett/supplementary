@@ -2,12 +2,11 @@ package com.birblett.mixin.enchantments.growth;
 
 import com.birblett.lib.helper.EnchantHelper;
 import com.birblett.registry.SupplementaryEnchantments;
-import com.google.common.collect.Multimap;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -17,7 +16,6 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableTextContent;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
@@ -37,27 +35,14 @@ import java.util.Map;
 @Mixin(ItemStack.class)
 public class GrowthItemStackMixin {
 
-    @Unique private int supplementary$toolTipAttributeModifier;
-
-    @Inject(method = "getTooltip", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/attribute/EntityAttributeModifier;getValue()D"),
-            locals = LocalCapture.CAPTURE_FAILSOFT)
-    private void getModifier(@Nullable PlayerEntity player, TooltipContext context, CallbackInfoReturnable<List<Text>> cir, List list, MutableText mutableText, int i, EquipmentSlot[] var6, int var7, int var8, EquipmentSlot equipmentSlot, Multimap multimap, Iterator var11, Map.Entry entry, EntityAttributeModifier entityAttributeModifier) {
-        this.supplementary$toolTipAttributeModifier = 0;
-        if (entityAttributeModifier.getId() == Item.ATTACK_DAMAGE_MODIFIER_ID) {
-            this.supplementary$toolTipAttributeModifier = 1;
-        }
-        if (entityAttributeModifier.getId() == Item.ATTACK_SPEED_MODIFIER_ID) {
-            this.supplementary$toolTipAttributeModifier = 2;
-        }
-    }
-
+    @SuppressWarnings("InvalidInjectorMethodSignature")
     @ModifyArg(method = "getTooltip", at = @At(value = "INVOKE", target = "Ljava/text/DecimalFormat;format(D)Ljava/lang/String;", ordinal = 0))
-    private double modifyTooltipValue(double val) {
+    private double modifyTooltipValue(double val, @Local EntityAttributeModifier modifier) {
         if (EnchantmentHelper.getLevel(SupplementaryEnchantments.GROWTH, (ItemStack) (Object) this) > 0) {
-            if (this.supplementary$toolTipAttributeModifier == 1) {
+            if (modifier.getId() == Item.ATTACK_DAMAGE_MODIFIER_ID) {
                 return val + EnchantHelper.getGrowthStat((ItemStack) (Object) this, EnchantHelper.GrowthKey.ATTACK_DAMAGE);
             }
-            else if (this.supplementary$toolTipAttributeModifier == 2) {
+            else if (modifier.getId() == Item.ATTACK_SPEED_MODIFIER_ID) {
                 return val + EnchantHelper.getGrowthStat((ItemStack) (Object) this, EnchantHelper.GrowthKey.ATTACK_SPEED);
             }
         }
