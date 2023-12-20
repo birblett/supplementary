@@ -2,11 +2,13 @@ package com.birblett.registry;
 
 import com.birblett.Supplementary;
 import com.birblett.items.BoomerangItem;
+import com.birblett.lib.api.StaticFadingBlock;
 import com.birblett.lib.creational.ContractBuilder;
 import com.birblett.lib.creational.CurseBuilder;
 import com.birblett.lib.creational.EnchantmentBuilder;
 import com.birblett.lib.helper.EnchantHelper;
 import com.birblett.lib.helper.GenMathHelper;
+import net.fabricmc.fabric.api.tag.convention.v1.ConventionalBlockTags;
 import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -15,7 +17,6 @@ import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeModifier.Operation;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
@@ -28,11 +29,16 @@ import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.TridentEntity;
 import net.minecraft.item.*;
+import net.minecraft.registry.Registries;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.mutable.MutableDouble;
 import org.apache.commons.lang3.mutable.MutableFloat;
 
+import java.awt.*;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -98,13 +104,14 @@ public class SupplementaryEnchantments {
         }
 
         @Override
-        public void onBlockBreak(World world, BlockState state, BlockPos pos, PlayerEntity miner, ItemStack item) {
-            // Add base mining speed growth stat if appropriate blockstate for the tool, or adaptable if not
-            if (item.getMiningSpeedMultiplier(state) > 1) {
-                EnchantHelper.addGrowthPoints(item, EnchantHelper.GrowthKey.MINING_SPEED, 1);
-            }
-            else {
-                EnchantHelper.addGrowthPoints(item, EnchantHelper.GrowthKey.ALT_MINING_SPEED, 1);
+        public void onBlockBreak(World world, BlockState state, BlockPos pos, PlayerEntity miner, ItemStack item, boolean isClient, Direction face) {
+            if (!isClient && !miner.isCreative()) {
+                // Add base mining speed growth stat if appropriate blockstate for the tool, or adaptable if not
+                if (item.getMiningSpeedMultiplier(state) > 1) {
+                    EnchantHelper.addGrowthPoints(item, EnchantHelper.GrowthKey.MINING_SPEED, 1);
+                } else {
+                    EnchantHelper.addGrowthPoints(item, EnchantHelper.GrowthKey.ALT_MINING_SPEED, 1);
+                }
             }
         }
 
@@ -189,16 +196,10 @@ public class SupplementaryEnchantments {
             EnchantmentTarget.WEAPON, MAIN_HAND) {
         @Override
         public float onAttack(LivingEntity user, Entity target, int level, boolean isCritical, boolean isMaxCharge, float damageAmount) {
-            float modifier = 0.0f;
-            if (!user.getWorld().isClient()) {
-                if (user.hasStatusEffect(StatusEffects.SPEED)) {
-                    modifier = 0.06f * level * damageAmount;
-                }
-                if (isCritical) {
-                    user.addStatusEffect(new StatusEffectInstance(StatusEffects.SPEED, 50));
-                }
+            if (isCritical) {
+                user.addStatusEffect(new StatusEffectInstance(StatusEffects.SPEED, 50));
             }
-            return modifier;
+            return 0;
         }
     };
     /**
@@ -206,11 +207,6 @@ public class SupplementaryEnchantments {
      */
     public static final EnchantmentBuilder FRENZY = new EnchantmentBuilder("frenzy", Enchantment.Rarity.RARE, EnchantmentTarget.WEAPON,
             MAIN_HAND) {
-        @Override
-        public float onAttack(LivingEntity user, Entity target, int level, boolean isCritical, boolean isMaxCharge, float damageAmount) {
-            float lostHealthPercent = 2 * Math.max(0.5f, 1 - user.getHealth() / user.getMaxHealth());
-            return lostHealthPercent * 0.2f * level * damageAmount;
-        }
 
         @Override
         public float onDamageMultiplier(LivingEntity user, ItemStack itemStack, DamageSource source, int level, MutableFloat damageAmount) {
@@ -246,10 +242,15 @@ public class SupplementaryEnchantments {
                         .addComponent(SupplementaryComponents.BURST_FIRE),
                 FRANTIC.makeIncompatible(Enchantments.FIRE_ASPECT, Enchantments.KNOCKBACK)
                         .setPower(15, 5, 25, 5)
-                        .setMaxLevel(3),
+                        .setMaxLevel(3)
+                        .addAttribute("frantic_attack_damage", EntityAttributes.GENERIC_ATTACK_DAMAGE, Operation.MULTIPLY_TOTAL,
+                                (entity, stack, lvl) -> entity.hasStatusEffect(StatusEffects.SPEED) ? 0.06 * lvl : 0),
                 FRENZY.makeIncompatible(FRANTIC)
                         .setPower(20, 10, 30, 10)
-                        .setMaxLevel(3),
+                        .setMaxLevel(3)
+                        .addAttribute("frenzy_attack_damage", EntityAttributes.GENERIC_ATTACK_DAMAGE, Operation.MULTIPLY_BASE,
+                                (entity, stack, lvl) -> lvl * 0.3f * (double) Math.min(0.5f, 1 - entity.getHealth() / entity
+                                        .getMaxHealth())),
                 HITSCAN.makeIncompatible(OVERSIZED, MARKED)
                         .setPower(20, 50)
                         .addComponent(SupplementaryComponents.HITSCAN),
@@ -275,6 +276,93 @@ public class SupplementaryEnchantments {
      */
     public static final List<EnchantmentBuilder> UTILITY;
     /**
+     * Drill - breaks up to 2 blocks behind broken blocks. Blocks significantly more difficult to break than the current
+     * block will be ignored. Slightly decreases mining speed. Max lvl: 1
+     */
+    public static final EnchantmentBuilder DRILL = new EnchantmentBuilder("drill", Enchantment.Rarity.RARE, EnchantmentTarget.DIGGER,
+            MAIN_HAND) {
+
+        @Override
+        public void onBlockBreak(World world, BlockState state, BlockPos pos, PlayerEntity miner, ItemStack item, boolean isClient, Direction face) {
+            face = Direction.getFacing(-miner.getRotationVector().x, -miner.getRotationVector().y, -miner.getRotationVector().z);
+            int x = face == Direction.EAST ? -1 : face == Direction.WEST ? 1 : 0;
+            int y = face == Direction.UP ? -1 : face == Direction.DOWN ? 1 : 0;
+            int z = face == Direction.SOUTH ? -1 : face == Direction.NORTH ? 1 : 0;
+            BlockPos p = pos.add(x, y, z);
+            boolean cont = !world.getBlockState(p).isAir();
+            if (EnchantHelper.mutedBlockBreak(miner, world, p, world.getBlockState(p), null)
+                    && miner instanceof ServerPlayerEntity player) {
+                miner.getMainHandStack().damage(1, player.getRandom(), player);
+            }
+            if (cont && EnchantHelper.mutedBlockBreak(miner, world, (p = p.add(x, y, z)), world.getBlockState(p),
+                    null) && miner instanceof ServerPlayerEntity player) {
+                miner.getMainHandStack().damage(1, player.getRandom(), player);
+            }
+        }
+    };
+    /**
+     * Excavation - allows for mining 3x3 areas. Significantly decreases mining speed. Blocks significantly more difficult
+     * to break than the current block will be ignored. Max lvl: 1
+     */
+    public static final EnchantmentBuilder EXCAVATION = new EnchantmentBuilder("excavation", Enchantment.Rarity.RARE,
+            EnchantmentTarget.DIGGER, MAIN_HAND) {
+
+        @Override
+        public void onBlockBreak(World world, BlockState state, BlockPos pos, PlayerEntity miner, ItemStack item, boolean isClient, Direction face) {
+            int x = (face != Direction.EAST && face != Direction.WEST) ? 1 : 0;
+            int y = (face != Direction.UP && face != Direction.DOWN) ? 1 : 0;
+            int z = (face != Direction.NORTH && face != Direction.SOUTH) ? 1 : 0;
+            int extraDamage = 3;
+            BlockPos p;
+            for (int i = -x; i < x + 1; i++) {
+                for (int j = -y; j < y + 1; j++) {
+                    for (int k = -z; k < z + 1; k++) {
+                        if (EnchantHelper.mutedBlockBreak(miner, world, (p = pos.add(i, j, k)), world.getBlockState(p),
+                                state) && extraDamage-- > 0 && miner instanceof ServerPlayerEntity player) {
+                            miner.getMainHandStack().damage(1, player.getRandom(), player);
+                        }
+                    }
+                }
+            }
+        }
+    };
+    /**
+     * Greed - highlights ores around broken blocks in a 5x5 area. Highlights more ores per level. Max lvl: 3
+     */
+    public static final EnchantmentBuilder GREED = new EnchantmentBuilder("greed", Enchantment.Rarity.RARE, EnchantmentTarget.DIGGER,
+            MAIN_HAND) {
+
+        @Override
+        public void onBlockBreak(World world, BlockState state, BlockPos pos, PlayerEntity miner, ItemStack item, boolean isClient, Direction face) {
+            if (isClient) {
+                int count = EnchantmentHelper.getLevel(GREED, item);
+                for (BlockPos p : BlockPos.iterateOutwards(pos, 2, 2, 2)) {
+                    if (Registries.BLOCK.getEntry(world.getBlockState(p).getBlock()).isIn(ConventionalBlockTags.ORES)) {
+                        StaticFadingBlock.addStaticFadingBlock(new Color(0, 0, 0, 0), new Color(250,
+                                100, 255, 40), Vec3d.of(p), new Vec3d(1, 1, 1), 500);
+                        count--;
+                    }
+                    if (count == 0) {
+                        break;
+                    }
+                }
+            }
+        }
+    };
+    /**
+     * Momentum - continually increases mining speed while mining, but boost wears off quickly when inactive. Max lvl: 1
+     */
+    public static final EnchantmentBuilder MOMENTUM = new EnchantmentBuilder("momentum", Enchantment.Rarity.RARE,
+            EnchantmentTarget.DIGGER, MAIN_HAND) {
+
+        @Override
+        public void onBlockBreak(World world, BlockState state, BlockPos pos, PlayerEntity miner, ItemStack item, boolean isClient, Direction face) {
+            if (!isClient && !miner.isCreative() && miner.getBlockBreakingSpeed(state) > 1) {
+                SupplementaryComponents.MOMENTUM.maybeGet(miner).ifPresent((component) -> component.setValue(30));
+            }
+        }
+    };
+    /**
      * Pickup - boomerangs can pick up items, with larger inventories based on level. Max lvl: 3
      */
     public static final EnchantmentBuilder PICKUP = new EnchantmentBuilder("pickup", Enchantment.Rarity.UNCOMMON,
@@ -282,6 +370,25 @@ public class SupplementaryEnchantments {
 
     static {
         UTILITY = List.of(
+                DRILL.setPower(27, 30)
+                        .setMaxLevel(1)
+                        .addAttribute("drill_mining_speed", SupplementaryAttributes.EFFECTIVE_MINING_SPEED,
+                                Operation.MULTIPLY_TOTAL, (entity, stack, lvl) -> -0.15),
+                EXCAVATION.setPower(27, 30)
+                        .setMaxLevel(1)
+                        .addAttribute("excavation_mining_speed", SupplementaryAttributes.EFFECTIVE_MINING_SPEED,
+                                Operation.MULTIPLY_TOTAL, (entity, stack, lvl) -> -0.85),
+                GREED.setPower(22, 4, 28, 4)
+                        .setMaxLevel(3),
+                MOMENTUM.setPower(18, 50)
+                        .setMaxLevel(1)
+                        .addAttribute("momentum_mining_speed", SupplementaryAttributes.EFFECTIVE_MINING_SPEED,
+                                Operation.MULTIPLY_TOTAL, (entity, stack, lvl) -> {
+                                    MutableDouble bonus = new MutableDouble(0);
+                                    SupplementaryComponents.MOMENTUM.maybeGet(entity).ifPresent((component) -> bonus.add(
+                                            ((int) component.getCustom()) / 100.0d));
+                                    return Math.min(bonus.getValue(), 1.5);
+                                }),
                 PICKUP.setPower(10, 10, 20, 20)
                         .setMaxLevel(3)
                         .addCompatibleClasses(BoomerangItem.class)
@@ -324,6 +431,11 @@ public class SupplementaryEnchantments {
     public static final EnchantmentBuilder GRAPPLING = new EnchantmentBuilder("grappling", Enchantment.Rarity.UNCOMMON,
             EnchantmentTarget.CROSSBOW, MAIN_HAND);
     /**
+     * Mole - automatically fit into one-block gaps. Increases crawl speed by 70% per level. Max lvl: 3
+     */
+    public static final EnchantmentBuilder MOLE = new EnchantmentBuilder("mole", Enchantment.Rarity.RARE, EnchantmentTarget.ARMOR_LEGS,
+            ALL_ARMOR);
+    /**
      * Slimed - Boots: become bouncy, experience much less friction. Max lvl: 1
      */
     public static final EnchantmentBuilder SLIMED = new EnchantmentBuilder("slimed", Enchantment.Rarity.VERY_RARE,
@@ -345,12 +457,15 @@ public class SupplementaryEnchantments {
         MOBILITY = List.of(
                 ACROBATIC.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
                         .setPower(20, 50)
+                        .setMaxLevel(1)
                         .setCustomAnvilCost(4),
                 AIR_DASH.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
                         .setPower(20, 50)
+                        .setMaxLevel(1)
                         .setCustomAnvilCost(4),
                 ALL_TERRAIN.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
                         .setPower(20, 50)
+                        .setMaxLevel(1)
                         .setCustomAnvilCost(2),
                 ASSAULT_DASH.setPower(15, 15, 30, 15)
                         .setMaxLevel(2)
@@ -358,18 +473,26 @@ public class SupplementaryEnchantments {
                         .addCompatibleClasses(ShieldItem.class),
                 BUNNYHOP.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
                         .setPower(20, 50)
-                        .addAttribute("bunnyhop_move_speed", EntityAttributes.GENERIC_MOVEMENT_SPEED, Operation.MULTIPLY_TOTAL,
+                        .setMaxLevel(1)
+                        .addAttribute("bunnyhop_move_speed", SupplementaryAttributes.NO_FOV_MOVE_SPEED, Operation.MULTIPLY_TOTAL,
                                 (entity, stack, lvl) -> -0.15),
                 GRAPPLING.makeIncompatible(Enchantments.QUICK_CHARGE, Enchantments.MULTISHOT)
                         .setPower(20,50)
+                        .setMaxLevel(1)
                         .addComponent(SupplementaryComponents.GRAPPLING)
                         .setTreasure(true)
                         .addCompatibleClasses(FishingRodItem.class, BowItem.class)
                         .addCompatibleItems(Items.CROSSBOW),
+                MOLE.setPower(18, 6, 28, 7)
+                        .setMaxLevel(3)
+                        .addAttribute("mole_move_speed", SupplementaryAttributes.NO_FOV_MOVE_SPEED, Operation.MULTIPLY_TOTAL,
+                                (entity, stack, lvl) -> entity.isCrawling() ? lvl * 0.7 : 0),
                 SLIMED.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
-                        .setPower(20, 50),
+                        .setPower(20, 50)
+                        .setMaxLevel(1),
                 STRAFE.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
-                        .setPower(20, 50),
+                        .setPower(20, 50)
+                        .setMaxLevel(1),
                 WARP.setPower(25, 50)
                         .setMaxLevel(1)
                         .addComponent(SupplementaryComponents.WARP)
@@ -416,6 +539,25 @@ public class SupplementaryEnchantments {
         }
     };
     /**
+     * Fatigue - Repeated mining or attacking slows mining and attack speed. Max lvl: 2
+     */
+    public static final CurseBuilder FATIGUE = new CurseBuilder("fatigue", Enchantment.Rarity.VERY_RARE, EnchantmentTarget.ARMOR_CHEST,
+            ALL_ARMOR, lvl -> lvl * 2) {
+
+        @Override
+        public void onBlockBreak(World world, BlockState state, BlockPos pos, PlayerEntity miner, ItemStack item, boolean isClient, Direction face) {
+            if (!isClient && !miner.isCreative()) {
+                SupplementaryComponents.FATIGUE.maybeGet(miner).ifPresent((component) -> component.setValue(200));
+            }
+        }
+
+        @Override
+        public float onAttack(LivingEntity user, Entity target, int level, boolean isCritical, boolean isMaxCharge, float damageAmount) {
+            SupplementaryComponents.FATIGUE.maybeGet(user).ifPresent((component) -> component.setValue(300));
+            return 0.0f;
+        }
+    };
+    /**
      * Gluttony - Exhaustion/hunger accumulates 30% faster per level. Saturation is decreased by 30%. Max lvl: 2. Curse
      * points: 2 * lvl - 1
      */
@@ -456,6 +598,23 @@ public class SupplementaryEnchantments {
                 BLIGHTED.setPower(20, 10, 50, 10)
                         .setMaxLevel(2)
                         .setCustomAnvilCost(2),
+                FATIGUE.setPower(20, 10, 50, 10)
+                        .setMaxLevel(2)
+                        .setCustomAnvilCost(2)
+                        .addAttribute("fatigue_mining_speed", SupplementaryAttributes.MINING_SPEED, Operation.MULTIPLY_TOTAL,
+                                (entity, stack, lvl) -> {
+                                    MutableDouble bonus = new MutableDouble(0);
+                                    SupplementaryComponents.FATIGUE.maybeGet(entity).ifPresent((component) -> bonus.add(
+                                            -((int) component.getCustom()) / 100.0d));
+                                    return Math.max(bonus.getValue(), -0.25 - 0.15 * lvl);
+                                })
+                        .addAttribute("fatigue_attack_speed", EntityAttributes.GENERIC_ATTACK_SPEED, Operation.
+                                MULTIPLY_TOTAL, (entity, stack, lvl) -> {
+                                    MutableDouble bonus = new MutableDouble(0);
+                                    SupplementaryComponents.FATIGUE.maybeGet(entity).ifPresent((component) -> bonus.add(
+                                            -((int) component.getCustom()) / 100.0d));
+                                    return Math.max(bonus.getValue(), -0.25 - 0.15 * lvl);
+                                }),
                 FRAGILITY.setPower(20, 2, 50, 2)
                         .setMaxLevel(5)
                         .setCustomAnvilCost(1),

@@ -1,4 +1,4 @@
-package com.birblett.mixin.modifiers.draw_speed;
+package com.birblett.mixin.attributes.draw_speed;
 
 import com.birblett.registry.SupplementaryAttributes;
 import net.minecraft.entity.LivingEntity;

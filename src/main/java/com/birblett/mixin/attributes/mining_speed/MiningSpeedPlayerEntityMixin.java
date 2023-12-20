@@ -1,6 +1,5 @@
-package com.birblett.mixin.modifiers.mining_speed;
+package com.birblett.mixin.attributes.mining_speed;
 
-import com.birblett.lib.helper.EnchantHelper;
 import com.birblett.registry.SupplementaryAttributes;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
@@ -31,11 +30,11 @@ public class MiningSpeedPlayerEntityMixin {
         }
         if (p.getAttributeInstance(SupplementaryAttributes.EFFECTIVE_MINING_SPEED) != null && p.getInventory().getBlockBreakingSpeed(
                 block) > 1) {
-            mult *= p.getAttributeValue(SupplementaryAttributes.EFFECTIVE_MINING_SPEED);
+            mult *= p.getAttributeValue(SupplementaryAttributes.EFFECTIVE_MINING_SPEED) / 10.0;
         }
         if (p.getAttributeInstance(SupplementaryAttributes.INEFFECTIVE_MINING_SPEED) != null && p.getInventory().getBlockBreakingSpeed(
                 block) <= 1) {
-            mult *= p.getAttributeValue(SupplementaryAttributes.INEFFECTIVE_MINING_SPEED);
+            mult *= p.getAttributeValue(SupplementaryAttributes.INEFFECTIVE_MINING_SPEED) / 10.0;
         }
         cir.setReturnValue(cir.getReturnValue() * mult);
     }

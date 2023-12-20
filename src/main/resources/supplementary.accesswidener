@@ -1,4 +1,5 @@
 accessWidener  v1	   named
+accessible     class   me/x150/renderer/render/Renderer3d$FadingBlock
 accessible     class   net/minecraft/enchantment/EnchantmentHelper$Consumer
 accessible     class   net/minecraft/entity/mob/PhantomEntity$StartAttackGoal
 accessible     class   net/minecraft/entity/mob/PhantomEntity$FindTargetGoal

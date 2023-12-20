@@ -19,12 +19,20 @@ repositories {
 	maven {
 		name = "Ladysnake Libs"
 		url = "https://maven.ladysnake.org/releases"
+		content {
+			includeGroup 'io.github.ladysnake'
+			includeGroup 'org.ladysnake'
+			includeGroupByRegex 'dev\\.onyxstudios.*'
+		}
 	}
 	maven {
 		url "https://maven.jamieswhiteshirt.com/libs-release"
 		content {
 			includeGroup "com.jamieswhiteshirt"
 		}
+	}
+	maven {
+		url "https://jitpack.io/"
 	}
 }
 
@@ -40,6 +48,7 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	modImplementation "dev.emi:trinkets:${trinkets_version}"
 
+	include modImplementation('com.github.0x3C50:Renderer:e5d9998')
 	modImplementation include("com.jamieswhiteshirt:reach-entity-attributes:${rea_version}")
 	modImplementation include("dev.onyxstudios.cardinal-components-api:cardinal-components-base:${cca_version}")
 	modImplementation include("dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${cca_version}")

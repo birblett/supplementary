@@ -1,6 +1,5 @@
 package com.birblett.registry;
 
-import com.birblett.Supplementary;
 import com.birblett.lib.components.*;
 import com.birblett.lib.helper.EnchantHelper;
 import com.birblett.lib.helper.EntityHelper;
@@ -84,6 +83,11 @@ public class SupplementaryComponents implements EntityComponentInitializer {
     public static final ComponentKey<BaseComponent> ENHANCED = ComponentRegistry.getOrCreate(new Identifier(MODID, "enhanced"),
             BaseComponent.class);
     /**
+     * Tracks fatigue mining/attack speed penalty.
+     */
+    public static final ComponentKey<BaseComponent> FATIGUE = ComponentRegistry.getOrCreate(new Identifier(MODID, "fatigue"),
+            BaseComponent.class);
+    /**
      * Handles Grappling functionality; individual functionalities registered for PersistentProjectileEntity,
      * FishingBobberEntity, and LivingEntity.
      */
@@ -113,6 +117,11 @@ public class SupplementaryComponents implements EntityComponentInitializer {
      * Handles entity tracking and homing functionality for Marked.
      */
     public static final ComponentKey<BaseComponent> MARKED = ComponentRegistry.getOrCreate(new Identifier(MODID, "marked"),
+            BaseComponent.class);
+    /**
+     * Tracks Momentum boost ticks.
+     */
+    public static final ComponentKey<BaseComponent> MOMENTUM = ComponentRegistry.getOrCreate(new Identifier(MODID, "momentum"),
             BaseComponent.class);
     /**
      * Handles random fluctuation of Moody.
@@ -150,7 +159,9 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             ADAPTABILITY,
             ASSAULT_DASH,
             BURST_FIRE,
+            FATIGUE,
             HAUNTED,
+            MOMENTUM,
             MOODY
     );
     /**
@@ -295,6 +306,38 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             }
         });
         registry.registerFor(ArrowEntity.class, ENHANCED, e -> new EnchantmentComponent("enhanced"));
+        registry.registerFor(PlayerEntity.class, FATIGUE, e -> new EnchantmentComponent("fatigue") {
+
+            private int fatigueLevel = 0;
+
+            @Override
+            public void onTick(LivingEntity entity) {
+                if (this.getValue() > 0) {
+                    this.decrement();
+                }
+                if (this.getValue() == 0 && this.fatigueLevel > 0) {
+                    this.setValue(2);
+                    this.fatigueLevel --;
+                }
+            }
+
+            @Override
+            public void setValue(int level) {
+                if (level == 200) {
+                    this.fatigueLevel += 3;
+                }
+                else if (level == 300) {
+                    this.fatigueLevel += 15;
+                }
+                this.fatigueLevel = Math.min(this.fatigueLevel, 1000);
+                super.setValue(level);
+            }
+
+            @Override
+            public Object getCustom() {
+                return this.fatigueLevel;
+            }
+        });
         registry.registerFor(PersistentProjectileEntity.class, GRAPPLING, e -> new SyncedEnchantmentComponent("grappling") {
             // unused, for separating bow/crossbow impl later
             @SuppressWarnings("FieldCanBeLocal")
@@ -340,11 +383,21 @@ public class SupplementaryComponents implements EntityComponentInitializer {
 
             @Override
             public Vec3d onEntityTravel(Entity persistentProjectileEntity, int level, Vec3d velocity) {
-                // allow arrow to ignore culling so line is always displayed
-                if (!persistentProjectileEntity.getWorld().isClient() && !persistentProjectileEntity.ignoreCameraFrustum) {
-                    GRAPPLING.sync(persistentProjectileEntity);
+                if (!persistentProjectileEntity.getWorld().isClient() && persistentProjectileEntity instanceof PersistentProjectileEntity
+                        projectile) {
+                    // allow arrow to ignore culling so line is always displayed
+                    if (!persistentProjectileEntity.ignoreCameraFrustum){
+                        GRAPPLING.sync(persistentProjectileEntity);
+                    }
+                    Entity owner = projectile.getOwner();
+                    // break line if owner no longer holding grappling item
+                    if (owner instanceof LivingEntity livingEntity && owner.isAlive() && owner.getWorld() == persistentProjectileEntity
+                            .getWorld() && livingEntity.getStackInHand(this.activeHand) != this.activeStack ) {
+                        this.setValue(0);
+                        GRAPPLING.sync(persistentProjectileEntity);
+                    }
+                    persistentProjectileEntity.ignoreCameraFrustum = true;
                 }
-                persistentProjectileEntity.ignoreCameraFrustum = true;
                 return velocity;
             }
 
@@ -509,7 +562,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
                         if (persistentProjectileEntity.inGround) break;
                     }
                     if (i != 0) {
-                        SupplementaryPacketRegistry.HitscanPacket packet = new SupplementaryPacketRegistry.HitscanPacket(path);
+                        SupplementaryPacketRegistry.HitscanS2CPacket packet = new SupplementaryPacketRegistry.HitscanS2CPacket(path);
                         players.forEach(player -> {
                             if (player instanceof ServerPlayerEntity p) {
                                 packet.send(p);
@@ -618,6 +671,7 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             }
         });
         registry.registerFor(LivingEntity.class, MARKED, e -> new EnchantmentComponent() {
+
             private Entity trackedEntity;
 
             @Override
@@ -628,6 +682,32 @@ public class SupplementaryComponents implements EntityComponentInitializer {
             @Override
             public void setEntity(Entity entity) {
                 trackedEntity = entity;
+            }
+        });
+        registry.registerFor(PlayerEntity.class, MOMENTUM, e -> new EnchantmentComponent("momentum") {
+
+            private int momentumLevel = 0;
+
+            @Override
+            public void onTick(LivingEntity entity) {
+                if (this.getValue() > 0) {
+                    this.decrement();
+                }
+                if (this.getValue() == 0 && this.momentumLevel > 0) {
+                    this.setValue(1);
+                    this.momentumLevel -= 2;
+                }
+            }
+
+            @Override
+            public void setValue(int level) {
+                this.momentumLevel++;
+                super.setValue(level);
+            }
+
+            @Override
+            public Object getCustom() {
+                return this.momentumLevel;
             }
         });
         registry.registerFor(PlayerEntity.class, MOODY, e -> new SyncedEnchantmentComponent("moody") {

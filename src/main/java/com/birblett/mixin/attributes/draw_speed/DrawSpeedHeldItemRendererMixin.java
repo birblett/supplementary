@@ -1,4 +1,4 @@
-package com.birblett.mixin.modifiers.draw_speed;
+package com.birblett.mixin.attributes.draw_speed;
 
 import com.birblett.lib.helper.EnchantHelper;
 import com.birblett.registry.SupplementaryAttributes;

@@ -366,10 +366,18 @@ public class SupplementaryEvents {
      * Called when a block is successfully mined by a player. Applies enchantment effects.
      * @see EntityEvents#POSTMINE_EVENT
      */
-    public static final EntityEvents.BlockBreakEvent POSTMINE_ENCHANT_EVENTS = (world, state, pos, miner, item) -> {
+    public static final EntityEvents.BlockBreakEvent POSTMINE_ENCHANT_EVENTS = (world, state, pos, miner, item, isClient,
+                                                                                face) -> {
+        for (ItemStack itemStack : miner.getArmorItems()) {
+            for (Map.Entry<Enchantment, Integer> enchantmentEntry : EnchantmentHelper.get(itemStack).entrySet()) {
+                if (enchantmentEntry.getKey() instanceof EnchantmentBuilder enchantmentBuilder) {
+                    enchantmentBuilder.onBlockBreak(world, state, pos, miner, itemStack, isClient, face);
+                }
+            }
+        }
         for (Map.Entry<Enchantment, Integer> enchantmentEntry : EnchantmentHelper.get(item).entrySet()) {
             if (enchantmentEntry.getKey() instanceof EnchantmentBuilder enchantmentBuilder) {
-                enchantmentBuilder.onBlockBreak(world, state, pos, miner, item);
+                enchantmentBuilder.onBlockBreak(world, state, pos, miner, item, isClient, face);
             }
         }
     };

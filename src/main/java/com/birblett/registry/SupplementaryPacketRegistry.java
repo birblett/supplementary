@@ -1,14 +1,20 @@
 package com.birblett.registry;
 
 import com.birblett.Supplementary;
+import com.birblett.lib.accessor.ServerPlayerInteractionManagerInterface;
 import com.birblett.lib.api.SupplementaryPacket;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -16,12 +22,13 @@ import java.util.List;
 
 public class SupplementaryPacketRegistry {
 
-    public static final Identifier HITSCAN_PARTICLE_PACKET = new Identifier(Supplementary.MODID, "hitscan");
+    public static final Identifier HITSCAN_PARTICLE_S2C_PACKET = new Identifier(Supplementary.MODID, "hitscan");
+    public static final Identifier MINING_DIRECTION_C2S_PACKET = new Identifier(Supplementary.MODID, "mining_direction");
 
-    public static class HitscanPacket extends SupplementaryPacket<Vector3f> {
+    public static class HitscanS2CPacket extends SupplementaryPacket<Vector3f> {
 
-        public HitscanPacket(List<Vector3f> path) {
-            super(HITSCAN_PARTICLE_PACKET, path.size());
+        public HitscanS2CPacket(List<Vector3f> path) {
+            super(HITSCAN_PARTICLE_S2C_PACKET, path.size());
             path.forEach(this::write);
         }
 
@@ -58,7 +65,28 @@ public class SupplementaryPacketRegistry {
         }
     }
 
+    public static class MiningDirectionC2SPacket extends SupplementaryPacket<Direction> {
+
+        public MiningDirectionC2SPacket(Direction d) {
+            super(MINING_DIRECTION_C2S_PACKET, 0);
+            this.write(d);
+        }
+
+        @Override
+        public void write(Direction d) {
+            this.buf.writeInt(d.getId());
+        }
+
+        static void recv(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
+            buf.readShort();
+            Direction direction = Direction.byId(buf.readInt());
+            server.execute(() -> ((ServerPlayerInteractionManagerInterface) handler.getPlayer().interactionManager).setMiningDirection(
+                    direction));
+        }
+    }
+
     public static void registerClient() {
-        ClientPlayNetworking.registerGlobalReceiver(HITSCAN_PARTICLE_PACKET, HitscanPacket::recv);
+        ClientPlayNetworking.registerGlobalReceiver(HITSCAN_PARTICLE_S2C_PACKET, HitscanS2CPacket::recv);
+        ServerPlayNetworking.registerGlobalReceiver(MINING_DIRECTION_C2S_PACKET, MiningDirectionC2SPacket::recv);
     }
 }

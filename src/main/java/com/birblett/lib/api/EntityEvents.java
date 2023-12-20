@@ -14,6 +14,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -271,15 +272,16 @@ public class EntityEvents {
      */
     @FunctionalInterface
     public interface BlockBreakEvent {
-        void onBlockBreakEvent(World world, BlockState state, BlockPos pos, PlayerEntity miner, ItemStack item);
+        void onBlockBreakEvent(World world, BlockState state, BlockPos pos, PlayerEntity miner, ItemStack item, boolean isClient, Direction face);
     }
 
     /**
      * Standard functional pattern for BlockBreakEvent hooks.
      */
-    private static final Function<BlockBreakEvent[], BlockBreakEvent> ON_BLOCK_BREAK_EVENT = callbacks -> (world, state, pos, miner, item) -> {
+    private static final Function<BlockBreakEvent[], BlockBreakEvent> ON_BLOCK_BREAK_EVENT = callbacks ->
+            (world, state, pos, miner, item, isClient, face) -> {
         for (BlockBreakEvent callback : callbacks) {
-            callback.onBlockBreakEvent(world, state, pos, miner, item);
+            callback.onBlockBreakEvent(world, state, pos, miner, item, isClient, face);
         }
     };
 

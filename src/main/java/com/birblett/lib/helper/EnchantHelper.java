@@ -6,22 +6,30 @@ import com.birblett.lib.creational.CurseBuilder;
 import com.birblett.registry.SupplementaryAttributes;
 import com.birblett.registry.SupplementaryEnchantments;
 import com.google.common.util.concurrent.AtomicDouble;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageType;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.packet.s2c.play.BlockBreakingProgressS2CPacket;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
@@ -115,6 +123,105 @@ public class EnchantHelper {
             }
         });
         return (int) cursePoints.get();
+    }
+
+    /**
+     * Calculates effective block breaking speed for Excavation, with bias towards the slowest speed in the selection.
+     * @param f Current block break speed.
+     * @param face Selected face of current block.
+     * @param pos Position of current block.
+     * @param world Mining player world.
+     * @param player Mining player.
+     * @param blockBreakingProgress Unused.
+     * @return Weighted block breaking speed.
+     */
+    public static float calcExcavationBlockBreakSpeed(float f, Direction face, BlockPos pos, World world, PlayerEntity player, int blockBreakingProgress) {
+        if (world != null) {
+            int x = (face != Direction.EAST && face != Direction.WEST) ? 1 : 0;
+            int y = (face != Direction.UP && face != Direction.DOWN) ? 1 : 0;
+            int z = (face != Direction.NORTH && face != Direction.SOUTH) ? 1 : 0;
+            float min = 10000;
+            for (int i = -x; i < x + 1; i++) {
+                for (int j = -y; j < y + 1; j++) {
+                    for (int k = -z; k < z + 1; k++) {
+                        BlockPos p = pos.add(i, j, k);
+                        BlockState bs = world.getBlockState(p);
+                        if (player.getInventory().getBlockBreakingSpeed(bs) > 1) {
+                            min = Math.min(min, bs.calcBlockBreakingDelta(player, world, p));
+                        }
+                    }
+                }
+            }
+            f = (f + min * 15) / 16;
+        }
+        return f;
+    }
+
+    /**
+     * Block break function for Excavation and Drill enchants.
+     * @param miner Mining player.
+     * @param world Mining player's world.
+     * @param pos Position of block to be destroyed.
+     * @param bs Blockstate of block to be destroyed.
+     * @param baseState Optional blockstate for a block to compare hardness to.
+     * @return Whether a block was successfully removed or not
+     */
+    public static boolean mutedBlockBreak(PlayerEntity miner, World world, BlockPos pos, BlockState bs, BlockState baseState) {
+        boolean shouldDamage = false;
+        // use custom gameevent instead of default BLOCK_DESTROYED, so it doesn't blow out your eardrums
+        if (miner.isCreative()) {
+            boolean bl = world.removeBlock(pos, false);
+            if (bl) {
+                world.syncWorldEvent(miner, 2999, pos, Block.getRawIdFromState(bs));
+            }
+        }
+        else if (isValidForBatchMining(miner, world, pos, bs, baseState)) {
+            boolean bl = world.removeBlock(pos, false);
+            bs.onStateReplaced(world, pos, bs, false);
+            BlockEntity be = world.getBlockEntity(pos);
+            ItemStack stackCopy = miner.getMainHandStack().copy();
+            if (bl) {
+                world.syncWorldEvent(miner, 2999, pos, Block.getRawIdFromState(bs));
+                bs.getBlock().afterBreak(world, miner, pos, bs, be, stackCopy);
+            }
+            shouldDamage = true;
+        }
+        return shouldDamage;
+    }
+
+
+    /**
+     * Checks whether a block is a valid mining target for Excavation and Drill enchants.
+     * @param miner Mining player.
+     * @param world Mining player's world.
+     * @param pos Position of block to be destroyed.
+     * @param bs Blockstate of block to be destroyed.
+     * @param baseState Optional blockstate for a block to compare hardness to.
+     * @return Whether the block is a valid mining target
+     */
+    public static boolean isValidForBatchMining(PlayerEntity miner, World world, BlockPos pos, BlockState bs, BlockState baseState) {
+        return miner.getBlockBreakingSpeed(bs) > 1 && (baseState == null || bs.getHardness(world, pos) <= baseState.getHardness(
+                world, pos) * 2) || miner.isCreative();
+    }
+
+    /**
+     * Sends block break outline packets to players except a specified excluded player.
+     * @param exclude ID of the excluded player.
+     * @param entityId ID of the entity to which the block break progress "belongs". Should be a dummy value in most cases.
+     * @param pos Position to send in packets.
+     * @param progress Updated block break progress.
+     */
+    public static void setBlockBreakingInfoExclude(int exclude, int entityId, BlockPos pos, int progress, World world) {
+        if (world.getServer() != null) {
+            for (ServerPlayerEntity serverPlayerEntity : world.getServer().getPlayerManager().getPlayerList()) {
+                double f, e, d;
+                if (serverPlayerEntity == null || serverPlayerEntity.getWorld() != world || serverPlayerEntity.getId()
+                        == exclude || !((d = (double) pos.getX() - serverPlayerEntity.getX()) * d + (e = (double) pos.getY() -
+                        serverPlayerEntity.getY()) * e + (f = (double) pos.getZ() - serverPlayerEntity.getZ()) * f < 1024.0))
+                    continue;
+                serverPlayerEntity.networkHandler.sendPacket(new BlockBreakingProgressS2CPacket(entityId, pos, progress));
+            }
+        }
     }
 
     /**

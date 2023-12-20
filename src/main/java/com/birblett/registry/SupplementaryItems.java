@@ -40,6 +40,7 @@ import static com.birblett.Supplementary.MODID;
  * This class contains item and material declarations.
  */
 public class SupplementaryItems {
+    //TODO: refactor
     /*
     Trinkets
         CAPE - CapeItem, registered under id supplementary:cape

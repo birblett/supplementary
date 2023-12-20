@@ -1,6 +1,5 @@
-package com.birblett.mixin.modifiers.draw_speed;
+package com.birblett.mixin.attributes.draw_speed;
 
-import com.birblett.Supplementary;
 import com.birblett.registry.SupplementaryAttributes;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.entity.LivingEntity;

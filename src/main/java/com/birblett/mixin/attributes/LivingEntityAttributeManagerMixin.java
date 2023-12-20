@@ -1,4 +1,4 @@
-package com.birblett.mixin.modifiers;
+package com.birblett.mixin.attributes;
 
 import com.birblett.lib.creational.EnchantmentBuilder;
 import com.birblett.registry.SupplementaryEnchantments;
@@ -47,7 +47,8 @@ public class LivingEntityAttributeManagerMixin {
                     if (ench instanceof EnchantmentBuilder e && !e.getAttributes().isEmpty()) {
                         e.getAttributes().forEach((attr) -> {
                             EntityAttributeInstance instance = self.getAttributeInstance(attr.attribute());
-                            if (Arrays.stream(e.getSlotTypes()).anyMatch(s -> s == slot) && instance != null) {
+                            if (Arrays.stream(e.getSlotTypes()).anyMatch(s -> s == slot) && instance != null && self.getAttributeInstance(
+                                    attr.attribute()) != null) {
                                 EntityAttributeModifier mod = new EntityAttributeModifier(attr.baseName(), attr.scaling().apply(self, stack, lvl),
                                         attr.operation());
                                 instance.addTemporaryModifier(mod);

@@ -2,7 +2,7 @@ package com.birblett.lib.creational;
 
 import com.birblett.Supplementary;
 import com.birblett.lib.components.BaseComponent;
-import com.birblett.mixin.modifiers.LivingEntityAttributeManagerMixin;
+import com.birblett.mixin.attributes.LivingEntityAttributeManagerMixin;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.Enchantment;
@@ -22,6 +22,7 @@ import net.minecraft.registry.Registry;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.function.TriFunction;
 import org.apache.commons.lang3.mutable.MutableFloat;
@@ -416,7 +417,8 @@ public class EnchantmentBuilder extends Enchantment {
      * @param pos Position of block broken
      * @param miner Provided player
      * @param item Tool used
+     * @param isClient Whether player is in creative or not
      * @see com.birblett.registry.SupplementaryEvents#POSTMINE_ENCHANT_EVENTS
      */
-    public void onBlockBreak(World world, BlockState state, BlockPos pos, PlayerEntity miner, ItemStack item) {}
+    public void onBlockBreak(World world, BlockState state, BlockPos pos, PlayerEntity miner, ItemStack item, boolean isClient, Direction face) {}
 }
