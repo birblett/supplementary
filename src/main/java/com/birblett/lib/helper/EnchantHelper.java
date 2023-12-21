@@ -400,6 +400,12 @@ public class EnchantHelper {
         return Math.max(mult, 0.0f);
     }
 
+    /**
+     * Get cumulative Enhanced level on all pieces of gear with an enchantment.
+     * @param enchantment Enchantment to match with.
+     * @param entity Entity to check equipment of.
+     * @return Cumulative Enhanced level.
+     */
     public static int getEnhancedEquipLevel(Enchantment enchantment, LivingEntity entity) {
         Collection<ItemStack> iterable = enchantment.getEquipment(entity).values();
         int i = 0;

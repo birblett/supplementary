@@ -27,7 +27,9 @@ public class AssaultDashShieldItemMixin {
         ItemStack stack;
         int level;
         if ((level = EnchantmentHelper.getLevel(SupplementaryEnchantments.ASSAULT_DASH, (stack = user.getStackInHand(hand)))) > 0) {
-            user.getItemCooldownManager().set(stack.getItem(), 40 + level * 5);
+            int cooldown = EnchantmentHelper.getLevel(SupplementaryEnchantments.ENHANCED, stack) > 0 ? 30 + level * 4 :
+                    40 + level * 5;
+            user.getItemCooldownManager().set(stack.getItem(), cooldown);
             if (user instanceof ServerPlayerEntity && stack.getMaxDamage() - stack.getDamage() > 1) {
                 EquipmentSlot slot = user.getMainHandStack() == stack ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND;
                 stack.damage(1, user, e -> e.sendEquipmentBreakStatus(slot));

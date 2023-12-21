@@ -1,5 +1,6 @@
 package com.birblett.mixin.enchantments.strafe;
 
+import com.birblett.lib.helper.EnchantHelper;
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -40,7 +41,8 @@ public class StrafeClientPlayerMixin {
                     case 3 -> {
                         if (input == this.supplementary$StrafeDir && self.ticksLeftToDoubleTapSprint > 0) {
                             double rotation = Math.toRadians(self.getRotationClient().y);
-                            double strafeStrength = 2;
+                            double strafeStrength = EnchantHelper.getEnhancedEquipLevel(SupplementaryEnchantments.STRAFE,
+                                    self) > 0 ? 2.5 : 2;
                             double dy = 0;
                             if (self.isSubmergedInWater()) {
                                 strafeStrength = 1;

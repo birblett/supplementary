@@ -1,5 +1,6 @@
 package com.birblett.mixin.enchantments.vigor;
 
+import com.birblett.lib.helper.EnchantHelper;
 import com.birblett.registry.SupplementaryComponents;
 import com.birblett.registry.SupplementaryEnchantments;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -28,8 +29,12 @@ public class VigorLivingEntityMixin {
                     component.setValue(true);
                     self.setHealth(1.0f);
                     self.clearStatusEffects();
+                    boolean enhanced = EnchantHelper.getEnhancedEquipLevel(SupplementaryEnchantments.STRAFE, self) > 0;
                     self.addStatusEffect(new StatusEffectInstance(StatusEffects.REGENERATION, 60, 2));
-                    self.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE, 60, 2));
+                    self.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE, 60, enhanced ? 4 : 2));
+                    if (enhanced) {
+                        self.addStatusEffect(new StatusEffectInstance(StatusEffects.SPEED, 60, 2));
+                    }
                 }
             });
         }

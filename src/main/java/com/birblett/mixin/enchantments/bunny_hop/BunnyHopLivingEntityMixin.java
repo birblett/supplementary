@@ -22,7 +22,7 @@ public class BunnyHopLivingEntityMixin {
     private void boostJumpSpeed(Args args) {
         LivingEntity self = (LivingEntity) (Object) this;
         if (EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.BUNNYHOP, self) > 0) {
-            double boost = EnchantHelper.getEnhancedEquipLevel(SupplementaryEnchantments.ALL_TERRAIN, self) > 0 ? 3.1 : 2.8;
+            double boost = EnchantHelper.getEnhancedEquipLevel(SupplementaryEnchantments.BUNNYHOP, self) > 0 ? 3.1 : 2.8;
             args.set(0, (double) args.get(0) * boost);
             args.set(2, (double) args.get(2) * boost);
         }
@@ -36,14 +36,4 @@ public class BunnyHopLivingEntityMixin {
         }
     }
 
-    /*
-    @Inject(method = "travel", at = @At("TAIL"))
-    private void decreaseMovementSpeed(Vec3d movementInput, CallbackInfo ci) {
-        LivingEntity self = (LivingEntity) (Object) this;
-        if (EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.BUNNYHOP, self) > 0 && self.isOnGround()) {
-            double movementPenalty = SupplementaryEnchantmentHelper.getEnhancedEquipLevel(SupplementaryEnchantments.ALL_TERRAIN, self) > 0 ? 0.9 : 0.85;
-            self.setVelocity(self.getVelocity().multiply(movementPenalty, 1, movementPenalty));
-        }
-    }
-     */
 }

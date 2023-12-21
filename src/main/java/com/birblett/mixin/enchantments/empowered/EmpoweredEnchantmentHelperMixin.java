@@ -1,6 +1,7 @@
 package com.birblett.mixin.enchantments.empowered;
 
 import com.birblett.registry.SupplementaryEnchantments;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.item.ItemStack;
@@ -23,10 +24,6 @@ import java.util.function.Consumer;
 @Mixin(EnchantmentHelper.class)
 public abstract class EmpoweredEnchantmentHelperMixin {
 
-    @Unique private static NbtCompound supplementary$NbtCompound;
-    @Unique private static EnchantmentHelper.Consumer supplementary$Consumer;
-    @Unique private static boolean supplementary$HasEmpowered;
-
     @Inject(method = "getLevel", at = @At("RETURN"), cancellable = true)
     private static void modifyLevel(Enchantment enchantment, ItemStack itemStack, CallbackInfoReturnable<Integer> cir) {
         if (enchantment != SupplementaryEnchantments.EMPOWERED && cir.getReturnValue() > 0 &&
@@ -35,22 +32,15 @@ public abstract class EmpoweredEnchantmentHelperMixin {
         }
     }
 
-    @Inject(method = "forEachEnchantment(Lnet/minecraft/enchantment/EnchantmentHelper$Consumer;Lnet/minecraft/item/ItemStack;)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/registry/Registry;getOrEmpty(Lnet/minecraft/util/Identifier;)Ljava/util/Optional;"),
-            locals = LocalCapture.CAPTURE_FAILSOFT)
-    private static void getConsumer(EnchantmentHelper.Consumer consumer, ItemStack stack, CallbackInfo ci, NbtList nbtList, int i, NbtCompound nbtCompound) {
-        supplementary$Consumer = consumer;
-        supplementary$NbtCompound = nbtCompound;
-        supplementary$HasEmpowered = EnchantmentHelper.getLevel(SupplementaryEnchantments.EMPOWERED, stack) > 0;
-    }
-
+    @SuppressWarnings("InvalidInjectorMethodSignature")
     @ModifyArg(method = "forEachEnchantment(Lnet/minecraft/enchantment/EnchantmentHelper$Consumer;Lnet/minecraft/item/ItemStack;)V",
             at = @At(value = "INVOKE", target = "Ljava/util/Optional;ifPresent(Ljava/util/function/Consumer;)V"))
-    private static Consumer<Enchantment> addEmpoweredBoost(Consumer<Enchantment> consumer) {
-        if (supplementary$HasEmpowered) {
-            return enchantment -> supplementary$Consumer.accept(enchantment, EnchantmentHelper.getLevelFromNbt(supplementary$NbtCompound) +
-                    (enchantment.getMaxLevel() > 1 ? 1 : 0));
+    private static Consumer<Enchantment> addEmpoweredBoost(Consumer<Enchantment> consumer, @Local ItemStack stack, @Local NbtCompound compound, @Local EnchantmentHelper.Consumer enchantmentConsumer) {
+        if (EnchantmentHelper.getLevel(SupplementaryEnchantments.EMPOWERED, stack) > 0) {
+            return enchantment -> enchantmentConsumer.accept(enchantment, EnchantmentHelper.getLevelFromNbt(compound)
+                    + (enchantment.getMaxLevel() > 1 ? 1 : 0));
         }
         return consumer;
     }
+
 }

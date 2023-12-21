@@ -37,7 +37,9 @@ public class AirDashClientPlayerMixin {
                         }
                         case 3 -> {
                             if (self.input.hasForwardMovement() && self.ticksLeftToDoubleTapSprint > 0) {
-                                self.setVelocity(self.getRotationVector().multiply(1.05));
+                                double vel = EnchantHelper.getEnhancedEquipLevel(SupplementaryEnchantments.AIR_DASH, self)
+                                        > 0 ? 1.2 : 1.05;
+                                self.setVelocity(self.getRotationVector().multiply(vel));
                                 self.ticksLeftToDoubleTapSprint = 0;
                                 this.supplementary$AirDashes--;
                                 this.supplementary$AirDashState = 0;

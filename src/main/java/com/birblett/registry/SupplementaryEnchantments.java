@@ -335,7 +335,7 @@ public class SupplementaryEnchantments {
         @Override
         public void onBlockBreak(World world, BlockState state, BlockPos pos, PlayerEntity miner, ItemStack item, boolean isClient, Direction face) {
             if (isClient) {
-                int count = EnchantmentHelper.getLevel(GREED, item);
+                int count = EnchantmentHelper.getLevel(GREED, item) + EnchantmentHelper.getLevel(ENHANCED, item);
                 for (BlockPos p : BlockPos.iterateOutwards(pos, 2, 2, 2)) {
                     if (Registries.BLOCK.getEntry(world.getBlockState(p).getBlock()).isIn(ConventionalBlockTags.ORES)) {
                         StaticFadingBlock.addStaticFadingBlock(new Color(0, 0, 0, 0), new Color(250,
@@ -373,11 +373,13 @@ public class SupplementaryEnchantments {
                 DRILL.setPower(27, 30)
                         .setMaxLevel(1)
                         .addAttribute("drill_mining_speed", SupplementaryAttributes.EFFECTIVE_MINING_SPEED,
-                                Operation.MULTIPLY_TOTAL, (entity, stack, lvl) -> -0.15),
+                                Operation.MULTIPLY_TOTAL, (entity, stack, lvl) -> EnchantmentHelper.getLevel(ENHANCED, stack)
+                                        > 0 ? -0.15 : -0.2),
                 EXCAVATION.setPower(27, 30)
                         .setMaxLevel(1)
                         .addAttribute("excavation_mining_speed", SupplementaryAttributes.EFFECTIVE_MINING_SPEED,
-                                Operation.MULTIPLY_TOTAL, (entity, stack, lvl) -> -0.85),
+                                Operation.MULTIPLY_TOTAL, (entity, stack, lvl) -> EnchantmentHelper.getLevel(ENHANCED, stack)
+                                        > 0 ? -0.80 : -0.85),
                 GREED.setPower(22, 4, 28, 4)
                         .setMaxLevel(3),
                 MOMENTUM.setPower(18, 50)
@@ -386,7 +388,8 @@ public class SupplementaryEnchantments {
                                 Operation.MULTIPLY_TOTAL, (entity, stack, lvl) -> {
                                     MutableDouble bonus = new MutableDouble(0);
                                     SupplementaryComponents.MOMENTUM.maybeGet(entity).ifPresent((component) -> bonus.add(
-                                            ((int) component.getCustom()) / 100.0d));
+                                            ((int) component.getCustom()) /  EnchantmentHelper.getLevel(ENHANCED, stack)
+                                                    > 0 ? 80.0 : 100.0d));
                                     return Math.min(bonus.getValue(), 1.5);
                                 }),
                 PICKUP.setPower(10, 10, 20, 20)
@@ -486,7 +489,8 @@ public class SupplementaryEnchantments {
                 MOLE.setPower(18, 6, 28, 7)
                         .setMaxLevel(3)
                         .addAttribute("mole_move_speed", SupplementaryAttributes.NO_FOV_MOVE_SPEED, Operation.MULTIPLY_TOTAL,
-                                (entity, stack, lvl) -> entity.isCrawling() ? lvl * 0.7 : 0),
+                                (entity, stack, lvl) -> entity.isCrawling() ? lvl * (EnchantmentHelper.getLevel(ENHANCED,
+                                        stack) > 0 ? 0.7 : 0.6) : 0),
                 SLIMED.makeIncompatible(MOBILITY_INCOMPATIBILITY_GROUP)
                         .setPower(20, 50)
                         .setMaxLevel(1),

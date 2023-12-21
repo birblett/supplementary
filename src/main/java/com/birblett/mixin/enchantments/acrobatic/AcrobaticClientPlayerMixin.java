@@ -38,8 +38,9 @@ public class AcrobaticClientPlayerMixin {
     @Inject(method = "tickMovement", at = @At("HEAD"))
     private void airJump(CallbackInfo ci) {
         ClientPlayerEntity self = (ClientPlayerEntity) (Object) this;
-        int maxAirJumps = EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.ACROBATIC, self) > 0 ?
-                (EnchantHelper.getEnhancedEquipLevel(SupplementaryEnchantments.ACROBATIC, self) > 0 ? 6 : 4) : 0;
+        int maxAirJumps = EnchantmentHelper.getEquipmentLevel(SupplementaryEnchantments.ACROBATIC, self) > 0 ? (EnchantHelper
+                .getEnhancedEquipLevel(SupplementaryEnchantments.ACROBATIC, self) > 0 ? 6 : 4) + EnchantHelper.getEnhancedEquipLevel(
+                        SupplementaryEnchantments.ACROBATIC, self) > 0 ? 1 : 0 : 0;
         if (TrinketsApi.getTrinketComponent(self).isPresent()) {
             for (Pair<SlotReference, ItemStack> p : TrinketsApi.getTrinketComponent(self).get().getEquipped(SupplementaryItems.CAPE)) {
                 if (CapeItem.getBaseColor(p.getRight()) == DyeColor.PINK) {
